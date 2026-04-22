@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Perspective · The Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   THE COUNTER — PERSPECTIVE (v2)
+   Editorial essay in the Counter's analog-maximalist dialect.
+   Content flow preserved from v1; visual language re-clothed
+   to match the-counter-test.html (paper, ink, marker, sage).
+   ============================================================ */
+
+:root {
+  --paper:      #F6F0E1;
+  --paper-2:    #EEE4D1;
+  --paper-card: #FAF6EC;
+  --ink:        #2A2E33;
+  --ink-soft:   #454851;
+  --ink-deep:   #1C2024;
+  --fluency:    #73956F;
+  --fluency-2:  #95D7AE;
+  --fluency-3:  #7BAE7F;
+  --forest:     #1F3933;
+  --marker:     #9D5A5A;
+  --marker-2:   #B86B6B;
+  --highlight:  #95D7AE;
+  --blush:      #FCEFF9;
+  --blush-2:    #F4DDE8;
+  --peach:      #D4A5A0;
+  --muted:      #8A8F94;
+  --line:       rgba(42,46,51,0.16);
+  --tape:       rgba(252,239,249,0.85);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--paper);
+  background-image:
+    linear-gradient(to right,  rgba(42,46,51,0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at center, rgba(246,240,225,0) 0%, rgba(238,228,209,0.5) 85%);
+  background-size: 36px 36px, 36px 36px, 100% 100%;
+  color: var(--ink);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 17px;
+  line-height: 1.62;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Paper noise overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.55;
+  mix-blend-mode: multiply;
+  z-index: 1;
+}
+
+header, main, footer, .ticker, section, .progress-bar { position: relative; z-index: 2; }
+
+/* Reading progress bar */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--marker);
+  width: 0%;
+  z-index: 200;
+  transition: width 0.08s ease;
+  box-shadow: 0 0 8px rgba(157,90,90,0.4);
+}
+
+/* ============================================================
+   TICKER
+   ============================================================ */
+.ticker {
+  background: var(--ink);
+  color: var(--paper);
+  border-bottom: 2px solid var(--ink);
+  overflow: hidden;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  padding: 10px 0;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.ticker-track {
+  display: inline-block;
+  animation: ticker 54s linear infinite;
+  padding-left: 100%;
+}
+.ticker-track span { margin: 0 28px; }
+.ticker-track .dot { color: var(--highlight); margin: 0 14px; }
+.ticker-track em { color: var(--fluency-2); font-style: normal; text-transform: none; font-family: 'Instrument Serif', serif; font-style: italic; font-size: 15px; letter-spacing: 0; }
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+/* ============================================================
+   NAV
+   ============================================================ */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(246,240,225,0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+.logo {
+  display: flex; align-items: baseline; gap: 10px;
+  font-family: 'Instrument Serif', serif;
+  font-size: 26px;
+  font-style: italic;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--ink);
+}
+.logo .tick {
+  display: inline-block;
+  width: 22px; height: 22px;
+  background: var(--marker);
+  border-radius: 50%;
+  transform: translateY(3px);
+  position: relative;
+}
+.logo .tick::after {
+  content: '+';
+  position: absolute; inset: 0;
+  color: var(--paper);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+.logo small {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: var(--muted);
+  font-style: normal;
+  text-transform: uppercase;
+}
+.nav-meta {
+  display: flex; gap: 22px; align-items: center;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nav-meta .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--fluency-2); display: inline-block; }
+.nav-back {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color .2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.nav-back:hover { color: var(--marker); }
+
+@media (max-width: 800px) {
+  .nav-meta { display: none; }
+}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+.reader { max-width: 720px; margin: 0 auto; padding: 0 28px; }
+.wide   { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
+
+section { position: relative; padding: 120px 0; }
+
+@media (max-width: 640px) {
+  section { padding: 80px 0; }
+}
+
+/* section label matches Counter site */
+.section-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 28px; height: 1px;
+  background: var(--muted);
+}
+.section-label .num { color: var(--marker); font-weight: 700; }
+
+/* Torn-paper divider — same clip-path as Counter site */
+.tear {
+  height: 18px;
+  background: repeating-linear-gradient(90deg,
+    var(--paper) 0 6px,
+    var(--paper-2) 6px 12px);
+  clip-path: polygon(
+    0 0, 2% 40%, 4% 10%, 7% 70%, 10% 20%, 14% 80%, 17% 30%, 21% 60%, 25% 10%,
+    29% 75%, 34% 25%, 38% 90%, 42% 15%, 46% 70%, 50% 20%, 54% 85%, 58% 30%,
+    62% 70%, 66% 10%, 70% 65%, 74% 20%, 78% 80%, 82% 15%, 86% 60%, 90% 25%,
+    94% 85%, 98% 30%, 100% 50%, 100% 100%, 0 100%);
+  opacity: .42;
+}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  padding: 100px 0 80px;
+  position: relative;
+  overflow: hidden;
+  min-height: 88vh;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.hero-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 32px;
+  position: relative;
+}
+.hero-meta {
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 36px;
+}
+.hero-meta .hm-stamp {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 6px 12px;
+  letter-spacing: 0.22em;
+}
+.hero-meta .hm-stamp .blink {
+  display: inline-block; width: 7px; height: 7px;
+  background: var(--fluency-2);
+  border-radius: 50%;
+  margin-right: 8px;
+  animation: blink 1.6s ease-in-out infinite;
+  vertical-align: middle;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+.hero-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(44px, 7.2vw, 104px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  max-width: 19ch;
+  margin-bottom: 34px;
+}
+.hero-title em { font-style: italic; color: var(--marker); }
+.hero-title .strike {
+  position: relative;
+  white-space: nowrap;
+}
+.hero-title .strike::after {
+  content: '';
+  position: absolute;
+  left: -3%; right: -3%; top: 56%;
+  height: 10px;
+  background: var(--marker);
+  transform: rotate(-2deg);
+  opacity: 0.92;
+  border-radius: 2px;
+}
+.hero-title .hi {
+  background: linear-gradient(180deg, transparent 0 58%, var(--highlight) 58% 93%, transparent 93%);
+  padding: 0 6px;
+}
+.hero-title .no-orphan { white-space: nowrap; }
+
+.hero-sub {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(17px, 1.6vw, 21px);
+  line-height: 1.55;
+  color: var(--ink-soft);
+  max-width: 58ch;
+  margin-bottom: 56px;
+}
+.hero-sub em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  color: var(--ink);
+}
+
+.hero-byline {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+  max-width: 620px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.hero-byline b { color: var(--ink); font-weight: 700; }
+.hero-byline .sep { color: var(--marker); font-size: 14px; }
+
+/* Hero analog flair — peek card + scribble note */
+.hero-peek {
+  position: absolute;
+  top: 80px;
+  right: -140px;
+  width: 360px;
+  height: 226px;
+  background: #FAF6EC;
+  transform: rotate(-4deg);
+  box-shadow:
+    0 22px 36px -24px rgba(42,46,51,0.35),
+    0 3px 0 rgba(42,46,51,0.05);
+  border: 1px solid rgba(42,46,51,0.08);
+  pointer-events: none;
+  z-index: 3;
+  padding: 40px 24px 20px;
+  background-image:
+    linear-gradient(180deg, #9D5A5A 0, #9D5A5A 2px, transparent 2px, transparent 32px),
+    repeating-linear-gradient(180deg, transparent 0, transparent 27px, rgba(42,80,120,0.22) 27px, rgba(42,80,120,0.22) 28px);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 34px, 100% 100%;
+  background-position: 0 0, 0 36px;
+}
+.hero-peek .hp-tape {
+  position: absolute;
+  top: -12px; left: 36px;
+  width: 80px; height: 22px;
+  background: var(--tape);
+  transform: rotate(-8deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  opacity: 0.88;
+}
+.hero-peek .hp-punch {
+  position: absolute;
+  top: 12px; left: 12px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--paper);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.18);
+  border: 1px solid rgba(42,46,51,0.12);
+}
+.hero-peek .hp-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 6px;
+  margin-bottom: 8px;
+  display: block;
+}
+.hero-peek .hp-body {
+  font-family: 'Caveat', cursive;
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 28px;
+  max-width: 180px;
+}
+.hero-peek .hp-body del {
+  text-decoration-color: var(--marker);
+  text-decoration-thickness: 2px;
+  opacity: 0.65;
+}
+.hero-peek .hp-body em {
+  font-style: italic;
+  color: var(--marker);
+}
+
+.hero-annot {
+  position: absolute;
+  font-family: 'Caveat', cursive;
+  color: var(--marker);
+  font-size: 26px;
+  line-height: 1.1;
+  transform: rotate(-3deg);
+  pointer-events: none;
+  z-index: 4;
+  max-width: 180px;
+}
+.hero-annot-1 { top: 54%; left: -8px; }
+.hero-annot-1 svg { display: block; margin-top: 4px; }
+
+@media (max-width: 1180px) {
+  .hero-peek { right: -210px; top: 60px; }
+  .hero-annot-1 { display: none; }
+}
+@media (max-width: 960px) {
+  .hero-peek { display: none; }
+}
+
+/* ============================================================
+   PROSE / SHARED EDITORIAL
+   ============================================================ */
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(38px, 5.4vw, 72px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 42px;
+  max-width: 20ch;
+}
+.section-title em { font-style: italic; color: var(--marker); }
+.section-title .hi {
+  background: linear-gradient(180deg, transparent 0 58%, var(--highlight) 58% 93%, transparent 93%);
+  padding: 0 5px;
+}
+.section-title .strike {
+  position: relative;
+  white-space: nowrap;
+}
+.section-title .strike::after {
+  content: '';
+  position: absolute;
+  left: -3%; right: -3%; top: 56%;
+  height: 8px;
+  background: var(--marker);
+  transform: rotate(-1.6deg);
+  opacity: 0.9;
+  border-radius: 2px;
+}
+
+.prose {
+  font-size: clamp(17px, 1.25vw, 19px);
+  line-height: 1.72;
+  color: var(--ink);
+  margin-bottom: 26px;
+  max-width: 64ch;
+}
+.prose em {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink);
+}
+.prose strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+.prose .hi {
+  background: linear-gradient(180deg, transparent 0 58%, var(--highlight) 58% 93%, transparent 93%);
+  padding: 0 3px;
+}
+
+.pull-quote {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.24;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  margin: 64px 0;
+  padding-left: 32px;
+  border-left: 3px solid var(--marker);
+  max-width: 24ch;
+}
+.pull-quote.wide-q { max-width: 36ch; }
+.pull-quote.sage { border-left-color: var(--fluency); }
+.pull-quote.celadon { border-left-color: var(--fluency-2); }
+
+/* ============================================================
+   §01 — THE GAP
+   ============================================================ */
+.gap-visual {
+  max-width: 1100px;
+  margin: 72px auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 40px;
+  position: relative;
+}
+@media (max-width: 820px) {
+  .gap-visual { grid-template-columns: 1fr; gap: 24px; }
+  .gap-visual .gap-divider { display: none; }
+}
+.gap-side {
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  padding: 28px 28px 32px;
+  position: relative;
+  box-shadow: 8px 8px 0 rgba(42,46,51,0.1);
+}
+.gap-side.right { box-shadow: 8px 8px 0 rgba(42,46,51,0.06); }
+.gap-side .kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+.gap-side .big {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: clamp(30px, 4.4vw, 54px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.gap-side.left .big { color: var(--marker); }
+.gap-side.right .big { color: var(--ink-soft); opacity: 0.75; }
+.gap-side .caption {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-soft);
+  line-height: 1.45;
+  max-width: 24ch;
+}
+.gap-side .corner-stamp {
+  position: absolute;
+  top: -12px; right: -12px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 4px 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  transform: rotate(4deg);
+}
+.gap-side.right .corner-stamp { background: var(--muted); transform: rotate(-3deg); }
+
+.gap-divider {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px;
+  font-family: 'Archivo Black', sans-serif;
+  color: var(--marker);
+  position: relative;
+}
+.gap-divider .op {
+  font-size: 46px;
+  line-height: 1;
+  background: var(--paper);
+  border: 2px solid var(--marker);
+  color: var(--marker);
+  width: 72px; height: 72px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  transform: rotate(-4deg);
+}
+.gap-divider .hand {
+  font-family: 'Caveat', cursive;
+  color: var(--marker);
+  font-size: 22px;
+  transform: rotate(-5deg);
+  margin-top: 2px;
+}
+
+/* ============================================================
+   §02 — LITERACY vs FLUENCY
+   ============================================================ */
+.lit-flu {
+  background: var(--paper-2);
+  padding: 140px 0;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.lit-flu .lf-header {
+  max-width: 1100px;
+  margin: 0 auto 40px;
+  padding: 0 32px;
+  text-align: center;
+}
+.lit-flu .lf-header .section-title {
+  max-width: none;
+  margin-left: auto; margin-right: auto;
+}
+
+.compare {
+  max-width: 1100px;
+  margin: 40px auto 0;
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  position: relative;
+  box-shadow: 14px 14px 0 rgba(42,46,51,0.12);
+  margin-left: 32px; margin-right: 32px;
+}
+@media (min-width: 1164px) {
+  .compare { margin-left: auto; margin-right: auto; }
+}
+.compare > div {
+  padding: 36px 36px 40px;
+  position: relative;
+}
+.compare .col-literacy {
+  border-right: 2px dashed var(--ink);
+}
+.compare .col-fluency {
+  background: rgba(149,215,174,0.14);
+}
+.compare h3 {
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.compare h4 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(36px, 4.2vw, 54px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  margin-bottom: 18px;
+}
+.compare .col-literacy h4 { color: var(--ink); }
+.compare .col-fluency h4 { color: var(--fluency); }
+.compare .col-fluency h3 { color: var(--fluency); }
+.compare .def {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--muted);
+  margin-bottom: 18px;
+  text-transform: lowercase;
+}
+.compare .blurb {
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: var(--ink);
+}
+.compare .blurb em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--fluency); }
+.compare .blurb strong { color: var(--ink); font-weight: 600; }
+.compare .lf-margin {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 18px;
+  font-family: 'Caveat', cursive;
+  font-size: 20px;
+  line-height: 1.15;
+  max-width: 210px;
+  pointer-events: none;
+  text-transform: none;
+  letter-spacing: normal;
+  font-style: normal;
+}
+.compare .lf-margin.m-lit {
+  color: var(--marker);
+  transform: translateY(-8px) rotate(-2deg);
+}
+.compare .lf-margin.m-flu {
+  color: var(--fluency);
+  transform: translateY(-8px) rotate(2deg);
+}
+
+.lit-flu-caption {
+  max-width: 720px;
+  margin: 72px auto 0;
+  padding: 0 32px;
+  text-align: center;
+}
+.lit-flu-caption p {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(24px, 3vw, 34px);
+  line-height: 1.32;
+  color: var(--ink);
+}
+.lit-flu-caption p .hi {
+  background: linear-gradient(180deg, transparent 0 58%, var(--highlight) 58% 93%, transparent 93%);
+  padding: 0 5px;
+}
+
+@media (max-width: 820px) {
+  .compare { grid-template-columns: 1fr; }
+  .compare .col-literacy { border-right: none; border-bottom: 2px dashed var(--ink); }
+  .compare-stamp { display: none; }
+  .compare .lf-margin { position: static; text-align: left; margin-top: 18px; max-width: none; }
+}
+
+/* ============================================================
+   §03 — HUMAN REALITY
+   ============================================================ */
+.human-reality {
+  padding: 140px 0;
+}
+
+.huge-q {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(32px, 5.2vw, 64px);
+  line-height: 1.12;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+  max-width: 24ch;
+  margin: 72px 0;
+  padding: 28px 0 28px 40px;
+  border-left: 4px solid var(--fluency);
+  position: relative;
+}
+.huge-q em { color: var(--marker); }
+.huge-q .attrib {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin-top: 22px;
+}
+.huge-q .qmark {
+  position: absolute;
+  top: -6px; left: -6px;
+  font-family: 'Instrument Serif', serif;
+  font-size: 120px;
+  line-height: 1;
+  color: var(--fluency-2);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Two "index cards" side by side for the leader/employee split */
+.leader-split {
+  max-width: 1100px;
+  margin: 100px auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+@media (max-width: 820px) {
+  .leader-split { grid-template-columns: 1fr; }
+}
+.split-card {
+  background: var(--paper-card);
+  border: 1px solid rgba(42,46,51,0.08);
+  box-shadow:
+    0 20px 34px -22px rgba(42,46,51,0.35),
+    0 2px 0 rgba(42,46,51,0.06);
+  padding: 36px 32px 44px;
+  position: relative;
+  background-image:
+    linear-gradient(180deg, var(--marker) 0, var(--marker) 2px, transparent 2px, transparent 36px),
+    repeating-linear-gradient(180deg, transparent 0, transparent 31px, rgba(42,80,120,0.18) 31px, rgba(42,80,120,0.18) 32px);
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 40px, 100% 100%;
+  background-position: 0 0, 0 50px;
+  padding-top: 64px;
+}
+.split-card.card-2 { transform: rotate(-0.6deg); }
+.split-card.card-1 { transform: rotate(0.6deg); }
+.split-card::before {
+  content: '';
+  position: absolute;
+  top: -14px; left: 36px;
+  width: 96px; height: 22px;
+  background: var(--tape);
+  transform: rotate(-5deg);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  z-index: 2;
+}
+.split-card .split-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--marker);
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+.split-card .split-text {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(22px, 2.4vw, 28px);
+  line-height: 1.32;
+  color: var(--ink);
+}
+.split-card .split-text::before { content: '"'; color: var(--fluency); padding-right: 2px; }
+.split-card .split-text::after { content: '"'; color: var(--fluency); padding-left: 2px; }
+
+/* ============================================================
+   §04 — EFFICIENCY TRAP
+   ============================================================ */
+.efficiency {
+  background: var(--paper-2);
+  padding: 140px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  position: relative;
+}
+
+.eff-lede {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(26px, 3.3vw, 38px);
+  line-height: 1.32;
+  color: var(--fluency);
+  text-align: center;
+  max-width: 22ch;
+  margin: 0 auto 40px;
+}
+
+.path-diagram {
+  max-width: 1100px;
+  margin: 72px auto 40px;
+  padding: 36px 24px 24px;
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  box-shadow: 10px 10px 0 rgba(42,46,51,0.1);
+  position: relative;
+}
+.path-diagram .pd-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 16px;
+  border-bottom: 1px dashed var(--line);
+  padding-bottom: 14px;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.path-diagram .pd-header .pd-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  flex: 0 0 auto;
+}
+.path-diagram .pd-header .pd-fig {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.3;
+  color: var(--ink);
+  letter-spacing: 0;
+  max-width: 62%;
+  text-align: right;
+  flex: 1 1 auto;
+}
+.path-diagram .pd-header .pd-fig em {
+  font-style: italic;
+  color: var(--fluency);
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .path-diagram .pd-header .pd-fig { max-width: 100%; text-align: left; font-size: 17px; }
+}
+.path-diagram svg {
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+  display: block;
+}
+/* Chart legend — 4-item grid keyed to the marks in the SVG */
+.pd-legend {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--line);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px 28px;
+}
+@media (max-width: 720px) {
+  .pd-legend { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 460px) {
+  .pd-legend { grid-template-columns: 1fr; }
+}
+.pd-legend-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+.pd-legend-item strong {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin-bottom: 3px;
+  font-weight: 700;
+}
+.pd-legend-mark {
+  flex: 0 0 22px;
+  height: 16px;
+  margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+}
+.pd-legend-mark svg { display: block; }
+
+.path-labels {
+  max-width: 1100px;
+  margin: 32px auto 0;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+@media (max-width: 720px) {
+  .path-labels { grid-template-columns: 1fr; }
+}
+.path-label .plt-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.path-label .plt-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 28px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  font-style: italic;
+  font-weight: 400;
+}
+.path-label.efficiency-t .plt-title { color: var(--muted); font-style: normal; font-family: 'Archivo Black', sans-serif; font-size: 22px; letter-spacing: 0.05em; }
+.path-label.transformation-t .plt-title { color: var(--fluency); }
+.path-label p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+/* ============================================================
+   §05 — CAPABILITIES
+   ============================================================ */
+.capabilities-section {
+  padding: 140px 0;
+}
+.cap-grid {
+  max-width: 1100px;
+  margin: 72px auto 0;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+}
+@media (max-width: 720px) {
+  .cap-grid { grid-template-columns: 1fr; gap: 24px; }
+}
+.cap {
+  background: var(--paper-card);
+  border: 2px solid var(--ink);
+  padding: 36px 32px 32px;
+  position: relative;
+  box-shadow: 8px 8px 0 rgba(42,46,51,0.08);
+  transition: transform .18s, box-shadow .18s;
+}
+.cap:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 11px 11px 0 rgba(42,46,51,0.12);
+}
+.cap-num {
+  position: absolute;
+  top: -18px; left: 24px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'Archivo Black', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.15em;
+  padding: 6px 12px;
+}
+.cap:nth-child(1) .cap-num { background: var(--marker); }
+.cap:nth-child(2) .cap-num { background: var(--fluency); }
+.cap:nth-child(3) .cap-num { background: var(--fluency-3); }
+.cap:nth-child(4) .cap-num { background: var(--ink); }
+
+.cap-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 26px;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin-top: 12px;
+  margin-bottom: 14px;
+}
+.cap-title em {
+  font-style: italic;
+  color: var(--marker);
+}
+.cap-desc {
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: var(--ink-soft);
+}
+.cap-desc em { font-family: 'Instrument Serif', serif; font-style: italic; color: var(--ink); }
+
+.cap-caption {
+  max-width: 720px;
+  margin: 72px auto 0;
+  padding: 0 32px;
+  text-align: center;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.36;
+  color: var(--ink);
+}
+
+.thats-fluency {
+  max-width: 720px;
+  margin: 48px auto 0;
+  padding: 0 32px;
+  text-align: center;
+}
+.thats-fluency span {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.24;
+  color: var(--fluency);
+  padding: 0 6px;
+  background: linear-gradient(180deg, transparent 0 60%, var(--highlight) 60% 92%, transparent 92%);
+}
+
+/* ============================================================
+   §06 — TIPPING POINT (dark section)
+   ============================================================ */
+.tipping-section {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 140px 0;
+  position: relative;
+  overflow: hidden;
+}
+.tipping-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 30% 20%, rgba(149,215,174,0.08) 0%, transparent 55%);
+  pointer-events: none;
+}
+.tipping-section .section-label { color: var(--fluency-2); }
+.tipping-section .section-label::before { background: var(--fluency-2); }
+.tipping-section .section-label .num { color: var(--fluency-2); }
+.tipping-section .section-title { color: var(--paper); }
+.tipping-section .section-title em { color: var(--fluency-2); }
+.tipping-section .section-title .hi {
+  background: linear-gradient(180deg, transparent 0 58%, rgba(149,215,174,0.35) 58% 93%, transparent 93%);
+  color: var(--paper);
+}
+.tipping-section .prose {
+  color: rgba(246,240,225,0.86);
+}
+.tipping-section .prose strong { color: var(--fluency-2); }
+.tipping-section .prose em { color: var(--paper); }
+
+.cascade-line {
+  text-align: center;
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(26px, 3.4vw, 38px);
+  line-height: 1.4;
+  color: var(--fluency-2);
+  margin: 56px auto;
+  max-width: 34ch;
+}
+.cascade-line span { display: inline-block; }
+
+.dots-viz {
+  max-width: 1100px;
+  margin: 72px auto 0;
+  padding: 36px 28px 16px;
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 8px;
+  border: 1px dashed rgba(246,240,225,0.18);
+  background: rgba(246,240,225,0.03);
+  position: relative;
+}
+.dots-viz::before {
+  content: 'FIG. B · DIFFUSION';
+  position: absolute;
+  top: -10px; left: 20px;
+  background: var(--ink);
+  padding: 0 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--fluency-2);
+}
+@media (max-width: 640px) {
+  .dots-viz { grid-template-columns: repeat(10, 1fr); }
+}
+.dot {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(246,240,225,0.12);
+  transition: background 0.5s ease, transform 0.5s ease, box-shadow 0.5s ease;
+}
+.dot.adopted {
+  background: var(--fluency-2);
+  box-shadow: 0 0 8px rgba(149,215,174,0.45);
+}
+
+.dots-marker {
+  max-width: 1100px;
+  margin: 16px auto 0;
+  padding: 0 28px;
+  position: relative;
+  height: 40px;
+}
+.dots-marker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  width: 1px;
+  height: 14px;
+  background: var(--fluency-2);
+}
+.dots-marker span {
+  position: absolute;
+  top: 20px;
+  left: 25%;
+  transform: translateX(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fluency-2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.dots-caption {
+  max-width: 720px;
+  margin: 48px auto 0;
+  padding: 0 32px;
+  text-align: center;
+}
+.dots-caption p {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.36;
+  color: var(--paper);
+}
+.dots-attribution {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(246,240,225,0.6);
+  margin-top: 20px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   §07 — ORIGIN
+   ============================================================ */
+.origin {
+  padding: 140px 0;
+}
+.origin .section-title {
+  font-style: italic;
+}
+.origin .aside {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  color: var(--muted);
+  font-size: 0.92em;
+}
+.signature {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  font-family: 'Caveat', cursive;
+  font-size: 36px;
+  color: var(--marker);
+  line-height: 1.15;
+  transform: rotate(-1.2deg);
+  display: inline-block;
+}
+.signature small {
+  display: block;
+  margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  font-weight: 600;
+  transform: rotate(1.2deg);
+}
+
+/* ============================================================
+   CLOSING
+   ============================================================ */
+.closing {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 180px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.closing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(149,215,174,0.12) 0%, transparent 55%);
+  pointer-events: none;
+}
+.closing-marker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fluency-2);
+  margin-bottom: 48px;
+  font-weight: 700;
+  position: relative;
+}
+.closing-line {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 5vw, 60px);
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--paper);
+  max-width: 22ch;
+  margin: 0 auto 24px;
+  padding: 0 32px;
+  position: relative;
+}
+.closing-line em { font-style: italic; color: var(--fluency-2); }
+.closing-line .hi {
+  background: linear-gradient(180deg, transparent 0 58%, rgba(149,215,174,0.3) 58% 93%, transparent 93%);
+  padding: 0 5px;
+}
+.closing-sub {
+  font-size: 16px;
+  color: rgba(246,240,225,0.68);
+  max-width: 44ch;
+  margin: 0 auto 56px;
+  padding: 0 32px;
+  line-height: 1.6;
+  position: relative;
+}
+.btn-chunky {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 18px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 6px 6px 0 var(--marker);
+  transition: all .15s;
+  border: 2px solid var(--paper);
+  font-weight: 700;
+}
+.btn-chunky:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0 var(--marker);
+  background: var(--fluency-2);
+  border-color: var(--fluency-2);
+}
+.btn-chunky .arrow { font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic; }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer {
+  background: var(--ink-deep);
+  color: rgba(246,240,225,0.6);
+  padding: 40px 32px;
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+footer a {
+  color: var(--fluency-2);
+  text-decoration: none;
+}
+footer a:hover { color: var(--paper); }
+footer .foot-line { margin-bottom: 10px; }
+
+/* ============================================================
+   REVEAL ANIMATIONS
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="progress-bar" id="progress-bar"></div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>PERSPECTIVE · APRIL 2026</span>
+    <span class="dot">●</span>
+    <span>EFFICIENCY IS NOT TRANSFORMATION</span>
+    <span class="dot">●</span>
+    <span>LITERACY IS NOT FLUENCY</span>
+    <span class="dot">●</span>
+    <span>TOOLS ARE NOT CAPABILITIES</span>
+    <span class="dot">●</span>
+    <span>THE WINDOW IS OPEN — <em>RIGHT NOW</em></span>
+    <span class="dot">●</span>
+    <span>A PAPER FROM THE COUNTER</span>
+    <span class="dot">●</span>
+    <span>PERSPECTIVE · APRIL 2026</span>
+    <span class="dot">●</span>
+    <span>EFFICIENCY IS NOT TRANSFORMATION</span>
+    <span class="dot">●</span>
+    <span>LITERACY IS NOT FLUENCY</span>
+    <span class="dot">●</span>
+    <span>TOOLS ARE NOT CAPABILITIES</span>
+    <span class="dot">●</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="logo">
+    <span class="tick"></span>
+    <span>The Counter</span>
+    <small>an ai fluency studio</small>
+  </a>
+  <div class="nav-meta">
+    <span><span class="dot"></span> PERSPECTIVE</span>
+    <span>·</span>
+    <span>10 MIN READ</span>
+    <a href="index.html" class="nav-back">← BACK</a>
+  </div>
+</nav>
+
+<!-- =========================================================
+     HERO
+     ========================================================= -->
+<section class="hero">
+  <div class="hero-inner">
+
+    <!-- Peeking index card -->
+    <div class="hero-peek" aria-hidden="true">
+      <span class="hp-punch"></span>
+      <span class="hp-tape"></span>
+      <span class="hp-label">Working title</span>
+      <div class="hp-body">
+        <del>another AI strategy deck</del><br>
+        <em>a perspective</em> on<br>
+        what's really<br>
+        missing
+      </div>
+    </div>
+
+    <div class="hero-meta">
+      <span class="hm-stamp"><span class="blink"></span> A PERSPECTIVE</span>
+      <span>10 MIN READ</span>
+      <span>APRIL 2026</span>
+    </div>
+
+    <h1 class="hero-title">
+      You can't buy enough AI technology to solve the problems of <span class="hi">your people</span>.
+    </h1>
+
+    <p class="hero-sub">
+      Why AI transformation programs are producing efficiency gains but <em>not actual transformation</em> — and what has to change before the window closes.
+    </p>
+
+    <div class="hero-byline">
+      <b>Fred Sham</b>
+      <span class="sep">+</span>
+      <b>Drew Castellaw</b>
+      <span>·</span>
+      <span>Founders, The Counter</span>
+    </div>
+  </div>
+</section>
+
+<div class="tear" aria-hidden="true"></div>
+
+<!-- =========================================================
+     §01 — THE GAP
+     ========================================================= -->
+<section>
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§01</span><span>The Gap</span></div>
+      <h2 class="section-title">Something about this <em>isn't working.</em></h2>
+    </div>
+
+    <p class="prose reveal">
+      A billion-dollar company was recently built by one person using AI.
+    </p>
+    <p class="prose reveal">
+      Meanwhile, most teams inside large organizations are using the same technology to summarize meetings and set up small automations.
+    </p>
+  </div>
+
+  <div class="gap-visual reveal">
+    <div class="gap-side left">
+      <div class="corner-stamp">ONE PERSON</div>
+      <div class="kicker">outside the walls</div>
+      <div class="big">$1 Billion</div>
+      <div class="caption">Built using the same tools everyone else has access to.</div>
+    </div>
+    <div class="gap-divider">
+      <div class="op">≠</div>
+      <div class="hand">not the same</div>
+    </div>
+    <div class="gap-side right">
+      <div class="corner-stamp">YOUR TEAM</div>
+      <div class="kicker">inside the walls</div>
+      <div class="big">Meeting<br>summaries</div>
+      <div class="caption">Using the same tools, deployed at enterprise scale.</div>
+    </div>
+  </div>
+
+  <div class="reader">
+    <p class="prose reveal">
+      That gap should be unsettling. Not because every employee should be building a billion-dollar company, but because it reveals the distance between what this technology makes possible and what most organizations are asking it to do. Somewhere between <em>"a one-person, billion-dollar company built using AI"</em> and <em>"can you summarize this call for me?"</em> is an enormous space of untapped potential.
+    </p>
+
+    <p class="prose reveal">
+      On the surface, most organizations appear to be doing the right things. Stand up an AI strategy, invest in AI tools and platforms, train people, and measure adoption. And it is producing exactly what it was designed to produce: incremental efficiency within existing ways of working.
+    </p>
+
+    <p class="prose reveal">
+      But there is a growing discomfort among the leaders we talk to — the feeling that the AI programs they are running are <em>not wrong, exactly,</em> but that they are somehow missing the point. That the gap between what they are seeing in the market and what they are seeing inside their own walls is not closing.
+    </p>
+
+    <div class="pull-quote reveal">It is widening.</div>
+  </div>
+</section>
+
+<div class="tear" aria-hidden="true"></div>
+
+<!-- =========================================================
+     §02 — LITERACY vs FLUENCY
+     ========================================================= -->
+<section class="lit-flu">
+  <div class="lf-header reveal">
+    <div class="section-label" style="justify-content:center"><span class="num">§02</span><span>Literacy vs. Fluency</span></div>
+    <h2 class="section-title" style="margin-left:auto; margin-right:auto; max-width: 22ch;">
+      That discomfort is pointing at <em>a missing focus area.</em>
+    </h2>
+  </div>
+
+  <div class="reader">
+    <p class="prose reveal">
+      Right now, AI investment largely falls into two categories. <strong>Infrastructure</strong> — making the technology available. And <strong>literacy</strong> — teaching people how to use it.
+    </p>
+    <p class="prose reveal">
+      Both are necessary. But both share a common assumption: that the primary challenge is getting the tools into people's hands and showing them how the tools work. <em>That assumption is wrong.</em>
+    </p>
+    <p class="prose reveal">
+      The primary challenge is that most people inside most organizations have no idea how to connect what AI can do to the specific, deeply contextual work that only they understand. They have the tools. They may even have the training. What they don't have is a way to think and work <em>with</em> AI to solve problems in their real work.
+    </p>
+    <p class="prose reveal">
+      We call that ability <em>fluency.</em>
+    </p>
+    <div class="pull-quote wide-q sage reveal">
+      The absence of fluency is the single largest reason most AI transformations are producing efficiency gains but <span class="hi">not actual transformation</span>.
+    </div>
+  </div>
+
+  <div class="compare reveal">
+    <div class="col-literacy">
+      <h4>Literacy <span class="lf-margin m-lit">&larr; what most programs<br>invest in</span></h4>
+      <div class="def">[ lit-ər-ə-sē ] · noun</div>
+      <p class="blurb">
+        Learning <strong>what the AI can do.</strong><br><br>
+        A set of tools. A set of prompts. A set of skills you can teach in a workshop, measure in an assessment, and check off in a learning management system.<br><br>
+        It's the layer most AI programs invest in. It's necessary. It's finite.
+      </p>
+    </div>
+    <div class="col-fluency">
+      <h4>fluency <span class="lf-margin m-flu">&larr; the missing<br>focus</span></h4>
+      <div class="def">[ floo-en-see ] · a way of working</div>
+      <p class="blurb">
+        Learning <em>how we can think and work with AI.</em><br><br>
+        Not a skill you acquire in a workshop. A rhythm that only truly develops when we think and work with AI to solve real problems in our day-to-day work — drawing on the judgment and expertise <em>only we possess</em> — and see firsthand what becomes possible because of that.
+      </p>
+    </div>
+  </div>
+
+  <div class="lit-flu-caption reveal">
+    <p>Literacy can be <span class="hi">taught</span>.<br>Fluency has to be <em>lived</em>.</p>
+  </div>
+</section>
+
+<div class="tear" aria-hidden="true"></div>
+
+<!-- =========================================================
+     §03 — HUMAN REALITY
+     ========================================================= -->
+<section class="human-reality">
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§03</span><span>The Human Reality</span></div>
+      <h2 class="section-title">People are not resistant to AI. They are <em>disoriented</em> by it.</h2>
+    </div>
+
+    <p class="prose reveal">
+      Organizations often talk about wanting to become <em>"AI-native,"</em> and while the language and intent may be genuine, almost none of it connects to what is happening inside real teams, with real people who have complicated feelings about what AI means for them.
+    </p>
+    <p class="prose reveal">
+      Most of us inside large organizations are not resistant to AI. We are <em>disoriented</em> by it. We have spent years — sometimes decades — building expertise that gave us professional identity, career progression, and a clear sense of our own value. Now we are watching a technology perform vast portions of that expertise in seconds.
+    </p>
+    <p class="prose reveal">
+      For some of us, that is thrilling. For many more, it raises a question we might not say out loud at work.
+    </p>
+
+    <div class="huge-q reveal">
+      <span class="qmark">"</span>
+      If the thing I am known for can be done by a machine, what exactly am <em>I</em> for?
+      <span class="attrib">— a question almost no one says out loud at work</span>
+    </div>
+
+    <p class="prose reveal">
+      Those of us in leadership feel our own version of this, even if we don't always name it. The operating models we built, the organizational structures we championed, the ways of working that defined how we lead — those are precisely the things under pressure.
+    </p>
+    <p class="prose reveal">
+      If we are honest, it is not just a strategic question. <em>It is a personal one.</em> Championing a transformation that may restructure the very system we spent twenty years constructing means accepting that the source of our influence — our command of how things work today — may need to change, too. That touches something deeper than strategy. It touches identity, authority, and the political capital we have built over careers.
+    </p>
+    <p class="prose reveal">
+      And there is another truth most of us in leadership are reluctant to say out loud: we need to learn how to work with AI fluency <em>ourselves.</em> Not in theory. <em>In practice.</em> But our calendars are already full. Our days are consumed by the urgent demands of running the business as it exists right now. Finding the time and headspace to fundamentally change how we work — while still doing the job — feels close to impossible.
+    </p>
+  </div>
+
+  <div class="leader-split reveal">
+    <div class="split-card card-1">
+      <div class="split-label">What we rarely say — as employees</div>
+      <div class="split-text">If I'm known for something a machine can now do, what is my value?</div>
+    </div>
+    <div class="split-card card-2">
+      <div class="split-label">What we rarely say — as leaders</div>
+      <div class="split-text">I need to learn this myself. My calendar is already full. I cannot see how.</div>
+    </div>
+  </div>
+
+  <div class="reader">
+    <p class="prose reveal">
+      This dual discomfort is one of the real reasons so many AI strategies default to efficiency. And to be clear, <em>that instinct is not irrational.</em>
+    </p>
+    <p class="prose reveal">
+      Efficiency is measurable, defensible, and produces real results. It reduces costs. It accelerates timelines. It frees people from genuinely tedious work. It shows a return on investment that boards and stakeholders can see and understand. It also carries far less organizational risk than deeper transformation — nobody gets blamed for making an existing process faster. These are meaningful gains, and pursuing them is a logical first step.
+    </p>
+    <p class="prose reveal">
+      The trouble is that these gains can also become a form of <em>reassurance.</em> When we see dashboards showing time saved and workflows automated, it is easy to tell ourselves that we are moving in the right direction — that we are doing enough.
+    </p>
+    <p class="prose reveal">
+      And some of us may <em>quietly suspect</em> that it is not enough. That efficiency alone will not close the gap we keep seeing in the market. But the momentum of a program that is working, even modestly, is hard to interrupt. Especially when the alternative is so much less certain.
+    </p>
+  </div>
+</section>
+
+<div class="tear" aria-hidden="true"></div>
+
+<!-- =========================================================
+     §04 — EFFICIENCY AS TRAP
+     ========================================================= -->
+<section class="efficiency">
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§04</span><span>The Seductive Trap</span></div>
+      <h2 class="section-title">Efficiency improves what exists without asking whether what exists is <em>still right</em>.</h2>
+    </div>
+    <p class="eff-lede reveal">Real transformation asks something harder.</p>
+  </div>
+
+  <div class="path-diagram reveal">
+    <div class="pd-header">
+      <div class="pd-title">FIG. A · Two paths</div>
+      <div class="pd-fig">Efficiency is good &mdash; and necessary. <em>Transformation</em> is what this technology demands.</div>
+    </div>
+
+    <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <!-- ===== AXES ===== -->
+      <!-- Y-axis -->
+      <line x1="92" y1="30" x2="92" y2="330" stroke="#2A2E33" stroke-width="1" opacity="0.55"/>
+      <!-- Y-axis arrowhead -->
+      <polygon points="92,24 88,34 96,34" fill="#2A2E33" opacity="0.55"/>
+      <!-- Y-axis label (rotated, pivots around its own anchor) -->
+      <text transform="translate(76, 185) rotate(-90)" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#2A2E33" opacity="0.6" letter-spacing="2" font-weight="700">NEW VALUE CREATED</text>
+
+      <!-- X-axis -->
+      <line x1="92" y1="330" x2="762" y2="330" stroke="#2A2E33" stroke-width="1" opacity="0.55"/>
+      <!-- X-axis arrowhead -->
+      <polygon points="768,330 758,326 758,334" fill="#2A2E33" opacity="0.55"/>
+      <!-- X-axis label -->
+      <text x="762" y="352" font-family="JetBrains Mono, monospace" font-size="10" fill="#2A2E33" opacity="0.6" letter-spacing="2" font-weight="700" text-anchor="end">TIME</text>
+
+      <!-- NOW label under origin -->
+      <text x="92" y="352" font-family="JetBrains Mono, monospace" font-size="10" fill="#2A2E33" opacity="0.7" letter-spacing="2" font-weight="700" text-anchor="middle">NOW</text>
+
+      <!-- "Today's baseline" dashed reference line -->
+      <line x1="92" y1="240" x2="762" y2="240" stroke="#8A8F94" stroke-width="1" opacity="0.35" stroke-dasharray="3 5"/>
+      <text x="762" y="235" font-family="JetBrains Mono, monospace" font-size="9" fill="#8A8F94" letter-spacing="1.8" font-weight="700" text-anchor="end">today's baseline</text>
+
+      <!-- ===== EFFICIENCY PATH ===== -->
+      <path d="M 92 240 Q 290 224, 470 204 T 735 178"
+            stroke="#8A8F94" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <circle cx="735" cy="178" r="6" fill="#8A8F94"/>
+      <!-- Inline "EFFICIENCY" label on line -->
+      <text x="620" y="168" font-family="JetBrains Mono, monospace" font-size="11" fill="#6E7277" letter-spacing="2.5" font-weight="700" text-anchor="middle">EFFICIENCY</text>
+
+      <!-- ===== TRANSFORMATION BRANCHES — all from shared origin (92, 240) ===== -->
+
+      <!-- Branch A: fizzled (falls below baseline) -->
+      <path d="M 92 240 Q 180 258, 245 272 Q 285 280, 305 285"
+            stroke="#73956F" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.4"/>
+      <g opacity="0.55">
+        <line x1="299" y1="279" x2="311" y2="291" stroke="#73956F" stroke-width="1.4"/>
+        <line x1="311" y1="279" x2="299" y2="291" stroke="#73956F" stroke-width="1.4"/>
+      </g>
+
+      <!-- Branch B: stalled (slight rise then falls back below baseline) -->
+      <path d="M 92 240 Q 190 228, 285 230 Q 385 235, 465 268"
+            stroke="#73956F" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+      <g opacity="0.65">
+        <line x1="459" y1="262" x2="471" y2="274" stroke="#73956F" stroke-width="1.4"/>
+        <line x1="471" y1="262" x2="459" y2="274" stroke="#73956F" stroke-width="1.4"/>
+      </g>
+
+      <!-- Branch C: modest win (clears efficiency, doesn't reach breakthrough) -->
+      <path d="M 92 240 Q 230 208, 380 168 Q 510 140, 645 130"
+            stroke="#73956F" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.75"/>
+      <circle cx="645" cy="130" r="4.5" fill="#73956F"/>
+
+      <!-- Branch D: BREAKTHROUGH -->
+      <path d="M 92 240 Q 230 180, 370 120 Q 500 78, 625 55 Q 695 45, 748 40"
+            stroke="#1F3933" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+
+      <!-- Shared origin dot -->
+      <circle cx="92" cy="240" r="7" fill="#1F3933"/>
+
+      <!-- Breakthrough endpoint w/ glow -->
+      <circle cx="748" cy="40" r="22" fill="none" stroke="#95D7AE" stroke-width="1" opacity="0.32"/>
+      <circle cx="748" cy="40" r="14" fill="none" stroke="#95D7AE" stroke-width="1" opacity="0.5"/>
+      <circle cx="748" cy="40" r="10" fill="#1F3933"/>
+      <circle cx="748" cy="40" r="5" fill="#95D7AE"/>
+      <!-- Inline "BREAKTHROUGH" label -->
+      <text x="720" y="32" font-family="JetBrains Mono, monospace" font-size="11" fill="#1F3933" letter-spacing="2.5" font-weight="700" text-anchor="end">BREAKTHROUGH</text>
+    </svg>
+
+    <!-- Legend keying every mark in the chart -->
+    <div class="pd-legend" aria-label="Chart legend">
+      <div class="pd-legend-item">
+        <span class="pd-legend-mark" aria-hidden="true">
+          <svg width="22" height="16" viewBox="0 0 22 16"><line x1="2" y1="8" x2="20" y2="8" stroke="#8A8F94" stroke-width="2.5" stroke-linecap="round"/></svg>
+        </span>
+        <div><strong>Efficiency</strong>Doing today&rsquo;s work faster. Real, but bounded.</div>
+      </div>
+      <div class="pd-legend-item">
+        <span class="pd-legend-mark" aria-hidden="true">
+          <svg width="22" height="16" viewBox="0 0 22 16"><path d="M 2 13 Q 8 4, 20 3" stroke="#73956F" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+        </span>
+        <div><strong>Transformation attempt</strong>Emergent. Discovered through use, not planned.</div>
+      </div>
+      <div class="pd-legend-item">
+        <span class="pd-legend-mark" aria-hidden="true">
+          <svg width="22" height="16" viewBox="0 0 22 16"><line x1="5" y1="4" x2="17" y2="14" stroke="#73956F" stroke-width="1.6" opacity="0.65"/><line x1="17" y1="4" x2="5" y2="14" stroke="#73956F" stroke-width="1.6" opacity="0.65"/></svg>
+        </span>
+        <div><strong>Fell short</strong>Produced less than efficiency would have.</div>
+      </div>
+      <div class="pd-legend-item">
+        <span class="pd-legend-mark" aria-hidden="true">
+          <svg width="22" height="16" viewBox="0 0 22 16"><circle cx="11" cy="8" r="6" fill="none" stroke="#95D7AE" stroke-width="1" opacity="0.7"/><circle cx="11" cy="8" r="3.5" fill="#1F3933"/><circle cx="11" cy="8" r="1.8" fill="#95D7AE"/></svg>
+        </span>
+        <div><strong>Breakthrough</strong>New value efficiency couldn&rsquo;t reach.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="path-labels">
+    <div class="path-label efficiency-t reveal">
+      <div class="plt-eyebrow">Path 1</div>
+      <div class="plt-title">EFFICIENCY</div>
+      <p>A predictable line. Plannable. Defensible. The return on investment is calculable. The outcome is a faster, cheaper version of what already exists &mdash; real gains, with a real ceiling.</p>
+    </div>
+    <div class="path-label transformation-t reveal">
+      <div class="plt-eyebrow">Path 2</div>
+      <div class="plt-title">Transformation</div>
+      <p>A branching path. Emergent. Discovered through use, not planned in advance. Not every branch succeeds &mdash; some produce less than efficiency would have. But the breakthroughs are only possible from here.</p>
+    </div>
+  </div>
+
+  <div class="reader" style="margin-top: 80px;">
+    <p class="prose reveal">
+      Real transformation asks all of us to sit with uncertainty — to build toward something that cannot be fully defined in advance. That ambiguity is inherent because AI's full potential for us is not a fixed destination we can plot on a roadmap. It emerges through use, through experimentation, through the compounding effect of many people discovering what becomes possible when their expertise meets this technology.
+    </p>
+    <p class="prose reveal">
+      We cannot <em>plan</em> our way to transformation the way we planned our way to operational excellence. We have to <em>learn</em> our way there — and that requires tolerating a period where the path forward is genuinely unclear.
+    </p>
+    <div class="pull-quote reveal">The reward for sitting with that discomfort is significant.</div>
+    <p class="prose reveal">
+      Organizations that push through efficiency into true transformation do not simply do the same things better — they discover entirely new sources of value. New offerings. New ways of serving customers. New capabilities that were previously impossible. They move from <em>protecting</em> their current position to <em>creating</em> their next one.
+    </p>
+    <p class="prose reveal">
+      Most organizations are not failing to transform because they lack vision or technology. They are failing because this particular kind of transformation requires a kind of honesty and vulnerability that most corporate environments are not designed to support.
+    </p>
+  </div>
+</section>
+
+<div class="tear" aria-hidden="true"></div>
+
+<!-- =========================================================
+     §05 — CAPABILITIES
+     ========================================================= -->
+<section class="capabilities-section">
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§05</span><span>Evidence Over Reassurance</span></div>
+      <h2 class="section-title">The answer is not a better deck. It is <em>lived experience.</em></h2>
+    </div>
+    <p class="prose reveal">
+      The honest answer to that discomfort is not reassurance. It is evidence. And evidence doesn't come from a strategy deck or a training workshop. It comes from ourselves — when we personally experience that our expertise is not what AI replaces, but what it requires.
+    </p>
+    <p class="prose reveal">
+      When we see how AI can help us work through a problem we care about, deepen our impact rather than diminish it, and sharpen skills we thought the technology would make irrelevant — that is when we move from <em>discomfort</em> into <em>belief.</em>
+    </p>
+    <div class="pull-quote reveal">Expertise is not what AI replaces. It is what AI <span class="hi">requires</span>.</div>
+    <p class="prose reveal">
+      The skills that make someone effective with AI are not technical skills. They are human ones — and they have to be lived, practiced, and repeated until the way of working becomes instinctive. Fluency is not knowledge we acquire. It is capabilities we build through experience, such as:
+    </p>
+  </div>
+
+  <div class="cap-grid">
+    <div class="cap reveal">
+      <div class="cap-num">01</div>
+      <h3 class="cap-title">Knowing how to <em>frame</em></h3>
+      <p class="cap-desc">Taking a messy, real-world problem and shaping it so that AI can help us work through it. Most problems are not well-formed until we frame them well.</p>
+    </div>
+    <div class="cap reveal">
+      <div class="cap-num">02</div>
+      <h3 class="cap-title">Thinking <em>expansively</em> before narrowing</h3>
+      <p class="cap-desc">Exploring what is possible before converging on what is practical. The instinct to multiply options before reducing them — a skill corporate environments frequently train out of people.</p>
+    </div>
+    <div class="cap reveal">
+      <div class="cap-num">03</div>
+      <h3 class="cap-title">Experimenting, not <em>planning</em></h3>
+      <p class="cap-desc">Running small tests quickly instead of planning comprehensively. Comfort with imperfect outputs as starting points — not finished answers.</p>
+    </div>
+    <div class="cap reveal">
+      <div class="cap-num">04</div>
+      <h3 class="cap-title">Applying <em>judgment</em> to what AI gives back</h3>
+      <p class="cap-desc">Because the output is rarely the full answer. It's a faster starting point for our expertise to do what only it can do.</p>
+    </div>
+  </div>
+
+  <div class="thats-fluency reveal"><span>That is fluency.</span></div>
+
+  <p class="cap-caption reveal">
+    And those skills are not typically distributed broadly inside most organizations, because the recent operating models of organizations did not need them to be.
+  </p>
+
+  <div class="reader" style="margin-top: 80px;">
+    <p class="prose reveal">
+      For decades, large organizations scaled by building repeatable systems and developing people who could execute within them brilliantly. This skilled our people to become exceptional at executing complex work within proven frameworks, optimizing within known parameters, and delivering reliably at scale. And that approach worked spectacularly. It is the reason many of us are market leaders today.
+    </p>
+    <p class="prose reveal">
+      The skills that fluency demands are fundamentally different. Problem framing in ambiguous conditions. Creative exploration before convergence. Rapid experimentation and iteration. Comfort with imperfect outputs as <em>starting points</em> rather than finished answers.
+    </p>
+    <p class="prose reveal">
+      These are skills most organizations have historically confined to small pockets — innovation labs, design thinking consultancies, R&amp;D functions — rather than building them broadly across the workforce, because at the time, it made sense not to.
+    </p>
+    <p class="prose reveal" style="margin-top: 40px;">
+      <strong>This change is extraordinarily difficult, and it is worth being honest about why.</strong>
+    </p>
+    <p class="prose reveal">
+      For us as individuals, the challenge is not simply learning a new skill. <em>It is rewiring how we approach our work every day.</em>
+    </p>
+    <div class="pull-quote wide-q reveal" style="border-left-color: var(--fluency-3);">
+      For an organization, the difficulty compounds. This is not a single capability gap that can be closed with a training program.
+    </div>
+    <p class="prose reveal">
+      It is a shift in the <em>fundamental rhythm</em> of how sometimes hundreds of thousands of people work — across functions, geographies, and levels of seniority — each with their own context, their own expertise, and their own relationship to this change. Coordinating that at scale, while the business continues to run, is a category of transformation most organizations have never had to attempt.
+    </p>
+  </div>
+</section>
+
+<!-- =========================================================
+     §06 — TIPPING POINT (dark section, no tear above — deliberate break)
+     ========================================================= -->
+<section class="tipping-section">
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§06</span><span>The Tipping Point</span></div>
+      <h2 class="section-title">But we know where it <em>starts best.</em></h2>
+    </div>
+
+    <p class="prose reveal">With each of us, <em>individually.</em></p>
+
+    <p class="prose reveal">
+      Because regardless of title or function, every one of us holds deep expertise in something — a domain, a process, a set of problems that we understand better than anyone else in the organization. We know the real friction points. And we know the problems we <em>stopped trying to solve</em> because the tools or resources or bandwidth to tackle them simply did not exist.
+    </p>
+    <p class="prose reveal">
+      When we begin to work with AI through the lens of fluency — bringing our judgment and our context to the technology rather than waiting for it to come to us — we start to revisit those abandoned problems. We discover that what was previously out of reach is now possible.
+    </p>
+    <p class="prose reveal">Now imagine that experience compounding.</p>
+  </div>
+
+  <div class="cascade-line reveal">
+    <span>One person discovers what is possible.</span><br>
+    <span>Then ten.</span><br>
+    <span>Then a hundred.</span>
+  </div>
+
+  <div class="reader">
+    <p class="prose reveal">
+      Research on the diffusion of innovations — from Everett Rogers's work to more recent studies of organizational tipping points — consistently shows that when roughly <strong>25 percent</strong> of a population adopts a new behavior, it shifts from being the exception to becoming the norm. What felt new and strange to a handful of early movers becomes the standard way of working for the broader organization.
+    </p>
+  </div>
+
+  <div class="dots-viz reveal" id="dots-viz"></div>
+  <div class="dots-marker reveal"><span>~25% adoption</span></div>
+
+  <div class="dots-caption reveal">
+    <p>From the exception to the norm.</p>
+    <div class="dots-attribution">— Diffusion of innovations · Everett Rogers</div>
+  </div>
+
+  <div class="reader" style="margin-top: 80px;">
+    <p class="prose reveal">
+      Once that critical mass is reached, something larger shifts. The organization does not just get better at what it already does — it begins to grow in directions that were previously invisible. New capabilities emerge. New forms of value creation become possible because a workforce <em>fluent</em> in working with AI has the collective ability to see and pursue opportunities that a workforce merely <em>literate</em> in the same technology never could.
+    </p>
+    <div class="pull-quote celadon reveal" style="color: var(--paper); max-width: 24ch;">
+      That is what a truly AI-native organization looks like.
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     §07 — ORIGIN
+     ========================================================= -->
+<section class="origin">
+  <div class="reader">
+    <div class="reveal">
+      <div class="section-label"><span class="num">§07</span><span>Why We Started The Counter</span></div>
+      <h2 class="section-title">We <em>felt it</em> ourselves.</h2>
+    </div>
+
+    <p class="prose reveal">
+      We founded The Counter because we felt this exact discomfort ourselves. In our previous organization <span class="aside">(if you're reading, no offense)</span>, we experienced firsthand the gap between what being AI fluent could help us achieve, versus the reality of what was happening.
+    </p>
+    <p class="prose reveal">
+      And we believe the window to start this journey is open <em>right now,</em> and it will not stay open indefinitely. The longer organizations focus on AI literacy instead of AI fluency, the harder the gap becomes to close.
+    </p>
+    <p class="prose reveal">
+      The work is not easy. It requires honesty about what people are feeling. It requires patience with a process that builds one person, one problem, one solution at a time. It requires leaders willing to distribute agency rather than consolidate control — and to tolerate the discomfort of not knowing exactly what the organization will look like on the other side, as well.
+    </p>
+
+    <div class="signature reveal">
+      Drew Castellaw &amp; [Partner]
+      <small>Founders · April 2026</small>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+     CLOSING
+     ========================================================= -->
+<section class="closing">
+  <div class="closing-marker">And it requires something that is surprisingly rare in corporate life:</div>
+  <div class="closing-line">
+    A genuine belief that the people inside the organization are not the problem to be managed through this transition. <em>They are the answer to it.</em>
+  </div>
+  <p class="closing-sub">
+    The Counter is how that answer gets built — <span style="color: var(--fluency-2);">one person, one problem, one working solution at a time.</span>
+  </p>
+  <a href="index.html#contact" class="btn-chunky">
+    Start a conversation <span class="arrow">→</span>
+  </a>
+</section>
+
+<footer>
+  <div class="foot-line">© 2026 Rewire · <a href="index.html">The Counter</a></div>
+  <div>A perspective, written in April</div>
+</footer>
+
+<script>
+  // Reading progress bar
+  function updateProgress() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    const bar = document.getElementById('progress-bar');
+    if (bar) bar.style.width = progress + '%';
+  }
+  window.addEventListener('scroll', updateProgress, { passive: true });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.14, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Dots viz
+  (function buildDots() {
+    const container = document.getElementById('dots-viz');
+    if (!container) return;
+    const totalDots = 80;
+    const adopters = Math.round(totalDots * 0.25); // 25%
+    for (let i = 0; i < totalDots; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'dot';
+      container.appendChild(dot);
+    }
+    const vizObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const dots = container.querySelectorAll('.dot');
+          dots.forEach(d => d.classList.remove('adopted'));
+          dots.forEach((d, idx) => {
+            if (idx < adopters) {
+              setTimeout(() => d.classList.add('adopted'), idx * 50);
+            }
+          });
+          vizObserver.unobserve(container);
+        }
+      });
+    }, { threshold: 0.25 });
+    vizObserver.observe(container);
+  })();
+</script>
+
+</body>
+</html>

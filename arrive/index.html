@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrive at The Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --charcoal: #454851;
+    --sage: #73956F;
+    --sage-deep: #5a7957;
+    --teal: #7BAE7F;
+    --celadon: #95D7AE;
+    --cream: #FCEFF9;
+    --paper: #f5ecd9;
+    --ink: #2d2a26;
+    --ink-soft: #5a564f;
+    --border-soft: #c9bfa7;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.08;
+    background-image:
+      radial-gradient(circle at 20% 30%, var(--charcoal) 0.5px, transparent 0.5px),
+      radial-gradient(circle at 80% 70%, var(--charcoal) 0.5px, transparent 0.5px);
+    background-size: 8px 8px, 12px 12px;
+    z-index: 0;
+  }
+  main {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+    z-index: 1;
+  }
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .scene-frame {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+  }
+
+  /* Pixel art canvas */
+  .pixel-scene {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    width: 240px;
+    height: 180px;
+    background: linear-gradient(180deg, #d5d1b8 0%, #e8dfc4 70%, #c9b889 100%);
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 4px var(--paper),
+      0 0 0 6px var(--border-soft),
+      0 12px 32px rgba(69, 72, 81, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .pixel-scene.wide {
+    width: 280px;
+    height: 160px;
+  }
+  .pixel-scene::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent, rgba(115, 149, 111, 0.2));
+  }
+  .pixel-scene svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Typography */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  h1.title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-align: center;
+  }
+  h1.title .accent { color: var(--sage); }
+  p.subtitle {
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ink-soft);
+    text-align: center;
+    max-width: 480px;
+    font-weight: 400;
+  }
+  p.prose {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--ink);
+    text-align: center;
+    max-width: 520px;
+    font-weight: 400;
+  }
+  p.prose + p.prose { margin-top: 0; }
+
+  /* Question layout */
+  .question-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 22px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--ink);
+    text-align: center;
+    max-width: 560px;
+    letter-spacing: -0.01em;
+  }
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--sage);
+    font-weight: 600;
+  }
+
+  /* Choices */
+  .choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    width: 100%;
+    max-width: 560px;
+  }
+  @media (max-width: 560px) {
+    .choices { grid-template-columns: 1fr; }
+  }
+  .choice {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    background: #fffaf0;
+    border: 1.5px solid var(--border-soft);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--ink);
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .choice:hover {
+    border-color: var(--sage);
+    background: #fffdf5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(115, 149, 111, 0.15);
+  }
+  .choice.selected {
+    border-color: var(--sage);
+    background: #eff5eb;
+  }
+  .choice .mini-animal {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+  }
+
+  /* Buttons */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary {
+    background: var(--sage);
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: var(--sage-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(115, 149, 111, 0.3);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+  .btn-ghost:hover { color: var(--sage); }
+
+  /* Text input */
+  .open-input {
+    width: 100%;
+    max-width: 560px;
+    padding: 16px 18px;
+    border: 1.5px solid var(--border-soft);
+    border-radius: 8px;
+    background: #fffaf0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--ink);
+    resize: none;
+    min-height: 120px;
+    transition: all 0.2s ease;
+  }
+  .open-input:focus {
+    outline: none;
+    border-color: var(--sage);
+    background: #fffdf5;
+    box-shadow: 0 0 0 3px rgba(115, 149, 111, 0.12);
+  }
+  .open-input::placeholder { color: #a89e89; font-style: italic; }
+
+  /* Reveal screen */
+  .reveal-card {
+    width: 100%;
+    max-width: 560px;
+    background: #fffaf0;
+    border-radius: 12px;
+    border: 1.5px solid var(--border-soft);
+    box-shadow: 0 20px 60px rgba(69, 72, 81, 0.18);
+    overflow: hidden;
+    position: relative;
+  }
+  .reveal-header {
+    padding: 40px 32px 24px;
+    text-align: center;
+    background: linear-gradient(180deg, #eff5eb 0%, #fffaf0 100%);
+    border-bottom: 1px dashed var(--border-soft);
+  }
+  .reveal-animal-display {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    image-rendering: pixelated;
+    animation: floatIn 1s ease;
+  }
+  @keyframes floatIn {
+    0% { opacity: 0; transform: translateY(30px) scale(0.8); }
+    60% { transform: translateY(-8px) scale(1.05); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .reveal-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .reveal-name .accent { color: var(--sage); }
+  .reveal-tagline {
+    font-size: 15px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+    font-style: italic;
+  }
+  .reveal-body { padding: 28px 32px 32px; }
+  .reveal-bio {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--ink);
+    margin-bottom: 24px;
+  }
+  .reveal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-soft);
+  }
+  @media (max-width: 540px) {
+    .reveal-grid { grid-template-columns: 1fr; }
+  }
+  .reveal-slot .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .reveal-slot .value {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  /* Counter / progress */
+  .progress {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    z-index: 5;
+  }
+  .progress.visible { opacity: 1; }
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-soft);
+    transition: background 0.3s ease;
+  }
+  .progress-dot.done { background: var(--sage); }
+  .progress-dot.current { background: var(--ink); }
+
+  /* Logo / brand mark */
+  .brand {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--ink-soft);
+    letter-spacing: -0.01em;
+    z-index: 5;
+  }
+  .brand::before {
+    content: '●';
+    color: var(--sage);
+    margin-right: 6px;
+  }
+
+  /* Confetti-lite for reveal */
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--sage);
+    border-radius: 50%;
+    animation: sparkle 1.2s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes sparkle {
+    0% { transform: translate(0, 0) scale(0); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; }
+  }
+
+  /* Idle floating animation for scene pixel art */
+  .idle-float { animation: idleFloat 3s ease-in-out infinite; }
+  @keyframes idleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .meta-link {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #a89e89;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="brand">The Counter</div>
+  <div class="progress" id="progress"></div>
+
+  <!-- LANDING -->
+  <section class="screen active" id="landing">
+    <div class="scene-frame">
+      <div class="pixel-scene wide">
+        <svg viewBox="0 0 56 32" xmlns="http://www.w3.org/2000/svg" class="idle-float">
+          <!-- Ground -->
+          <rect x="0" y="26" width="56" height="6" fill="#8ba373"/>
+          <rect x="0" y="25" width="56" height="1" fill="#a5bd8c"/>
+          <!-- Trees in background -->
+          <rect x="4" y="18" width="2" height="7" fill="#6b4f3a"/>
+          <rect x="2" y="12" width="6" height="6" fill="#5a7957"/>
+          <rect x="3" y="10" width="4" height="3" fill="#73956f"/>
+          <rect x="48" y="19" width="2" height="6" fill="#6b4f3a"/>
+          <rect x="46" y="14" width="6" height="5" fill="#5a7957"/>
+          <rect x="47" y="12" width="4" height="3" fill="#73956f"/>
+          <!-- Path -->
+          <rect x="22" y="26" width="12" height="6" fill="#c9b889"/>
+          <!-- Sun -->
+          <circle cx="44" cy="7" r="3" fill="#f5deb3"/>
+          <!-- Fox -->
+          <rect x="14" y="20" width="4" height="3" fill="#d97857"/>
+          <rect x="13" y="21" width="1" height="2" fill="#d97857"/>
+          <rect x="15" y="18" width="1" height="2" fill="#d97857"/>
+          <rect x="17" y="18" width="1" height="2" fill="#d97857"/>
+          <rect x="15" y="22" width="1" height="1" fill="#2d2a26"/>
+          <rect x="17" y="22" width="1" height="1" fill="#2d2a26"/>
+          <!-- Owl on branch -->
+          <rect x="36" y="16" width="3" height="4" fill="#6b4e3c"/>
+          <rect x="36" y="17" width="1" height="1" fill="#ffd700"/>
+          <rect x="38" y="17" width="1" height="1" fill="#ffd700"/>
+          <!-- Flowers -->
+          <rect x="10" y="24" width="1" height="1" fill="#fceff9"/>
+          <rect x="30" y="24" width="1" height="1" fill="#fceff9"/>
+          <rect x="42" y="24" width="1" height="1" fill="#fceff9"/>
+        </svg>
+      </div>
+      <div>
+        <div class="eyebrow">A short walk before we meet</div>
+        <h1 class="title">Arrive at <span class="accent">The Counter</span>.</h1>
+      </div>
+      <p class="subtitle">The people coming into this room are all showing up from different places. Before we sit down together, we want to know a little about who's coming.</p>
+      <button class="btn btn-primary" onclick="goTo('intro')">Start →</button>
+    </div>
+  </section>
+
+  <!-- INTRO -->
+  <section class="screen" id="intro">
+    <div class="scene-frame">
+      <div class="eyebrow">How this works</div>
+      <p class="prose">This isn't a test. There are no right answers.</p>
+      <p class="prose">Just a few scenes. Pick what feels true.</p>
+      <p class="prose" style="font-size: 15px; color: var(--ink-soft); font-style: italic;">Takes about five minutes.</p>
+      <button class="btn btn-primary" onclick="goTo('q1')">Walk with me →</button>
+    </div>
+  </section>
+
+  <!-- Q1 -->
+  <section class="screen question" id="q1" data-q="1">
+    <div class="scene-frame">
+      <div class="q-number">01 / 05</div>
+      <div class="pixel-scene">
+        <svg viewBox="0 0 48 36" xmlns="http://www.w3.org/2000/svg" class="idle-float">
+          <rect x="0" y="28" width="48" height="8" fill="#8ba373"/>
+          <rect x="0" y="27" width="48" height="1" fill="#a5bd8c"/>
+          <!-- Trees -->
+          <rect x="2" y="10" width="6" height="18" fill="#6b4f3a"/>
+          <rect x="0" y="4" width="10" height="8" fill="#5a7957"/>
+          <rect x="38" y="12" width="6" height="16" fill="#6b4f3a"/>
+          <rect x="36" y="6" width="10" height="8" fill="#5a7957"/>
+          <!-- Mysterious machine (humming) -->
+          <rect x="20" y="16" width="8" height="12" fill="#8b7355"/>
+          <rect x="19" y="15" width="10" height="2" fill="#6b5a3f"/>
+          <rect x="22" y="18" width="2" height="2" fill="#95D7AE"/>
+          <rect x="24" y="18" width="2" height="2" fill="#95D7AE"/>
+          <rect x="23" y="22" width="2" height="4" fill="#2d2a26"/>
+          <!-- Humming waves -->
+          <rect x="16" y="12" width="1" height="1" fill="#95D7AE" opacity="0.6"/>
+          <rect x="30" y="12" width="1" height="1" fill="#95D7AE" opacity="0.6"/>
+          <rect x="17" y="10" width="1" height="1" fill="#95D7AE" opacity="0.4"/>
+          <rect x="29" y="10" width="1" height="1" fill="#95D7AE" opacity="0.4"/>
+        </svg>
+      </div>
+      <div class="question-text">You're walking through the woods and come across a strange machine you've never seen before. It hums quietly. What do you do?</div>
+      <div class="choices" id="q1-choices">
+        <button class="choice" data-animal="fox">
+          <div class="mini-animal" data-sprite="fox"></div>
+          <span>Approach it — this looks interesting.</span>
+        </button>
+        <button class="choice" data-animal="otter">
+          <div class="mini-animal" data-sprite="otter"></div>
+          <span>Go grab a friend. We should both see this.</span>
+        </button>
+        <button class="choice" data-animal="owl">
+          <div class="mini-animal" data-sprite="owl"></div>
+          <span>Hang back. Watch it for a while first.</span>
+        </button>
+        <button class="choice" data-animal="hedgehog">
+          <div class="mini-animal" data-sprite="hedgehog"></div>
+          <span>Something feels off. Keep walking.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q2 -->
+  <section class="screen question" id="q2" data-q="2">
+    <div class="scene-frame">
+      <div class="q-number">02 / 05</div>
+      <div class="pixel-scene">
+        <svg viewBox="0 0 48 36" xmlns="http://www.w3.org/2000/svg" class="idle-float">
+          <rect x="0" y="28" width="48" height="8" fill="#8ba373"/>
+          <rect x="0" y="27" width="48" height="1" fill="#a5bd8c"/>
+          <!-- Two figures, one showing the other something -->
+          <rect x="14" y="18" width="3" height="10" fill="#95D7AE"/>
+          <rect x="14" y="14" width="3" height="4" fill="#d4b896"/>
+          <rect x="15" y="15" width="1" height="1" fill="#2d2a26"/>
+          <!-- Shown object (glowing tool) -->
+          <rect x="19" y="19" width="4" height="3" fill="#f5deb3"/>
+          <rect x="18" y="20" width="1" height="1" fill="#95D7AE"/>
+          <rect x="23" y="20" width="1" height="1" fill="#95D7AE"/>
+          <rect x="20" y="17" width="2" height="1" fill="#95D7AE" opacity="0.6"/>
+          <!-- Second figure -->
+          <rect x="26" y="18" width="3" height="10" fill="#6b4f3a"/>
+          <rect x="26" y="14" width="3" height="4" fill="#d4b896"/>
+          <rect x="27" y="15" width="1" height="1" fill="#2d2a26"/>
+        </svg>
+      </div>
+      <div class="question-text">A colleague shows you something they just built with a new tool. Your first thought is...</div>
+      <div class="choices">
+        <button class="choice" data-animal="fox">
+          <div class="mini-animal" data-sprite="fox"></div>
+          <span>Show me exactly how you did that.</span>
+        </button>
+        <button class="choice" data-animal="otter">
+          <div class="mini-animal" data-sprite="otter"></div>
+          <span>I want to try that right now.</span>
+        </button>
+        <button class="choice" data-animal="owl">
+          <div class="mini-animal" data-sprite="owl"></div>
+          <span>Interesting. Is this even allowed?</span>
+        </button>
+        <button class="choice" data-animal="hedgehog">
+          <div class="mini-animal" data-sprite="hedgehog"></div>
+          <span>I'm not sure how I feel about this.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q3 -->
+  <section class="screen question" id="q3" data-q="3">
+    <div class="scene-frame">
+      <div class="q-number">03 / 05</div>
+      <div class="pixel-scene">
+        <svg viewBox="0 0 48 36" xmlns="http://www.w3.org/2000/svg" class="idle-float">
+          <rect x="0" y="28" width="48" height="8" fill="#8ba373"/>
+          <!-- Sun setting -->
+          <circle cx="38" cy="10" r="4" fill="#f5deb3"/>
+          <!-- Cozy house -->
+          <rect x="8" y="16" width="14" height="12" fill="#c9b889"/>
+          <rect x="6" y="13" width="18" height="4" fill="#8b5a3c"/>
+          <rect x="12" y="20" width="3" height="4" fill="#6b4e3c"/>
+          <rect x="16" y="18" width="3" height="3" fill="#f5deb3"/>
+          <!-- Smoke -->
+          <rect x="11" y="9" width="1" height="1" fill="#fff" opacity="0.6"/>
+          <rect x="10" y="11" width="1" height="1" fill="#fff" opacity="0.4"/>
+          <!-- Clock icon -->
+          <circle cx="30" cy="20" r="4" fill="#fffaf0" stroke="#2d2a26" stroke-width="0.5"/>
+          <rect x="30" y="17" width="0.5" height="2" fill="#2d2a26"/>
+          <rect x="30" y="20" width="2" height="0.5" fill="#2d2a26"/>
+        </svg>
+      </div>
+      <div class="question-text">You have a free afternoon. Nothing scheduled, nothing owed. What do you do?</div>
+      <div class="choices">
+        <button class="choice" data-animal="fox">
+          <div class="mini-animal" data-sprite="fox"></div>
+          <span>Tinker with something weird.</span>
+        </button>
+        <button class="choice" data-animal="otter">
+          <div class="mini-animal" data-sprite="otter"></div>
+          <span>Find someone to grab coffee with.</span>
+        </button>
+        <button class="choice" data-animal="owl">
+          <div class="mini-animal" data-sprite="owl"></div>
+          <span>Read deeply into something.</span>
+        </button>
+        <button class="choice" data-animal="hedgehog">
+          <div class="mini-animal" data-sprite="hedgehog"></div>
+          <span>Rest. Don't feel guilty about it.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q4 -->
+  <section class="screen question" id="q4" data-q="4">
+    <div class="scene-frame">
+      <div class="q-number">04 / 05</div>
+      <div class="pixel-scene">
+        <svg viewBox="0 0 48 36" xmlns="http://www.w3.org/2000/svg" class="idle-float">
+          <rect x="0" y="28" width="48" height="8" fill="#8ba373"/>
+          <!-- Doorway / threshold -->
+          <rect x="16" y="10" width="16" height="18" fill="#5a7957"/>
+          <rect x="18" y="12" width="12" height="14" fill="#7BAE7F"/>
+          <rect x="20" y="14" width="8" height="10" fill="#95D7AE"/>
+          <!-- Question marks floating through -->
+          <rect x="22" y="17" width="1" height="1" fill="#fffaf0"/>
+          <rect x="23" y="16" width="1" height="1" fill="#fffaf0"/>
+          <rect x="24" y="17" width="1" height="1" fill="#fffaf0"/>
+          <rect x="24" y="18" width="1" height="1" fill="#fffaf0"/>
+          <rect x="24" y="19" width="1" height="1" fill="#fffaf0"/>
+          <rect x="24" y="21" width="1" height="1" fill="#fffaf0"/>
+        </svg>
+      </div>
+      <div class="question-text">When something new comes up at work, you usually feel...</div>
+      <div class="choices">
+        <button class="choice" data-animal="fox">
+          <div class="mini-animal" data-sprite="fox"></div>
+          <span>Honestly? I've probably already tried it at home.</span>
+        </button>
+        <button class="choice" data-animal="otter">
+          <div class="mini-animal" data-sprite="otter"></div>
+          <span>Excited. Where do I start?</span>
+        </button>
+        <button class="choice" data-animal="owl">
+          <div class="mini-animal" data-sprite="owl"></div>
+          <span>Skeptical until I see it working.</span>
+        </button>
+        <button class="choice" data-animal="hedgehog">
+          <div class="mini-animal" data-sprite="hedgehog"></div>
+          <span>Careful. I want to understand before I commit.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q5 - Open text (the Anchor Question) -->
+  <section class="screen" id="q5">
+    <div class="scene-frame">
+      <div class="q-number">05 / 05</div>
+      <div class="question-text">Last one. Before we meet — what would make this engagement feel worth your time?</div>
+      <p class="subtitle" style="font-size: 14px;">No pressure to polish it. Whatever comes to mind.</p>
+      <textarea class="open-input" id="anchor-answer" placeholder="I'd walk away feeling like it was worth it if..."></textarea>
+      <button class="btn btn-primary" onclick="reveal()">See who's coming →</button>
+    </div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="screen" id="reveal">
+    <div class="scene-frame">
+      <div class="eyebrow">You're arriving as</div>
+      <div class="reveal-card">
+        <div class="reveal-header">
+          <div class="reveal-animal-display" id="reveal-sprite"></div>
+          <div class="reveal-name">The <span class="accent" id="reveal-name">Fox</span></div>
+          <div class="reveal-tagline" id="reveal-tagline">Already ahead.</div>
+        </div>
+        <div class="reveal-body">
+          <p class="reveal-bio" id="reveal-bio"></p>
+          <div class="reveal-grid">
+            <div class="reveal-slot">
+              <div class="label">What you bring</div>
+              <div class="value" id="reveal-bring"></div>
+            </div>
+            <div class="reveal-slot">
+              <div class="label">What this room owes you</div>
+              <div class="value" id="reveal-owed"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
+        <button class="btn btn-primary" onclick="sendResult()">Send to The Counter →</button>
+        <button class="btn btn-ghost" onclick="reset()">Start over</button>
+      </div>
+      <p style="font-size: 12px; color: #a89e89; text-align: center; max-width: 400px; margin-top: 8px;">
+        See you in the room.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ============================
+   ANIMAL DATA + PIXEL SPRITES
+   ============================ */
+const animals = {
+  fox: {
+    name: 'Fox',
+    tagline: 'Already ahead.',
+    bio: "Foxes don't wait for permission. They see something interesting and move toward it — curious, quick, happy to improvise. You've probably already been experimenting on your own. You'll be the one helping others see what's possible.",
+    bring: "Energy, confidence, and the instinct to try things before they're approved.",
+    owed: "A challenge worthy of your skill. Don't bore us, and we won't bore you.",
+    color: '#d97857'
+  },
+  otter: {
+    name: 'Otter',
+    tagline: 'Shows up ready.',
+    bio: "Otters arrive with both hands open. Curious, eager, social — they aren't afraid of looking foolish, they're afraid of missing the fun. You haven't had as much practice with this yet, but you have more than enough enthusiasm to make up for it.",
+    bring: "Openness, optimism, and the pull that gets others off the sidelines.",
+    owed: "A real task, not a warm-up. You came here to build something."
+  },
+  owl: {
+    name: 'Owl',
+    tagline: 'Watches first.',
+    bio: "Owls know things. They've seen enough waves of new technology to stay measured. You're engaged with this, but you're not going to clap along just because everyone else is. Your skepticism isn't resistance — it's quality control.",
+    bring: "Perspective, pattern recognition, and the questions that make ideas sharper.",
+    owed: "Your concerns taken seriously. Not dismissed, not rushed past."
+  },
+  hedgehog: {
+    name: 'Hedgehog',
+    tagline: 'Careful, and right to be.',
+    bio: "Hedgehogs are gentle, thoughtful, and honest about what they don't know. You're not hiding from change — you're asking for the conditions to engage with it on your terms. That's a reasonable ask, and this engagement is built around it.",
+    bring: "Honesty, patience, and the quiet insights that confident voices often miss.",
+    owed: "Space. Control over pace. Nobody is going to surprise you into something."
+  }
+};
+
+const spriteSvgs = {
+  fox: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- ears -->
+    <rect x="3" y="3" width="2" height="2" fill="#d97857"/>
+    <rect x="11" y="3" width="2" height="2" fill="#d97857"/>
+    <rect x="4" y="4" width="1" height="1" fill="#f5deb3"/>
+    <rect x="11" y="4" width="1" height="1" fill="#f5deb3"/>
+    <!-- head -->
+    <rect x="3" y="5" width="10" height="5" fill="#d97857"/>
+    <rect x="5" y="6" width="1" height="1" fill="#2d2a26"/>
+    <rect x="10" y="6" width="1" height="1" fill="#2d2a26"/>
+    <!-- snout -->
+    <rect x="7" y="8" width="2" height="2" fill="#f5deb3"/>
+    <rect x="7" y="9" width="2" height="1" fill="#f5deb3"/>
+    <rect x="7" y="9" width="2" height="1" fill="#2d2a26"/>
+    <!-- body -->
+    <rect x="4" y="10" width="8" height="4" fill="#d97857"/>
+    <rect x="5" y="11" width="6" height="2" fill="#f5deb3"/>
+    <!-- tail -->
+    <rect x="12" y="9" width="2" height="4" fill="#d97857"/>
+    <rect x="13" y="8" width="1" height="5" fill="#d97857"/>
+    <rect x="13" y="12" width="1" height="1" fill="#fffaf0"/>
+    <!-- feet -->
+    <rect x="4" y="14" width="2" height="1" fill="#2d2a26"/>
+    <rect x="10" y="14" width="2" height="1" fill="#2d2a26"/>
+  </svg>`,
+  otter: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- ears -->
+    <rect x="3" y="3" width="2" height="1" fill="#6b4e3c"/>
+    <rect x="11" y="3" width="2" height="1" fill="#6b4e3c"/>
+    <!-- head -->
+    <rect x="3" y="4" width="10" height="5" fill="#8b6f47"/>
+    <rect x="5" y="5" width="1" height="1" fill="#2d2a26"/>
+    <rect x="10" y="5" width="1" height="1" fill="#2d2a26"/>
+    <rect x="4" y="5" width="1" height="1" fill="#fffaf0"/>
+    <rect x="11" y="5" width="1" height="1" fill="#fffaf0"/>
+    <!-- snout -->
+    <rect x="7" y="7" width="2" height="2" fill="#d4b896"/>
+    <rect x="7" y="7" width="2" height="1" fill="#2d2a26"/>
+    <!-- whiskers -->
+    <rect x="2" y="7" width="1" height="1" fill="#6b4e3c"/>
+    <rect x="13" y="7" width="1" height="1" fill="#6b4e3c"/>
+    <!-- body -->
+    <rect x="4" y="9" width="8" height="5" fill="#8b6f47"/>
+    <rect x="5" y="10" width="6" height="3" fill="#d4b896"/>
+    <!-- arms holding something -->
+    <rect x="3" y="10" width="1" height="2" fill="#8b6f47"/>
+    <rect x="12" y="10" width="1" height="2" fill="#8b6f47"/>
+    <!-- rock/shell -->
+    <rect x="7" y="10" width="2" height="2" fill="#c9b889"/>
+    <!-- feet -->
+    <rect x="4" y="14" width="2" height="1" fill="#2d2a26"/>
+    <rect x="10" y="14" width="2" height="1" fill="#2d2a26"/>
+  </svg>`,
+  owl: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- ear tufts -->
+    <rect x="3" y="2" width="1" height="2" fill="#6b4e3c"/>
+    <rect x="12" y="2" width="1" height="2" fill="#6b4e3c"/>
+    <!-- head -->
+    <rect x="2" y="3" width="12" height="6" fill="#6b4e3c"/>
+    <rect x="3" y="4" width="10" height="4" fill="#d4a574"/>
+    <!-- big eyes -->
+    <rect x="4" y="5" width="3" height="3" fill="#fffaf0"/>
+    <rect x="9" y="5" width="3" height="3" fill="#fffaf0"/>
+    <rect x="5" y="6" width="1" height="1" fill="#2d2a26"/>
+    <rect x="10" y="6" width="1" height="1" fill="#2d2a26"/>
+    <!-- beak -->
+    <rect x="7" y="8" width="2" height="1" fill="#f5a623"/>
+    <rect x="7" y="9" width="2" height="1" fill="#c87d0d"/>
+    <!-- body -->
+    <rect x="3" y="9" width="10" height="5" fill="#6b4e3c"/>
+    <!-- feather pattern -->
+    <rect x="5" y="10" width="1" height="1" fill="#d4a574"/>
+    <rect x="8" y="10" width="1" height="1" fill="#d4a574"/>
+    <rect x="11" y="10" width="1" height="1" fill="#d4a574"/>
+    <rect x="4" y="12" width="1" height="1" fill="#d4a574"/>
+    <rect x="7" y="12" width="1" height="1" fill="#d4a574"/>
+    <rect x="10" y="12" width="1" height="1" fill="#d4a574"/>
+    <!-- feet -->
+    <rect x="5" y="14" width="2" height="1" fill="#f5a623"/>
+    <rect x="9" y="14" width="2" height="1" fill="#f5a623"/>
+  </svg>`,
+  hedgehog: `<svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+    <!-- spikes (back) -->
+    <rect x="5" y="3" width="1" height="2" fill="#5d4e37"/>
+    <rect x="7" y="2" width="1" height="3" fill="#5d4e37"/>
+    <rect x="9" y="3" width="1" height="2" fill="#5d4e37"/>
+    <rect x="11" y="3" width="1" height="2" fill="#5d4e37"/>
+    <rect x="13" y="4" width="1" height="2" fill="#5d4e37"/>
+    <!-- spiky body -->
+    <rect x="3" y="5" width="11" height="7" fill="#5d4e37"/>
+    <rect x="4" y="4" width="9" height="1" fill="#5d4e37"/>
+    <!-- spike texture dots -->
+    <rect x="5" y="6" width="1" height="1" fill="#8b7355"/>
+    <rect x="7" y="7" width="1" height="1" fill="#8b7355"/>
+    <rect x="9" y="6" width="1" height="1" fill="#8b7355"/>
+    <rect x="11" y="7" width="1" height="1" fill="#8b7355"/>
+    <rect x="6" y="9" width="1" height="1" fill="#8b7355"/>
+    <rect x="10" y="9" width="1" height="1" fill="#8b7355"/>
+    <!-- face (peach) -->
+    <rect x="1" y="7" width="4" height="4" fill="#e8c89b"/>
+    <!-- eye -->
+    <rect x="2" y="8" width="1" height="1" fill="#2d2a26"/>
+    <!-- nose -->
+    <rect x="0" y="8" width="1" height="1" fill="#2d2a26"/>
+    <!-- feet -->
+    <rect x="5" y="12" width="2" height="1" fill="#2d2a26"/>
+    <rect x="10" y="12" width="2" height="1" fill="#2d2a26"/>
+  </svg>`
+};
+
+/* ============================
+   STATE
+   ============================ */
+const state = {
+  current: 'landing',
+  scores: { fox: 0, otter: 0, owl: 0, hedgehog: 0 },
+  anchor: '',
+  result: null
+};
+
+const questionOrder = ['q1', 'q2', 'q3', 'q4', 'q5'];
+const totalQuestions = questionOrder.length;
+
+/* ============================
+   INIT: inject sprites
+   ============================ */
+function injectSprites() {
+  document.querySelectorAll('[data-sprite]').forEach(el => {
+    const sprite = el.dataset.sprite;
+    if (spriteSvgs[sprite]) {
+      el.innerHTML = spriteSvgs[sprite];
+    }
+  });
+}
+
+/* ============================
+   NAVIGATION
+   ============================ */
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.classList.add('active');
+  state.current = id;
+  updateProgress(id);
+  // Scroll target into top if it has open textarea
+  if (id === 'q5') {
+    setTimeout(() => document.getElementById('anchor-answer').focus(), 400);
+  }
+}
+
+function updateProgress(id) {
+  const progressEl = document.getElementById('progress');
+  const qIdx = questionOrder.indexOf(id);
+  if (qIdx >= 0) {
+    progressEl.classList.add('visible');
+    progressEl.innerHTML = questionOrder.map((q, i) => {
+      let cls = 'progress-dot';
+      if (i < qIdx) cls += ' done';
+      else if (i === qIdx) cls += ' current';
+      return `<div class="${cls}"></div>`;
+    }).join('');
+  } else {
+    progressEl.classList.remove('visible');
+  }
+}
+
+/* ============================
+   QUESTION HANDLING
+   ============================ */
+document.querySelectorAll('.question .choice').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const parent = btn.closest('.question');
+    const animal = btn.dataset.animal;
+    state.scores[animal] += 2;
+    // visual confirm
+    parent.querySelectorAll('.choice').forEach(c => c.classList.remove('selected'));
+    btn.classList.add('selected');
+    // advance after short delay
+    setTimeout(() => {
+      const currentQ = parent.id;
+      const nextIdx = questionOrder.indexOf(currentQ) + 1;
+      if (nextIdx < questionOrder.length) {
+        goTo(questionOrder[nextIdx]);
+      }
+    }, 280);
+  });
+});
+
+/* ============================
+   REVEAL
+   ============================ */
+function reveal() {
+  const anchor = document.getElementById('anchor-answer').value.trim();
+  state.anchor = anchor;
+  // Determine winner (highest score, tie-break by order: fox, owl, otter, hedgehog)
+  const order = ['fox', 'owl', 'otter', 'hedgehog'];
+  let best = order[0];
+  for (const key of order) {
+    if (state.scores[key] > state.scores[best]) best = key;
+  }
+  state.result = best;
+  // Populate reveal
+  const a = animals[best];
+  document.getElementById('reveal-name').textContent = a.name;
+  document.getElementById('reveal-tagline').textContent = a.tagline;
+  document.getElementById('reveal-bio').textContent = a.bio;
+  document.getElementById('reveal-bring').textContent = a.bring;
+  document.getElementById('reveal-owed').textContent = a.owed;
+  document.getElementById('reveal-sprite').innerHTML = spriteSvgs[best];
+  goTo('reveal');
+  // Little sparkle burst
+  setTimeout(() => sparkleBurst(), 200);
+}
+
+function sparkleBurst() {
+  const card = document.querySelector('.reveal-header');
+  if (!card) return;
+  const rect = card.getBoundingClientRect();
+  for (let i = 0; i < 12; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + 60;
+    s.style.left = cx + 'px';
+    s.style.top = cy + 'px';
+    const angle = (Math.PI * 2 * i) / 12;
+    const dist = 40 + Math.random() * 40;
+    s.style.setProperty('--dx', Math.cos(angle) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(angle) * dist + 'px');
+    s.style.background = ['#73956F', '#95D7AE', '#d97857', '#f5deb3'][i % 4];
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+}
+
+function sendResult() {
+  // Placeholder — in production this would POST to Formspree/endpoint
+  const payload = {
+    animal: state.result,
+    anchor: state.anchor,
+    scores: state.scores,
+    timestamp: new Date().toISOString()
+  };
+  console.log('Would send:', payload);
+  alert("Thanks! We've received your arrival. See you in the room.\n\n(In production: this would send your result to The Counter team via Formspree or similar.)");
+}
+
+function reset() {
+  state.scores = { fox: 0, otter: 0, owl: 0, hedgehog: 0 };
+  state.anchor = '';
+  state.result = null;
+  document.getElementById('anchor-answer').value = '';
+  document.querySelectorAll('.choice.selected').forEach(c => c.classList.remove('selected'));
+  goTo('landing');
+}
+
+// Initialize
+injectSprites();
+</script>
+</body>
+</html>

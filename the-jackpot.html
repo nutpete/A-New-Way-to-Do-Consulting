@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Jackpot · Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=JetBrains+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,400;0,700;1,400;1,700&family=Caveat:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --paper: #e8e0ca;
+    --paper-light: #f0e8d3;
+    --ink: #1a1a1a;
+    --ink-soft: #3a3a3a;
+    --console: #0a0a0a;
+    --console-edge: #1a1a1a;
+    --red: #e63946;
+    --red-deep: #b8263a;
+    --yellow: #ffd700;
+    --yellow-dim: #d4b200;
+    --green: #7bdc66;
+    --green-deep: #3d8b3d;
+    --cyan: #7fdbff;
+    --blue: #3d5dc4;
+    --purple: #9a6fd0;
+    --orange: #ff9a3c;
+  }
+  html, body {
+    min-height: 100%;
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+  body {
+    padding: 0 0 48px 0;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.015) 0px,
+      rgba(0,0,0,0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    z-index: 1;
+  }
+
+  /* Top HUD bar */
+  .hud {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--console);
+    border-bottom: 3px solid var(--red);
+    padding: 14px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 24px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--yellow);
+    letter-spacing: 0.05em;
+  }
+  .hud-left { display: flex; align-items: center; gap: 10px; }
+  .hud-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px; height: 20px;
+    background: var(--red);
+    color: var(--yellow);
+    font-size: 14px;
+    line-height: 1;
+  }
+  .hud-center {
+    display: flex;
+    gap: 28px;
+    font-size: 9px;
+    color: #d9d9d9;
+  }
+  .hud-center .k { color: #999; }
+  .hud-center .v { color: var(--yellow); margin-left: 6px; }
+  .hud-center .online { color: var(--green); }
+  .hud-center .online::before { content: '● '; color: var(--green); }
+  .hud-right { display: flex; justify-content: flex-end; gap: 10px; }
+  .hud-btn {
+    background: transparent;
+    border: 2px solid var(--yellow);
+    color: var(--yellow);
+    font-family: inherit;
+    font-size: 9px;
+    padding: 6px 10px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+  }
+  .hud-btn:hover { background: var(--yellow); color: var(--console); }
+
+  /* Main stage */
+  .stage {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Screen container pattern (consistent with Sorting Hat) */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fade-in 0.4s ease; }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Level header */
+  .level-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .level-tag {
+    background: var(--red);
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    padding: 10px 14px;
+    letter-spacing: 0.08em;
+    box-shadow: 3px 3px 0 var(--console);
+  }
+  .level-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    color: var(--ink);
+    line-height: 1.6;
+    padding-top: 8px;
+  }
+  .level-sub {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+  }
+  .level-sub::before { content: '▸ '; color: var(--red); }
+
+  /* ATTRACT SCREEN */
+  .attract {
+    background: var(--console);
+    color: #d9d9d9;
+    padding: 56px 48px;
+    border-radius: 2px;
+    position: relative;
+    box-shadow:
+      inset 0 0 0 4px var(--console),
+      inset 0 0 0 5px var(--red),
+      8px 10px 0 rgba(0,0,0,0.1);
+  }
+  .attract-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 60px;
+    line-height: 1.05;
+    color: var(--yellow);
+    text-shadow: 4px 4px 0 var(--red), 4px 4px 0 var(--red-deep);
+    letter-spacing: 0.02em;
+  }
+  .attract-sub {
+    font-family: 'VT323', monospace;
+    font-size: 26px;
+    color: var(--green);
+    margin-top: 16px;
+    letter-spacing: 0.02em;
+  }
+  .attract-sub::before { content: '▸ '; }
+  .attract-body {
+    max-width: 560px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    line-height: 1.55;
+    color: #d9d9d9;
+    margin-top: 28px;
+  }
+  .attract-form {
+    margin-top: 36px;
+    border: 2px dashed var(--green);
+    padding: 24px 22px;
+    max-width: 620px;
+  }
+  .attract-form-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+  }
+  .attract-form-label::before { content: '▹ '; }
+  .attract-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--yellow);
+    color: var(--yellow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 22px;
+    padding: 10px 2px;
+    margin: 10px 0 22px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    outline: none;
+  }
+  .attract-input::placeholder { color: rgba(255,215,0,0.25); }
+  .attract-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .attract-hint {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--yellow-dim);
+    margin-top: 16px;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+  }
+  .attract-hint::before { content: '▸ '; }
+  .slot-preview {
+    position: absolute;
+    right: 48px;
+    top: 48px;
+    width: 220px;
+    opacity: 0.75;
+  }
+  @media (max-width: 860px) { .slot-preview { display: none; } }
+
+  /* Buttons */
+  .btn {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    padding: 12px 18px;
+    letter-spacing: 0.06em;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.1s;
+    user-select: none;
+  }
+  .btn:active { transform: translate(2px, 2px); }
+  .btn-start {
+    background: var(--yellow);
+    color: var(--console);
+    border-color: var(--console);
+    box-shadow: 3px 3px 0 var(--console);
+  }
+  .btn-start::before { content: '▸ '; }
+  .btn-start:hover { background: #ffe84d; }
+  .btn-secondary {
+    background: transparent;
+    color: var(--green);
+    border-color: var(--green);
+  }
+  .btn-secondary:hover { background: var(--green); color: var(--console); }
+  .btn-primary {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--console);
+    box-shadow: 3px 3px 0 var(--console);
+  }
+  .btn-primary:hover { background: #ff4d5f; }
+  .btn-primary::after { content: ' ▸'; }
+  .btn-lock {
+    background: var(--green-deep);
+    color: #fff;
+    border-color: var(--console);
+    box-shadow: 3px 3px 0 var(--console);
+  }
+  .btn-lock::before { content: '✓ '; }
+  .btn-lock:hover { background: #4fa94f; }
+  .btn-back {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 2px solid var(--ink-soft);
+  }
+  .btn-back::before { content: '◂ '; }
+  .btn-back:hover { background: var(--ink-soft); color: var(--paper); }
+  .btn-spin {
+    background: var(--yellow);
+    color: var(--console);
+    border-color: var(--console);
+    box-shadow: 4px 4px 0 var(--console);
+    font-size: 14px;
+    padding: 16px 24px;
+  }
+  .btn-spin::before { content: '◎ '; }
+  .btn-spin:hover { background: #ffe84d; }
+
+  /* Golden Ticket insert */
+  .ticket-console {
+    background: var(--console);
+    color: var(--paper-light);
+    padding: 28px 24px;
+    border-left: 6px solid var(--yellow);
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.1);
+  }
+  .ticket-console-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--yellow);
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+  }
+  .ticket-console-label::before { content: '▹ '; }
+  .ticket-input {
+    width: 100%;
+    background: rgba(255,215,0,0.04);
+    border: 1px dashed rgba(255,215,0,0.3);
+    color: var(--paper-light);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 56px;
+    outline: none;
+  }
+  .ticket-input:focus { border-color: var(--yellow); }
+  .ticket-field {
+    margin-bottom: 18px;
+  }
+  .ticket-field-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .ticket-field-hint {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: rgba(217,217,217,0.6);
+    margin-bottom: 6px;
+  }
+
+  /* Speech bubble (the machine talks) */
+  .speech {
+    background: #fff;
+    border: 3px solid var(--console);
+    padding: 16px 22px;
+    max-width: 620px;
+    margin: 24px auto 32px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    position: relative;
+    box-shadow: 5px 5px 0 var(--console);
+  }
+  .speech::after {
+    content: '';
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-top: 14px solid var(--console);
+  }
+  .speech::before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-2px);
+    width: 0; height: 0;
+    border-left: 11px solid transparent;
+    border-right: 11px solid transparent;
+    border-top: 11px solid #fff;
+    z-index: 1;
+  }
+  .speech .cursor {
+    display: inline-block;
+    width: 8px;
+    height: 16px;
+    background: var(--red);
+    vertical-align: middle;
+    margin-left: 3px;
+    animation: blink 1.1s infinite steps(2);
+  }
+  @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
+
+  /* Slot Machine */
+  .slot-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  .machine {
+    background: linear-gradient(180deg, #c41e3a 0%, #8b1428 100%);
+    border: 5px solid var(--console);
+    padding: 24px 28px 20px;
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    border-radius: 8px;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.2),
+      inset 0 -4px 0 rgba(0,0,0,0.3),
+      6px 8px 0 rgba(0,0,0,0.15);
+  }
+  .machine-lights {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding: 0 10px;
+  }
+  .bulb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--yellow);
+    box-shadow: 0 0 8px var(--yellow), inset 0 -2px 0 rgba(0,0,0,0.3);
+  }
+  .bulb:nth-child(even) { background: var(--orange); box-shadow: 0 0 8px var(--orange), inset 0 -2px 0 rgba(0,0,0,0.3); }
+  .machine.spinning .bulb { animation: bulb-pulse 0.4s infinite alternate; }
+  @keyframes bulb-pulse { from { filter: brightness(1); } to { filter: brightness(0.5); } }
+  .machine-title {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 18px;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    margin-bottom: 16px;
+    text-shadow: 2px 2px 0 var(--console);
+  }
+  .machine-title::before { content: '★ '; color: var(--yellow); }
+  .machine-title::after { content: ' ★'; color: var(--yellow); }
+  .reels {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    background: var(--console);
+    padding: 10px;
+    border: 3px solid var(--yellow);
+    border-radius: 4px;
+  }
+  .reel {
+    background: var(--paper-light);
+    height: 180px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid var(--console);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .reel-inner {
+    display: flex;
+    flex-direction: column;
+    transition: transform 2.5s cubic-bezier(0.2, 0.8, 0.3, 1);
+  }
+  .reel-item {
+    height: 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px;
+    flex-shrink: 0;
+  }
+  .reel-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 32px;
+    line-height: 1;
+  }
+  .reel-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    color: var(--console);
+    text-align: center;
+  }
+  .machine-display {
+    background: var(--console);
+    color: var(--green);
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    text-align: center;
+    padding: 10px 14px;
+    margin-top: 14px;
+    border: 2px solid var(--yellow);
+    letter-spacing: 0.1em;
+    min-height: 48px;
+  }
+  .machine-lever {
+    position: absolute;
+    right: -42px;
+    top: 60px;
+    width: 36px;
+    height: 160px;
+  }
+  .lever-shaft {
+    position: absolute;
+    top: 20px; left: 14px;
+    width: 8px; height: 120px;
+    background: var(--console);
+    transition: transform 0.4s ease;
+    transform-origin: bottom center;
+  }
+  .lever-knob {
+    position: absolute;
+    top: 0; left: 0;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff6b6b, #8b1428);
+    border: 3px solid var(--console);
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3);
+    transition: transform 0.4s ease;
+  }
+  .machine.spinning .lever-shaft { transform: rotate(-20deg) translateY(20px); }
+  .machine.spinning .lever-knob { transform: translate(6px, 14px); }
+  @media (max-width: 700px) { .machine-lever { display: none; } }
+
+  /* Discussion guide */
+  .discussion {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .discussion-question {
+    background: #fff;
+    border: 3px solid var(--console);
+    padding: 20px 22px;
+    box-shadow: 4px 4px 0 var(--console);
+    position: relative;
+  }
+  .dq-number {
+    position: absolute;
+    top: -14px; left: -14px;
+    width: 34px; height: 34px;
+    background: var(--yellow);
+    color: var(--console);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--console);
+    transform: rotate(-4deg);
+  }
+  .dq-q {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+    margin-bottom: 14px;
+    padding-left: 28px;
+  }
+  .dq-hint {
+    font-family: 'VT323', monospace;
+    font-size: 17px;
+    color: var(--ink-soft);
+    margin: -6px 0 12px 28px;
+    letter-spacing: 0.02em;
+    opacity: 0.8;
+  }
+  .dq-hint::before { content: '▸ '; color: var(--red); }
+  .dq-input {
+    width: 100%;
+    background: #fef9e7;
+    border: 2px dashed var(--console);
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    line-height: 1.35;
+    color: var(--ink);
+    padding: 14px 16px;
+    min-height: 90px;
+    resize: vertical;
+    outline: none;
+  }
+  .dq-input:focus { background: #fff8d4; border-style: solid; }
+
+  /* Concept cards */
+  .concepts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    margin-top: 24px;
+  }
+  @media (max-width: 960px) { .concepts-grid { grid-template-columns: 1fr; } }
+  .concept {
+    background: #fff;
+    border: 3px solid var(--console);
+    box-shadow: 5px 5px 0 var(--console);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .concept:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--console); }
+  .concept.picked {
+    box-shadow: 5px 5px 0 var(--green-deep);
+    border-color: var(--green-deep);
+  }
+  .concept.picked::after {
+    content: '★ PICKED';
+    position: absolute;
+    top: -14px; right: -8px;
+    background: var(--green-deep);
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 6px 10px;
+    letter-spacing: 0.06em;
+    transform: rotate(4deg);
+  }
+  .concept-reel {
+    background: var(--console);
+    color: var(--yellow);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 3px solid var(--yellow);
+  }
+  .concept-reel-icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 20px;
+    color: var(--yellow);
+  }
+  .concept-reel-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+  }
+  .concept-reel-label .archetype { color: var(--yellow); display: block; }
+  .concept-reel-label .sublabel { color: var(--green); display: block; margin-top: 4px; font-size: 8px; }
+  .concept-mockup {
+    background: var(--paper-light);
+    padding: 16px;
+    border-bottom: 2px solid var(--console);
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .concept-mockup svg { width: 100%; height: auto; max-height: 110px; }
+  .concept-body {
+    padding: 16px 18px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .concept-name {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 20px;
+    line-height: 1.25;
+    margin-bottom: 10px;
+  }
+  .concept-pitch {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .concept-section-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    margin: 10px 0 6px;
+  }
+  .concept-section-label::before { content: '▹ '; }
+  .concept-features {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 14px;
+  }
+  .concept-features li {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+    padding: 3px 0 3px 18px;
+    position: relative;
+    color: var(--ink);
+  }
+  .concept-features li::before {
+    content: '▪';
+    position: absolute;
+    left: 2px;
+    color: var(--red);
+  }
+  .concept-outcome {
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    line-height: 1.3;
+    color: var(--ink);
+    background: #fef9e7;
+    padding: 10px 12px;
+    border-left: 3px solid var(--yellow);
+    margin-bottom: 16px;
+  }
+  .concept-pick-btn {
+    margin-top: auto;
+    background: var(--console);
+    color: #fff;
+    border: 2px solid var(--red);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 10px 14px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: all 0.1s;
+  }
+  .concept-pick-btn:hover { background: var(--red); }
+  .concept-pick-btn::before { content: '▸ '; }
+  .concept.picked .concept-pick-btn { background: var(--green-deep); border-color: var(--green-deep); }
+  .concept.picked .concept-pick-btn::before { content: '✓ '; }
+
+  /* Treasure chest */
+  .treasure {
+    margin-top: 32px;
+    background: var(--paper-light);
+    border: 2px dashed var(--console);
+    padding: 18px 20px;
+  }
+  .treasure-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+  .treasure-label::before { content: '▹ '; }
+  .treasure-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  .treasure-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .treasure-item {
+    background: #fff;
+    border: 2px solid var(--console);
+    padding: 10px 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  /* Final takeaway card (Build Chip) */
+  .chip-wrap { display: flex; flex-direction: column; align-items: center; gap: 24px; }
+  .jackpot-machine {
+    background: linear-gradient(180deg, #c41e3a 0%, #8b1428 100%);
+    border: 5px solid var(--console);
+    padding: 20px 28px 24px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 540px;
+    position: relative;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,0.2),
+      inset 0 -4px 0 rgba(0,0,0,0.3),
+      6px 8px 0 rgba(0,0,0,0.15);
+  }
+  .jackpot-title {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    color: var(--yellow);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    text-shadow: 2px 2px 0 var(--console);
+  }
+  .jackpot-title::before { content: '★ '; }
+  .jackpot-title::after { content: ' ★'; }
+  .jackpot-window {
+    background: #fff;
+    border: 3px solid var(--yellow);
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+  .jackpot-window .icon {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 40px;
+    color: var(--red);
+  }
+  .jackpot-banner {
+    background: var(--console);
+    color: var(--green);
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    text-align: center;
+    padding: 10px;
+    margin-top: 12px;
+    letter-spacing: 0.1em;
+  }
+
+  .chip {
+    background: #fef9e7;
+    border: 2px solid var(--console);
+    padding: 28px 32px;
+    max-width: 640px;
+    width: 100%;
+    position: relative;
+    font-family: 'JetBrains Mono', monospace;
+    box-shadow: 6px 6px 0 var(--console);
+  }
+  .chip::before, .chip::after {
+    content: '';
+    display: block;
+    height: 1px;
+    background: repeating-linear-gradient(90deg, var(--console) 0 4px, transparent 4px 8px);
+    margin: 16px 0;
+  }
+  .chip-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 0.08em;
+  }
+  .chip-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .chip-subtitle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+  .chip-subtitle::before { content: '▹ '; }
+  .chip-box {
+    background: var(--paper-light);
+    border: 1px solid var(--console);
+    padding: 16px 18px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 14px 0;
+  }
+  .chip-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 12px;
+    padding: 8px 0;
+    font-size: 12px;
+    border-top: 1px dotted var(--ink-soft);
+  }
+  .chip-row:first-of-type { border-top: none; }
+  .chip-row .k {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--ink-soft);
+    letter-spacing: 0.08em;
+    padding-top: 2px;
+  }
+  .chip-row .v {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .chip-barcode {
+    height: 36px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--console) 0 2px, transparent 2px 3px,
+      var(--console) 3px 4px, transparent 4px 7px,
+      var(--console) 7px 10px, transparent 10px 11px
+    );
+    margin: 10px 0 6px;
+  }
+  .chip-footer {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 8px;
+    color: var(--ink-soft);
+    letter-spacing: 0.1em;
+  }
+  .chip-value {
+    text-align: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+  .chip-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .chip-action {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    padding: 12px 16px;
+    border: 2px solid var(--console);
+    box-shadow: 3px 3px 0 var(--console);
+    cursor: pointer;
+    letter-spacing: 0.06em;
+  }
+  .chip-action.green { background: var(--green-deep); color: #fff; }
+  .chip-action.blue { background: var(--blue); color: #fff; }
+  .chip-action.yellow { background: var(--yellow); color: var(--console); }
+  .chip-action.red { background: var(--red); color: #fff; }
+  .chip-action:hover { filter: brightness(1.1); }
+
+  /* Nav footer */
+  .nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 40px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .progress-bar {
+    display: flex;
+    gap: 6px;
+    margin: 0 0 22px 0;
+  }
+  .progress-cell {
+    flex: 1;
+    height: 10px;
+    background: transparent;
+    border: 2px solid var(--console);
+  }
+  .progress-cell.done { background: var(--yellow); }
+  .progress-cell.active {
+    background: var(--red);
+    animation: pulse 1.2s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Scoreboard */
+  .scoreboard {
+    background: var(--console);
+    color: #fff;
+    border: 3px solid var(--red);
+    padding: 20px 24px;
+    margin-top: 24px;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.15);
+  }
+  .scoreboard-label {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--yellow);
+    letter-spacing: 0.08em;
+    margin-bottom: 16px;
+  }
+  .scoreboard-label::before { content: '▹ '; }
+  .scoreboard-row {
+    display: grid;
+    grid-template-columns: 30px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px dashed rgba(255,255,255,0.2);
+  }
+  .scoreboard-row:first-of-type { border-top: none; }
+  .scoreboard-num {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--red);
+  }
+  .scoreboard-q {
+    font-family: 'Fraunces', Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.3;
+    color: #f0e8d3;
+  }
+  .scoreboard-q-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    margin-top: 3px;
+  }
+
+  .flash {
+    animation: flash 0.5s 3;
+  }
+  @keyframes flash {
+    0%, 100% { background: transparent; }
+    50% { background: rgba(255,215,0,0.2); }
+  }
+
+  /* Small pixel hat character (continuity) */
+  .pixel-char {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 10px;
+  }
+  .sr-only { position: absolute; left: -9999px; }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div class="hud">
+  <div class="hud-left">
+    <span class="hud-logo">+</span>
+    <span>COUNTER</span>
+  </div>
+  <div class="hud-center">
+    <span><span class="k">PLAYER:</span><span class="v" id="hud-player">- - -</span></span>
+    <span><span class="k">LEVEL:</span><span class="v" id="hud-level">0 / 5</span></span>
+    <span><span class="k">CHIPS:</span><span class="v" id="hud-chips">0</span></span>
+    <span class="online">ONLINE</span>
+  </div>
+  <div class="hud-right">
+    <button class="hud-btn" onclick="window.close()">« EXIT</button>
+    <button class="hud-btn" onclick="resetAll()">RESET</button>
+  </div>
+</div>
+
+<main class="stage">
+
+  <!-- ATTRACT -->
+  <section class="screen active" id="screen-attract">
+    <div class="attract">
+      <svg class="slot-preview" viewBox="0 0 220 220" aria-hidden="true">
+        <rect x="20" y="40" width="180" height="140" rx="8" fill="#c41e3a" stroke="#0a0a0a" stroke-width="4"/>
+        <rect x="35" y="80" width="150" height="70" fill="#0a0a0a" stroke="#ffd700" stroke-width="2"/>
+        <rect x="42" y="90" width="40" height="50" fill="#fff"/>
+        <rect x="90" y="90" width="40" height="50" fill="#fff"/>
+        <rect x="138" y="90" width="40" height="50" fill="#fff"/>
+        <text x="62" y="122" font-family="Press Start 2P" font-size="18" fill="#e63946" text-anchor="middle">★</text>
+        <text x="110" y="122" font-family="Press Start 2P" font-size="18" fill="#e63946" text-anchor="middle">◆</text>
+        <text x="158" y="122" font-family="Press Start 2P" font-size="18" fill="#e63946" text-anchor="middle">★</text>
+        <circle cx="40" cy="48" r="4" fill="#ffd700"/>
+        <circle cx="60" cy="48" r="4" fill="#ff9a3c"/>
+        <circle cx="80" cy="48" r="4" fill="#ffd700"/>
+        <circle cx="100" cy="48" r="4" fill="#ff9a3c"/>
+        <circle cx="120" cy="48" r="4" fill="#ffd700"/>
+        <circle cx="140" cy="48" r="4" fill="#ff9a3c"/>
+        <circle cx="160" cy="48" r="4" fill="#ffd700"/>
+        <circle cx="180" cy="48" r="4" fill="#ff9a3c"/>
+        <rect x="200" y="100" width="10" height="40" fill="#0a0a0a"/>
+        <circle cx="205" cy="95" r="10" fill="#ff6b6b" stroke="#0a0a0a" stroke-width="3"/>
+      </svg>
+      <div class="attract-title">THE<br/>JACKPOT</div>
+      <div class="attract-sub">a concept-generation arcade</div>
+      <div class="attract-body">
+        Step up to the machine. Drop in your Golden Ticket. Tell me a bit more about the problem in your own words. Pull the lever and the reels will land on three starter concepts — three different ways AI could take a swing at it. Pick the one that pulls you forward, pocket the rest for later.
+      </div>
+      <div class="attract-form">
+        <div class="attract-form-label">INSERT GOLDEN TICKET · ENTER YOUR NAME</div>
+        <input class="attract-input" id="player-name" placeholder="AAA" maxlength="32" autocomplete="off"/>
+        <div class="attract-actions">
+          <button class="btn btn-start" onclick="startGame()">PRESS START</button>
+          <button class="btn btn-secondary" onclick="loadExample()">▸ LOAD EXAMPLE</button>
+        </div>
+        <div class="attract-hint">INSERT GOLDEN TICKET TO CONTINUE</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 1: Feed the Machine / Golden Ticket -->
+  <section class="screen" id="screen-ticket">
+    <div class="progress-bar">
+      <div class="progress-cell active"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">LEVEL 1 / 5</div>
+      <div>
+        <div class="level-title">FEED THE MACHINE</div>
+        <div class="level-sub">drop in your golden ticket · the machine reads what the hat wrote</div>
+      </div>
+    </div>
+
+    <div class="speech">
+      Hand me your ticket from the hat. Paste the problem and the sharper bits — the root, the outcome, what's in the way. I'll take it from here.<span class="cursor"></span>
+    </div>
+
+    <div class="ticket-console">
+      <div class="ticket-console-label">COUNTER · G.TICKET · PASTE FIELDS</div>
+
+      <div class="ticket-field">
+        <div class="ticket-field-label">PROBLEM</div>
+        <div class="ticket-field-hint">the surface-level issue that led you to the hat</div>
+        <textarea class="ticket-input" id="f-problem" rows="2" placeholder="Time management in regards to responding to employee and member concerns."></textarea>
+      </div>
+      <div class="ticket-field">
+        <div class="ticket-field-label">ROOT</div>
+        <div class="ticket-field-hint">what's really going on underneath</div>
+        <textarea class="ticket-input" id="f-root" rows="2" placeholder="I don't yet understand what's really driving it"></textarea>
+      </div>
+      <div class="ticket-field">
+        <div class="ticket-field-label">OUTCOME</div>
+        <div class="ticket-field-hint">what a strong outcome looks like</div>
+        <textarea class="ticket-input" id="f-outcome" rows="3" placeholder="A specific task takes significantly less time — right now I spend 6 hours daily responding to employee and member emails and therefore I can't spend time coaching and developing people"></textarea>
+      </div>
+      <div class="ticket-field">
+        <div class="ticket-field-label">CONSTRAINT</div>
+        <div class="ticket-field-hint">the real constraint in the way</div>
+        <textarea class="ticket-input" id="f-constraint" rows="2" placeholder="I have no space in my week to work on it"></textarea>
+      </div>
+      <div class="ticket-field">
+        <div class="ticket-field-label">UNKNOWN</div>
+        <div class="ticket-field-hint">the biggest unknown</div>
+        <textarea class="ticket-input" id="f-unknown" rows="2" placeholder="Whether I can do this without enterprise IT involvement"></textarea>
+      </div>
+      <div class="ticket-field">
+        <div class="ticket-field-label">START</div>
+        <div class="ticket-field-hint">how you can start this week</div>
+        <textarea class="ticket-input" id="f-start" rows="2" placeholder="A one-person prototype I test on myself"></textarea>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-back" onclick="goTo('attract')">BACK</button>
+      <button class="btn btn-primary" onclick="submitTicket()">▸ TELL THE MACHINE MORE</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 2: Discussion Guide -->
+  <section class="screen" id="screen-discussion">
+    <div class="progress-bar">
+      <div class="progress-cell done"></div>
+      <div class="progress-cell active"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">LEVEL 2 / 5</div>
+      <div>
+        <div class="level-title">TELL ME MORE</div>
+        <div class="level-sub">in your own words · short answers · mess over polish</div>
+      </div>
+    </div>
+
+    <div class="speech">
+      The hat told me the shape. Now I need the texture. Five quick ones — your words, not polished. These go straight into the reels.<span class="cursor"></span>
+    </div>
+
+    <div class="discussion" id="discussion-list"></div>
+
+    <div class="nav">
+      <button class="btn btn-back" onclick="goTo('ticket')">BACK</button>
+      <button class="btn btn-primary" onclick="submitDiscussion()">▸ PULL THE LEVER</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 3: Spin -->
+  <section class="screen" id="screen-spin">
+    <div class="progress-bar">
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell active"></div>
+      <div class="progress-cell"></div>
+      <div class="progress-cell"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">LEVEL 3 / 5</div>
+      <div>
+        <div class="level-title">PULL THE LEVER</div>
+        <div class="level-sub">three reels · three different ways to swing at it</div>
+      </div>
+    </div>
+
+    <div class="speech" id="spin-speech">
+      Ready? Each reel is a different shape of solution. I'll land on three. Then we look at them together.<span class="cursor"></span>
+    </div>
+
+    <div class="slot-wrap">
+      <div class="machine" id="machine">
+        <div class="machine-lights">
+          <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+          <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+          <div class="bulb"></div><div class="bulb"></div>
+        </div>
+        <div class="machine-title">JACKPOT</div>
+        <div class="reels">
+          <div class="reel"><div class="reel-inner" id="reel-0"></div></div>
+          <div class="reel"><div class="reel-inner" id="reel-1"></div></div>
+          <div class="reel"><div class="reel-inner" id="reel-2"></div></div>
+        </div>
+        <div class="machine-display" id="machine-display">▸ ▼ ▼ ▼ ▸ INSERT COIN</div>
+        <div class="machine-lever">
+          <div class="lever-shaft"></div>
+          <div class="lever-knob"></div>
+        </div>
+      </div>
+      <button class="btn btn-spin" id="spin-btn" onclick="pullLever()">PULL THE LEVER</button>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-back" onclick="goTo('discussion')">BACK</button>
+      <button class="btn btn-primary" id="continue-btn" onclick="goTo('concepts')" style="visibility:hidden">▸ SEE THE CONCEPTS</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 4: Concepts / Pick One -->
+  <section class="screen" id="screen-concepts">
+    <div class="progress-bar">
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell active"></div>
+      <div class="progress-cell"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag">LEVEL 4 / 5</div>
+      <div>
+        <div class="level-title">PICK YOUR WINNER</div>
+        <div class="level-sub">three starters · each independently solves it · pick the one that pulls you</div>
+      </div>
+    </div>
+
+    <div class="speech">
+      Three different shapes. Dashboard, agent, viz, workflow, or collab — the reels pick which three we're looking at today. Not stitched together. Each one could solve your problem on its own. Which one has the strongest pull?<span class="cursor"></span>
+    </div>
+
+    <div class="concepts-grid" id="concepts-grid"></div>
+
+    <div class="treasure" id="treasure-section" style="display:none;">
+      <div class="treasure-label">TREASURE CHEST</div>
+      <div class="treasure-sub">we don't throw these away — come back for them</div>
+      <div class="treasure-list" id="treasure-list"></div>
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-back" onclick="goTo('spin')">BACK</button>
+      <button class="btn btn-lock" id="lock-btn" onclick="lockConcept()" style="visibility:hidden">LOCK IT IN · MINT BUILD CHIP</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 5: Build Chip (takeaway) -->
+  <section class="screen" id="screen-chip">
+    <div class="progress-bar">
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done"></div>
+      <div class="progress-cell done" style="background:var(--green);"></div>
+    </div>
+    <div class="level-header">
+      <div class="level-tag" style="background:var(--green-deep);">LEVEL 5 / 5</div>
+      <div>
+        <div class="level-title">JACKPOT</div>
+        <div class="level-sub">the machine mints your build chip</div>
+      </div>
+    </div>
+
+    <div class="chip-wrap">
+      <div class="jackpot-machine">
+        <div class="machine-lights">
+          <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+          <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+          <div class="bulb"></div><div class="bulb"></div>
+        </div>
+        <div class="jackpot-title">JACKPOT</div>
+        <div class="jackpot-window">
+          <div class="icon" id="jackpot-icon-0">★</div>
+          <div class="icon" id="jackpot-icon-1">★</div>
+          <div class="icon" id="jackpot-icon-2">★</div>
+        </div>
+        <div class="jackpot-banner">▸ ▼ ▼ ▼ WINNER ▼ ▼ ▼ ◂</div>
+      </div>
+
+      <div class="chip" id="chip-card">
+        <div class="chip-header">
+          <span>COUNTER · BUILD CHIP</span>
+          <span id="chip-id">NO. BC-XXXX-XXXX</span>
+        </div>
+        <div class="chip-title" id="chip-title">The Build Chip</div>
+        <div class="chip-subtitle">PAY TO BEARER · ONE (1) STARTER CONCEPT TO BUILD</div>
+
+        <div class="chip-box" id="chip-box"></div>
+
+        <div class="chip-row"><div class="k">PLAYER</div><div class="v" id="chip-player">Dom</div></div>
+        <div class="chip-row"><div class="k">ARCHETYPE</div><div class="v" id="chip-archetype"></div></div>
+        <div class="chip-row"><div class="k">WHY IT WINS</div><div class="v" id="chip-why"></div></div>
+        <div class="chip-row"><div class="k">FEATURES</div><div class="v" id="chip-features"></div></div>
+        <div class="chip-row"><div class="k">MEASURES</div><div class="v" id="chip-measures"></div></div>
+        <div class="chip-row"><div class="k">START MOVE</div><div class="v" id="chip-start"></div></div>
+
+        <div class="chip-barcode"></div>
+        <div class="chip-footer" id="chip-footer">BC-XXXX-XXXX · timestamp</div>
+        <div class="chip-value">VALUE: 1 BUILD @ THE COUNTER</div>
+      </div>
+
+      <div class="chip-actions">
+        <button class="chip-action green" onclick="downloadChip()">↓ DOWNLOAD .TXT</button>
+        <button class="chip-action blue" onclick="emailChip()">✉ EMAIL CHIP</button>
+        <button class="chip-action yellow" onclick="copyChip()">⎘ COPY CONCEPT</button>
+        <button class="chip-action red" onclick="nextPlayer()">▸ NEXT PLAYER</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================================
+   THE JACKPOT · Counter · concept generation arcade
+   Phase 3 Step 2 : Solution Concept Generation
+   ========================================================================= */
+
+const STATE = {
+  player: '',
+  ticket: { problem:'', root:'', outcome:'', constraint:'', unknown:'', start:'' },
+  discussion: ['', '', '', '', ''],
+  reels: [],        // three archetype keys
+  concepts: [],     // three generated concept objects
+  pickedIdx: -1,
+  chipId: '',
+};
+
+/* ---------- Discussion guide (from ethnographic interview principles) ---------- */
+const DISCUSSION_QUESTIONS = [
+  {
+    q: "Where and when does this problem actually show up?",
+    hint: "a specific time of day, a meeting, a recurring moment"
+  },
+  {
+    q: "What have you tried before — and what got in the way?",
+    hint: "be honest about the thing that blocked it"
+  },
+  {
+    q: "What does 'fixed' look like on a Tuesday morning?",
+    hint: "describe the feeling, not a feature"
+  },
+  {
+    q: "Whose day changes if this gets solved?",
+    hint: "you, your team, a peer, a customer — who notices?"
+  },
+  {
+    q: "What would feel magical if AI just… did it?",
+    hint: "say it messy — the wish, not the design"
+  },
+];
+
+/* ---------- Archetypes · the five breadth types from the training manual ---------- */
+const ARCHETYPES = {
+  dashboard: {
+    icon: '▦',
+    label: 'DASHBOARD',
+    sublabel: 'local, visual, decision-ready',
+    tagline: 'see what you couldn\'t before',
+    pitch: (ctx) => `A small, local dashboard that pulls the information you already touch about "${ctx.shortProblem}" into one view — re-shaped so the decision jumps out at you instead of you hunting for it.`,
+    features: (ctx) => [
+      `One screen that shows the state of "${ctx.shortTopic}" at a glance`,
+      `Flags the things that need your attention first, not last`,
+      `Updates in the background so you stop re-checking the same sources`,
+    ],
+    outcomeRewrite: (ctx) => `Less time hunting. ${ctx.outcomeShort}`,
+    mockup: `
+      <svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="120" fill="#f0e8d3"/>
+        <rect x="8" y="8" width="224" height="14" fill="#0a0a0a"/>
+        <rect x="12" y="11" width="60" height="8" fill="#ffd700"/>
+        <rect x="8" y="28" width="108" height="38" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="14" y="34" width="28" height="3" fill="#0a0a0a"/>
+        <rect x="14" y="42" width="90" height="2" fill="#bbb"/>
+        <rect x="14" y="48" width="70" height="2" fill="#bbb"/>
+        <rect x="14" y="54" width="85" height="2" fill="#bbb"/>
+        <rect x="124" y="28" width="108" height="38" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <polyline points="130,58 145,48 158,54 172,38 186,44 200,32 214,40 226,30" fill="none" stroke="#e63946" stroke-width="2"/>
+        <circle cx="214" cy="40" r="3" fill="#e63946"/>
+        <rect x="8" y="72" width="224" height="40" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="14" y="78" width="40" height="6" fill="#7bdc66"/>
+        <rect x="58" y="78" width="60" height="6" fill="#ffd700"/>
+        <rect x="122" y="78" width="30" height="6" fill="#e63946"/>
+        <rect x="14" y="92" width="60" height="3" fill="#0a0a0a"/>
+        <rect x="14" y="98" width="80" height="2" fill="#bbb"/>
+        <rect x="14" y="103" width="70" height="2" fill="#bbb"/>
+      </svg>`,
+  },
+  agent: {
+    icon: '◈',
+    label: 'AGENT',
+    sublabel: 'string tasks together, eliminate drudgery',
+    tagline: 'small robot, big relief',
+    pitch: (ctx) => `An automation agent that chains together the repetitive pieces of "${ctx.shortProblem}" — reading the inputs, drafting the response, leaving the judgment to you.`,
+    features: (ctx) => [
+      `Reads the incoming thing and drafts a first pass in your voice`,
+      `Flags only the edge cases that actually need you`,
+      `Logs what it did so you can trust-but-verify for the first week`,
+    ],
+    outcomeRewrite: (ctx) => `Drudgery auto-drafted. ${ctx.outcomeShort}`,
+    mockup: `
+      <svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="120" fill="#f0e8d3"/>
+        <rect x="14" y="22" width="46" height="30" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="18" y="28" width="30" height="2" fill="#0a0a0a"/>
+        <rect x="18" y="34" width="38" height="2" fill="#bbb"/>
+        <rect x="18" y="40" width="34" height="2" fill="#bbb"/>
+        <rect x="18" y="46" width="24" height="2" fill="#bbb"/>
+        <polygon points="62,37 74,32 74,42" fill="#e63946"/>
+        <rect x="78" y="22" width="84" height="30" fill="#0a0a0a"/>
+        <text x="120" y="42" font-family="Press Start 2P" font-size="10" fill="#7bdc66" text-anchor="middle">AGENT</text>
+        <circle cx="94" cy="30" r="2" fill="#ffd700"/>
+        <circle cx="100" cy="30" r="2" fill="#ff9a3c"/>
+        <polygon points="164,37 176,32 176,42" fill="#e63946"/>
+        <rect x="180" y="22" width="46" height="30" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="184" y="28" width="28" height="3" fill="#7bdc66"/>
+        <rect x="184" y="36" width="36" height="2" fill="#bbb"/>
+        <rect x="184" y="42" width="32" height="2" fill="#bbb"/>
+        <rect x="184" y="48" width="24" height="2" fill="#bbb"/>
+        <rect x="14" y="66" width="212" height="40" fill="#fff" stroke="#0a0a0a" stroke-width="2" stroke-dasharray="3 2"/>
+        <text x="20" y="80" font-family="VT323" font-size="12" fill="#0a0a0a">▸ drafted 14/16 auto · 2 flagged</text>
+        <text x="20" y="94" font-family="VT323" font-size="12" fill="#0a0a0a">▸ saved ~4h this week</text>
+      </svg>`,
+  },
+  viz: {
+    icon: '◆',
+    label: 'DATA VIZ',
+    sublabel: 'surface the invisible pattern',
+    tagline: 'the pattern you couldn\'t quite name',
+    pitch: (ctx) => `A data visualization that surfaces the pattern underneath "${ctx.shortProblem}" — the thing you can feel but can't quite name — so you can talk about it with evidence instead of instinct.`,
+    features: (ctx) => [
+      `Re-shapes your existing data into a view that shows the trend, not the row`,
+      `Highlights the outliers and what they have in common`,
+      `Designed to be screenshotted and dropped into a deck or a 1:1`,
+    ],
+    outcomeRewrite: (ctx) => `The invisible made visible. ${ctx.outcomeShort}`,
+    mockup: `
+      <svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="120" fill="#f0e8d3"/>
+        <line x1="20" y1="100" x2="220" y2="100" stroke="#0a0a0a" stroke-width="2"/>
+        <line x1="20" y1="100" x2="20" y2="20" stroke="#0a0a0a" stroke-width="2"/>
+        <circle cx="40" cy="80" r="3" fill="#0a0a0a"/>
+        <circle cx="60" cy="72" r="3" fill="#0a0a0a"/>
+        <circle cx="80" cy="76" r="3" fill="#0a0a0a"/>
+        <circle cx="100" cy="60" r="3" fill="#0a0a0a"/>
+        <circle cx="120" cy="68" r="3" fill="#0a0a0a"/>
+        <circle cx="140" cy="48" r="3" fill="#0a0a0a"/>
+        <circle cx="160" cy="55" r="3" fill="#0a0a0a"/>
+        <circle cx="180" cy="35" r="5" fill="#e63946"/>
+        <circle cx="200" cy="42" r="5" fill="#e63946"/>
+        <line x1="178" y1="33" x2="220" y2="28" stroke="#e63946" stroke-width="1" stroke-dasharray="2 2"/>
+        <text x="222" y="28" font-family="VT323" font-size="12" fill="#e63946">★ here</text>
+        <text x="24" y="16" font-family="VT323" font-size="12" fill="#0a0a0a">▸ the pattern</text>
+      </svg>`,
+  },
+  workflow: {
+    icon: '▶',
+    label: 'WORKFLOW',
+    sublabel: 'same steps, faster & safer',
+    tagline: 'trim the edges, keep the judgment',
+    pitch: (ctx) => `A workflow modification that takes the existing way you handle "${ctx.shortProblem}" and trims the parts that don't need your judgment — keeping you in the loop where it matters.`,
+    features: (ctx) => [
+      `Pre-fills the parts of the process that always look the same`,
+      `Gives you a checkpoint before anything goes out the door`,
+      `Plugs into the tools you already have — no new account required`,
+    ],
+    outcomeRewrite: (ctx) => `Same quality, half the steps. ${ctx.outcomeShort}`,
+    mockup: `
+      <svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="120" fill="#f0e8d3"/>
+        <rect x="14" y="50" width="36" height="22" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="32" y="64" font-family="VT323" font-size="12" fill="#0a0a0a" text-anchor="middle">step 1</text>
+        <polygon points="54,61 64,56 64,66" fill="#0a0a0a"/>
+        <rect x="68" y="50" width="36" height="22" fill="#ffd700" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="86" y="64" font-family="VT323" font-size="12" fill="#0a0a0a" text-anchor="middle">auto</text>
+        <polygon points="108,61 118,56 118,66" fill="#0a0a0a"/>
+        <rect x="122" y="50" width="36" height="22" fill="#ffd700" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="140" y="64" font-family="VT323" font-size="12" fill="#0a0a0a" text-anchor="middle">auto</text>
+        <polygon points="162,61 172,56 172,66" fill="#0a0a0a"/>
+        <rect x="176" y="50" width="48" height="22" fill="#7bdc66" stroke="#0a0a0a" stroke-width="2"/>
+        <text x="200" y="64" font-family="VT323" font-size="12" fill="#0a0a0a" text-anchor="middle">you ✓</text>
+        <text x="14" y="32" font-family="Press Start 2P" font-size="8" fill="#e63946">▹ BEFORE: 5 steps, 90 min</text>
+        <text x="14" y="92" font-family="Press Start 2P" font-size="8" fill="#3d8b3d">▹ AFTER: 2 steps, 20 min</text>
+      </svg>`,
+  },
+  collab: {
+    icon: '✦',
+    label: 'COLLAB',
+    sublabel: 'bridge people, stop duplicate work',
+    tagline: 'get everyone on the same page, for real',
+    pitch: (ctx) => `A small collaboration or info-sharing tool that bridges the gap between the people orbiting "${ctx.shortProblem}" — so the context travels with the work instead of sitting in someone's head.`,
+    features: (ctx) => [
+      `One shared surface that captures the current state of the thing`,
+      `Notifies the right people at the right moment, not all of them always`,
+      `Keeps a lightweight trail so nobody has to retell the story`,
+    ],
+    outcomeRewrite: (ctx) => `Context shared, not re-explained. ${ctx.outcomeShort}`,
+    mockup: `
+      <svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg">
+        <rect width="240" height="120" fill="#f0e8d3"/>
+        <rect x="14" y="14" width="212" height="92" fill="#fff" stroke="#0a0a0a" stroke-width="2"/>
+        <rect x="14" y="14" width="212" height="18" fill="#0a0a0a"/>
+        <circle cx="24" cy="23" r="4" fill="#e63946"/>
+        <circle cx="34" cy="23" r="4" fill="#ffd700"/>
+        <circle cx="44" cy="23" r="4" fill="#7bdc66"/>
+        <rect x="22" y="40" width="90" height="26" fill="#fef9e7" stroke="#0a0a0a" stroke-width="1.5"/>
+        <text x="26" y="50" font-family="VT323" font-size="11" fill="#0a0a0a">maria:</text>
+        <rect x="26" y="54" width="76" height="2" fill="#bbb"/>
+        <rect x="26" y="59" width="60" height="2" fill="#bbb"/>
+        <rect x="128" y="40" width="92" height="26" fill="#fef9e7" stroke="#0a0a0a" stroke-width="1.5"/>
+        <text x="132" y="50" font-family="VT323" font-size="11" fill="#0a0a0a">james:</text>
+        <rect x="132" y="54" width="70" height="2" fill="#bbb"/>
+        <rect x="132" y="59" width="80" height="2" fill="#bbb"/>
+        <rect x="22" y="74" width="196" height="24" fill="#ffd700" stroke="#0a0a0a" stroke-width="1.5"/>
+        <text x="28" y="84" font-family="VT323" font-size="12" fill="#0a0a0a">▸ status: everyone sees the same context</text>
+        <text x="28" y="94" font-family="VT323" font-size="11" fill="#0a0a0a">▸ auto-tagged · trail preserved</text>
+      </svg>`,
+  },
+};
+
+/* ---------- Keyword → archetype weighting ---------- */
+const KEYWORD_WEIGHTS = {
+  dashboard: ['dashboard','visual','see','overview','report','status','monitor','track','metric','data','kpi','number'],
+  agent:     ['respond','email','message','draft','answer','reply','ticket','inbox','repetit','manual','time','hours','automat'],
+  viz:       ['pattern','trend','insight','invisible','understand','analy','compare','correlat','why','cause'],
+  workflow:  ['process','step','workflow','slow','faster','efficien','approval','handoff','routine','task'],
+  collab:    ['team','share','collab','communic','align','handoff','context','together','meeting','sync','silo','between'],
+};
+
+/* ---------- Helpers ---------- */
+function $(id) { return document.getElementById(id); }
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  $('screen-' + name).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const levelMap = { attract: '0 / 5', ticket: '1 / 5', discussion: '2 / 5', spin: '3 / 5', concepts: '4 / 5', chip: '5 / 5' };
+  $('hud-level').textContent = levelMap[name] || '0 / 5';
+}
+function updateHUD() {
+  $('hud-player').textContent = STATE.player ? STATE.player.toUpperCase() : '- - -';
+}
+
+function loadExample() {
+  $('player-name').value = 'DOM';
+  STATE.ticket = {
+    problem: 'Time management in regards to responding to employee and member concerns.',
+    root: "I don't yet understand what's really driving it",
+    outcome: "A specific task takes significantly less time — right now I spend 6 hours daily responding to employee and member emails and therefore I cannot spend time coaching and developing people",
+    constraint: "I have no space in my week to work on it",
+    unknown: "whether I can do this without enterprise IT involvement",
+    start: "a one-person prototype I test on myself",
+  };
+  // pre-fill ticket fields in case user goes to Level 1
+  setTimeout(() => {
+    $('f-problem').value = STATE.ticket.problem;
+    $('f-root').value = STATE.ticket.root;
+    $('f-outcome').value = STATE.ticket.outcome;
+    $('f-constraint').value = STATE.ticket.constraint;
+    $('f-unknown').value = STATE.ticket.unknown;
+    $('f-start').value = STATE.ticket.start;
+  }, 50);
+  STATE.discussion = [
+    "every morning 7-9am and then again after lunch — my inbox is the first thing and the last thing",
+    "tried filters and templates, it always collapses back because each question feels personalized",
+    "I open the laptop and the inbox is already triaged · I spend the morning on one coaching conversation",
+    "me first, but my direct reports too — they haven't had a real 1:1 with me in a month",
+    "magic = it reads the email, knows my voice, drafts the reply, shows me only the ones that need me",
+  ];
+  startGame(true);
+}
+
+function startGame(skipName) {
+  const name = $('player-name').value.trim();
+  if (!skipName && !name) {
+    $('player-name').focus();
+    $('player-name').classList.add('flash');
+    setTimeout(() => $('player-name').classList.remove('flash'), 1500);
+    return;
+  }
+  STATE.player = skipName ? (STATE.player || 'DOM') : name;
+  updateHUD();
+  // if example was loaded, skip straight to discussion with ticket prefilled
+  if (skipName) {
+    renderDiscussion();
+    goTo('discussion');
+  } else {
+    goTo('ticket');
+  }
+}
+
+function submitTicket() {
+  STATE.ticket = {
+    problem: $('f-problem').value.trim() || $('f-problem').placeholder,
+    root: $('f-root').value.trim() || $('f-root').placeholder,
+    outcome: $('f-outcome').value.trim() || $('f-outcome').placeholder,
+    constraint: $('f-constraint').value.trim() || $('f-constraint').placeholder,
+    unknown: $('f-unknown').value.trim() || $('f-unknown').placeholder,
+    start: $('f-start').value.trim() || $('f-start').placeholder,
+  };
+  renderDiscussion();
+  goTo('discussion');
+}
+
+function renderDiscussion() {
+  const container = $('discussion-list');
+  container.innerHTML = '';
+  DISCUSSION_QUESTIONS.forEach((dq, i) => {
+    const div = document.createElement('div');
+    div.className = 'discussion-question';
+    div.innerHTML = `
+      <div class="dq-number">${i+1}</div>
+      <div class="dq-q">${dq.q}</div>
+      <div class="dq-hint">${dq.hint}</div>
+      <textarea class="dq-input" id="dq-${i}" rows="3" placeholder="your words here…">${STATE.discussion[i] || ''}</textarea>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function submitDiscussion() {
+  STATE.discussion = DISCUSSION_QUESTIONS.map((_, i) => ($('dq-' + i).value || '').trim());
+  // not strictly required — user can breeze through
+  buildReelItems();
+  goTo('spin');
+}
+
+/* ---------- Concept generation ---------- */
+
+function pickThreeArchetypes() {
+  const text = [
+    STATE.ticket.problem, STATE.ticket.root, STATE.ticket.outcome,
+    STATE.ticket.constraint, STATE.ticket.unknown, STATE.ticket.start,
+    ...STATE.discussion
+  ].join(' ').toLowerCase();
+
+  const scores = {};
+  for (const [arch, keywords] of Object.entries(KEYWORD_WEIGHTS)) {
+    scores[arch] = keywords.reduce((acc, kw) => acc + (text.includes(kw) ? 1 : 0), 0);
+    // small randomness so repeated spins don't always produce the same trio
+    scores[arch] += Math.random() * 0.9;
+  }
+  const ranked = Object.keys(scores).sort((a,b) => scores[b] - scores[a]);
+  return ranked.slice(0, 3);
+}
+
+function contextFromState() {
+  const shortProblem = truncateSentence(STATE.ticket.problem, 90);
+  const shortTopic = extractTopic(STATE.ticket.problem);
+  const outcomeShort = truncateSentence(STATE.ticket.outcome, 120);
+  return { shortProblem, shortTopic, outcomeShort };
+}
+
+function extractTopic(s) {
+  // extract a short noun-ish phrase from the problem
+  const cleaned = (s || '').replace(/[."']/g, '').trim();
+  const words = cleaned.split(/\s+/);
+  if (words.length <= 4) return cleaned || 'this work';
+  // take a 3-4 word snippet
+  const stopwords = new Set(['the','a','an','of','in','on','and','or','to','with','for','my','your','our','is','that','this']);
+  const pick = words.filter(w => !stopwords.has(w.toLowerCase())).slice(0, 3).join(' ');
+  return pick || words.slice(0,3).join(' ');
+}
+
+function truncateSentence(s, max) {
+  if (!s) return '';
+  s = s.trim();
+  if (s.length <= max) return s;
+  return s.slice(0, max).replace(/[,;:]?\s+\S*$/, '') + '…';
+}
+
+function generateConcepts() {
+  const arches = STATE.reels.length === 3 ? STATE.reels : pickThreeArchetypes();
+  STATE.reels = arches;
+  const ctx = contextFromState();
+
+  STATE.concepts = arches.map((key) => {
+    const a = ARCHETYPES[key];
+    return {
+      key,
+      icon: a.icon,
+      label: a.label,
+      sublabel: a.sublabel,
+      tagline: a.tagline,
+      name: conceptName(key, ctx),
+      pitch: a.pitch(ctx),
+      features: a.features(ctx),
+      outcome: a.outcomeRewrite(ctx),
+      mockup: a.mockup,
+    };
+  });
+}
+
+function conceptName(key, ctx) {
+  const topic = titleCase(ctx.shortTopic || 'Your Problem');
+  const nameMap = {
+    dashboard: `The ${topic} Cockpit`,
+    agent:     `The ${topic} Autodraft`,
+    viz:       `The ${topic} Pattern`,
+    workflow:  `The ${topic} Shortcut`,
+    collab:    `The ${topic} Shared Table`,
+  };
+  return nameMap[key];
+}
+function titleCase(s) {
+  return (s || '').split(' ').map(w => w[0] ? w[0].toUpperCase() + w.slice(1).toLowerCase() : '').join(' ');
+}
+
+/* ---------- Slot machine ---------- */
+
+function buildReelItems() {
+  // pre-populate each reel with a scroll of archetype items
+  const archKeys = Object.keys(ARCHETYPES);
+  for (let r = 0; r < 3; r++) {
+    const container = $('reel-' + r);
+    container.innerHTML = '';
+    container.style.transform = 'translateY(0)';
+    // fill with ~12 items so it feels like real spinning
+    const items = [];
+    for (let i = 0; i < 12; i++) {
+      const k = archKeys[Math.floor(Math.random() * archKeys.length)];
+      items.push(k);
+    }
+    items.forEach(k => {
+      const a = ARCHETYPES[k];
+      const el = document.createElement('div');
+      el.className = 'reel-item';
+      el.innerHTML = `<div class="reel-icon">${a.icon}</div><div class="reel-label">${a.label}</div>`;
+      container.appendChild(el);
+    });
+  }
+}
+
+function pullLever() {
+  const btn = $('spin-btn');
+  const machine = $('machine');
+  btn.disabled = true;
+  btn.textContent = 'SPINNING…';
+  machine.classList.add('spinning');
+  $('machine-display').textContent = '▸ SPIN · SPIN · SPIN ◂';
+
+  // determine final archetypes
+  STATE.reels = pickThreeArchetypes();
+
+  // append final item to each reel so spin lands on it
+  for (let r = 0; r < 3; r++) {
+    const container = $('reel-' + r);
+    const a = ARCHETYPES[STATE.reels[r]];
+    // append ~4 buffer then final landing
+    const archKeys = Object.keys(ARCHETYPES);
+    for (let i = 0; i < 4; i++) {
+      const k = archKeys[Math.floor(Math.random() * archKeys.length)];
+      const ak = ARCHETYPES[k];
+      const el = document.createElement('div');
+      el.className = 'reel-item';
+      el.innerHTML = `<div class="reel-icon">${ak.icon}</div><div class="reel-label">${ak.label}</div>`;
+      container.appendChild(el);
+    }
+    const finalEl = document.createElement('div');
+    finalEl.className = 'reel-item';
+    finalEl.innerHTML = `<div class="reel-icon">${a.icon}</div><div class="reel-label">${a.label}</div>`;
+    container.appendChild(finalEl);
+  }
+
+  // trigger transform (stagger so they land in sequence)
+  const timings = [2000, 2500, 3000];
+  timings.forEach((t, r) => {
+    setTimeout(() => {
+      const container = $('reel-' + r);
+      const finalIdx = container.children.length - 1;
+      const translate = -(finalIdx * 180);
+      container.style.transition = `transform ${(t/1000).toFixed(2)}s cubic-bezier(0.2, 0.8, 0.3, 1)`;
+      container.style.transform = `translateY(${translate}px)`;
+    }, 50);
+  });
+
+  // after last reel lands
+  setTimeout(() => {
+    machine.classList.remove('spinning');
+    $('machine-display').textContent = '▸ ▼ JACKPOT ▼ ◂';
+    $('spin-btn').style.display = 'none';
+    $('continue-btn').style.visibility = 'visible';
+    $('spin-speech').innerHTML = 'Three reels, three different shapes of solution. Let\'s look at them side by side.<span class="cursor"></span>';
+    generateConcepts();
+    renderConcepts();
+  }, 3100);
+}
+
+/* ---------- Concepts screen ---------- */
+
+function renderConcepts() {
+  const grid = $('concepts-grid');
+  grid.innerHTML = '';
+  STATE.concepts.forEach((c, i) => {
+    const card = document.createElement('div');
+    card.className = 'concept';
+    card.dataset.idx = i;
+    card.innerHTML = `
+      <div class="concept-reel">
+        <div class="concept-reel-icon">${c.icon}</div>
+        <div class="concept-reel-label">
+          <span class="archetype">${c.label}</span>
+          <span class="sublabel">${c.sublabel}</span>
+        </div>
+      </div>
+      <div class="concept-mockup">${c.mockup}</div>
+      <div class="concept-body">
+        <div class="concept-name">${c.name}</div>
+        <div class="concept-pitch">${c.pitch}</div>
+        <div class="concept-section-label">KEY FEATURES</div>
+        <ul class="concept-features">${c.features.map(f => `<li>${f}</li>`).join('')}</ul>
+        <div class="concept-section-label">OUTCOME IT ADDRESSES</div>
+        <div class="concept-outcome">${c.outcome}</div>
+        <button class="concept-pick-btn" onclick="pickConcept(${i})">PICK THIS ONE</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+  STATE.pickedIdx = -1;
+  $('treasure-section').style.display = 'none';
+  $('lock-btn').style.visibility = 'hidden';
+}
+
+function pickConcept(idx) {
+  STATE.pickedIdx = idx;
+  document.querySelectorAll('.concept').forEach((el, i) => {
+    el.classList.toggle('picked', i === idx);
+    const btn = el.querySelector('.concept-pick-btn');
+    btn.textContent = i === idx ? 'PICKED' : 'PICK THIS ONE';
+  });
+  // show treasure chest with the other two
+  const chest = $('treasure-list');
+  chest.innerHTML = '';
+  STATE.concepts.forEach((c, i) => {
+    if (i === idx) return;
+    const item = document.createElement('div');
+    item.className = 'treasure-item';
+    item.innerHTML = `
+      <span>"${c.name}" — ${c.label.toLowerCase()}</span>
+      <button class="concept-pick-btn" onclick="pickConcept(${i})" style="font-size:9px; padding:6px 10px;">PICK THIS</button>
+    `;
+    chest.appendChild(item);
+  });
+  $('treasure-section').style.display = 'block';
+  $('lock-btn').style.visibility = 'visible';
+}
+
+function lockConcept() {
+  if (STATE.pickedIdx < 0) return;
+  mintChip();
+  goTo('chip');
+}
+
+/* ---------- Build Chip ---------- */
+
+function mintChip() {
+  const c = STATE.concepts[STATE.pickedIdx];
+  STATE.chipId = generateChipId();
+
+  // jackpot icons
+  $('jackpot-icon-0').textContent = c.icon;
+  $('jackpot-icon-1').textContent = c.icon;
+  $('jackpot-icon-2').textContent = c.icon;
+
+  // chip contents
+  $('chip-id').textContent = 'NO. ' + STATE.chipId;
+  $('chip-title').textContent = c.name;
+  $('chip-player').textContent = titleCase(STATE.player.toLowerCase());
+
+  const chipBox = $('chip-box');
+  chipBox.textContent = `I'm going to build ${c.name.toLowerCase()} — ${c.pitch}`;
+
+  $('chip-archetype').textContent = `${c.label} · ${c.sublabel}`;
+  $('chip-why').textContent = c.tagline;
+  $('chip-features').innerHTML = c.features.map(f => '· ' + f).join('<br/>');
+  $('chip-measures').textContent = c.outcome;
+  $('chip-start').textContent = STATE.ticket.start;
+
+  $('hud-chips').textContent = '1';
+
+  const ts = new Date();
+  $('chip-footer').textContent = `${STATE.chipId} · ${ts.toLocaleDateString()}, ${ts.toLocaleTimeString()}`;
+}
+
+function generateChipId() {
+  const pool = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const pick = (n) => Array.from({length:n}, () => pool[Math.floor(Math.random()*pool.length)]).join('');
+  return `BC-${pick(4)}-${pick(4)}`;
+}
+
+function chipAsText() {
+  const c = STATE.concepts[STATE.pickedIdx];
+  const ts = new Date();
+  return [
+    `COUNTER · BUILD CHIP · ${STATE.chipId}`,
+    `Minted ${ts.toLocaleString()}`,
+    ``,
+    `PLAYER: ${titleCase(STATE.player.toLowerCase())}`,
+    ``,
+    `═══════════════════════════════════════════════`,
+    `   ${c.name.toUpperCase()}`,
+    `   ${c.label} · ${c.sublabel}`,
+    `═══════════════════════════════════════════════`,
+    ``,
+    `THE STATEMENT`,
+    `  I'm going to build ${c.name.toLowerCase()} —`,
+    `  ${c.pitch}`,
+    ``,
+    `WHY IT WINS`,
+    `  ${c.tagline}`,
+    ``,
+    `KEY FEATURES`,
+    ...c.features.map(f => `  · ${f}`),
+    ``,
+    `OUTCOME IT ADDRESSES`,
+    `  ${c.outcome}`,
+    ``,
+    `START MOVE`,
+    `  ${STATE.ticket.start}`,
+    ``,
+    `─── FROM THE GOLDEN TICKET ───`,
+    `  Problem:    ${STATE.ticket.problem}`,
+    `  Root:       ${STATE.ticket.root}`,
+    `  Outcome:    ${STATE.ticket.outcome}`,
+    `  Constraint: ${STATE.ticket.constraint}`,
+    `  Unknown:    ${STATE.ticket.unknown}`,
+    ``,
+    `─── IN THEIR WORDS (discussion guide) ───`,
+    ...DISCUSSION_QUESTIONS.map((q, i) =>
+      `  ${i+1}. ${q.q}\n     ${STATE.discussion[i] || '(skipped)'}`
+    ),
+    ``,
+    `─── TREASURE CHEST (saved for later) ───`,
+    ...STATE.concepts.filter((_, i) => i !== STATE.pickedIdx).map(x =>
+      `  · ${x.name} (${x.label.toLowerCase()})`
+    ),
+    ``,
+    `VALUE: 1 BUILD @ THE COUNTER`,
+    ``,
+  ].join('\n');
+}
+
+function downloadChip() {
+  const blob = new Blob([chipAsText()], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${STATE.chipId}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function emailChip() {
+  const c = STATE.concepts[STATE.pickedIdx];
+  const subject = encodeURIComponent(`Build Chip · ${c.name} · ${STATE.chipId}`);
+  const body = encodeURIComponent(chipAsText());
+  window.location.href = `mailto:?subject=${subject}&body=${body}`;
+}
+function copyChip() {
+  navigator.clipboard.writeText(chipAsText()).then(() => {
+    flashDisplay('▸ COPIED TO CLIPBOARD ◂');
+  }).catch(() => {
+    flashDisplay('▸ COPY FAILED · TRY DOWNLOAD ◂');
+  });
+}
+function flashDisplay(msg) {
+  const btns = document.querySelectorAll('.chip-action');
+  btns.forEach(b => b.style.opacity = 0.5);
+  const note = document.createElement('div');
+  note.style.cssText = 'font-family: "Press Start 2P", monospace; font-size: 10px; color: var(--green-deep); text-align: center; margin-top: 8px;';
+  note.textContent = msg;
+  document.querySelector('.chip-actions').after(note);
+  setTimeout(() => {
+    btns.forEach(b => b.style.opacity = 1);
+    note.remove();
+  }, 1400);
+}
+function nextPlayer() {
+  if (!confirm('Start over for the next player? This clears the current session.')) return;
+  resetAll();
+}
+
+function resetAll() {
+  STATE.player = '';
+  STATE.ticket = { problem:'', root:'', outcome:'', constraint:'', unknown:'', start:'' };
+  STATE.discussion = ['','','','',''];
+  STATE.reels = [];
+  STATE.concepts = [];
+  STATE.pickedIdx = -1;
+  STATE.chipId = '';
+  $('player-name').value = '';
+  ['f-problem','f-root','f-outcome','f-constraint','f-unknown','f-start'].forEach(id => { if ($(id)) $(id).value=''; });
+  $('hud-chips').textContent = '0';
+  updateHUD();
+  $('spin-btn').disabled = false;
+  $('spin-btn').textContent = 'PULL THE LEVER';
+  $('spin-btn').style.display = '';
+  $('continue-btn').style.visibility = 'hidden';
+  $('spin-speech').innerHTML = 'Ready? Each reel is a different shape of solution. I\'ll land on three. Then we look at them together.<span class="cursor"></span>';
+  $('machine-display').textContent = '▸ ▼ ▼ ▼ ▸ INSERT COIN';
+  goTo('attract');
+}
+
+/* ---------- Init ---------- */
+document.addEventListener('DOMContentLoaded', () => {
+  updateHUD();
+  // auto-uppercase player name
+  $('player-name').addEventListener('input', (e) => {
+    e.target.value = e.target.value.toUpperCase();
+  });
+});
+</script>
+</body>
+</html>

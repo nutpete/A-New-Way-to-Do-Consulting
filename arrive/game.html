@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arrive at The Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;800&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@500;700&family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --charcoal: #454851;
+    --sage: #73956F;
+    --sage-deep: #5a7957;
+    --paper: #f5ecd9;
+    --ink: #2d2a26;
+    --ink-soft: #5a564f;
+    --border-soft: #c9bfa7;
+  }
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    background: #1a1814;
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    user-select: none;
+  }
+  #game-wrap {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  canvas {
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+    background: #000;
+    display: block;
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+  /* Brand mark */
+  .brand {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: rgba(245, 236, 217, 0.6);
+    letter-spacing: -0.01em;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .brand::before { content: '●'; color: var(--sage); margin-right: 6px; }
+
+  /* Controls hint */
+  .controls-hint {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(245, 236, 217, 0.5);
+    text-transform: uppercase;
+    z-index: 10;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.8;
+  }
+  .kbd {
+    display: inline-block;
+    padding: 2px 6px;
+    border: 1px solid rgba(245, 236, 217, 0.3);
+    border-radius: 3px;
+    margin: 0 2px;
+    font-size: 9px;
+  }
+
+  /* Progress dots */
+  .progress {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+    z-index: 10;
+    pointer-events: none;
+  }
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(245, 236, 217, 0.2);
+    transition: background 0.4s ease, transform 0.4s ease;
+  }
+  .progress-dot.done {
+    background: var(--sage);
+    transform: scale(1.1);
+  }
+
+  /* Scene fade transition */
+  .scene-fade {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .scene-fade.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Overlay system */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    z-index: 20;
+    background: rgba(20, 18, 15, 0.65);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .overlay.visible {
+    display: flex;
+    opacity: 1;
+  }
+  .panel {
+    width: 100%;
+    max-width: 560px;
+    background: var(--paper);
+    border-radius: 8px;
+    border: 2px solid var(--ink);
+    box-shadow: 0 0 0 4px var(--paper), 0 20px 60px rgba(0, 0, 0, 0.5);
+    padding: 28px 32px;
+    transform: translateY(16px);
+    transition: transform 0.4s ease;
+  }
+  .overlay.visible .panel { transform: translateY(0); }
+
+  /* Intro (no longer primary, retained for safety) */
+  .intro-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--ink);
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .intro-title .accent { color: var(--sage); }
+  .intro-sub {
+    font-size: 15px; line-height: 1.6; color: var(--ink-soft);
+    text-align: center; margin-bottom: 24px;
+  }
+
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 12px 28px;
+    border-radius: 100px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary { background: var(--sage); color: var(--paper); }
+  .btn-primary:hover { background: var(--sage-deep); transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); font-size: 12px; padding: 8px 16px; }
+  .btn-ghost:hover { color: var(--sage); }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 16px; }
+
+  /* Question panel */
+  .q-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--sage);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .q-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+  .q-choices { display: flex; flex-direction: column; gap: 8px; }
+  .q-choice {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 14px; background: #fffaf0;
+    border: 1.5px solid var(--border-soft); border-radius: 6px;
+    cursor: pointer; text-align: left;
+    font-family: 'DM Sans', sans-serif; font-size: 14px;
+    line-height: 1.4; color: var(--ink);
+    transition: all 0.15s ease;
+  }
+  .q-choice:hover, .q-choice.focused { border-color: var(--sage); background: #eff5eb; }
+  .q-choice .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--sage); font-weight: 700;
+    flex-shrink: 0; width: 14px;
+  }
+
+  /* Anchor */
+  textarea.anchor-input {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border-soft); border-radius: 6px;
+    background: #fffaf0;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; line-height: 1.5;
+    color: var(--ink); resize: none; min-height: 100px;
+    transition: all 0.15s ease;
+  }
+  textarea.anchor-input:focus {
+    outline: none; border-color: var(--sage);
+    box-shadow: 0 0 0 3px rgba(115, 149, 111, 0.12);
+  }
+  textarea.anchor-input::placeholder { color: #a89e89; font-style: italic; }
+
+  /* Reveal */
+  .reveal-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.25em;
+    text-transform: uppercase; color: var(--sage);
+    font-weight: 700; text-align: center; margin-bottom: 6px;
+  }
+  .reveal-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 32px; font-weight: 700; letter-spacing: -0.02em;
+    text-align: center; color: var(--ink); margin-bottom: 4px;
+  }
+  .reveal-title .accent { color: var(--sage); }
+  .reveal-tagline {
+    font-size: 14px; color: var(--ink-soft);
+    text-align: center; font-style: italic; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 1px dashed var(--border-soft);
+  }
+  .reveal-bio { font-size: 15px; line-height: 1.65; color: var(--ink); margin-bottom: 20px; }
+  .reveal-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    padding-top: 16px; border-top: 1px dashed var(--border-soft);
+  }
+  @media (max-width: 480px) { .reveal-grid { grid-template-columns: 1fr; } }
+  .reveal-slot .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--sage); font-weight: 700; margin-bottom: 6px;
+  }
+  .reveal-slot .value { font-size: 13px; line-height: 1.5; color: var(--ink); }
+
+  /* Interaction prompt (floats above player) */
+  .interact-hint {
+    position: fixed; pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--paper);
+    background: rgba(45, 42, 38, 0.9);
+    padding: 4px 8px; border-radius: 3px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    opacity: 0; transition: opacity 0.2s ease;
+    z-index: 8; white-space: nowrap;
+    transform: translate(-50%, -100%);
+  }
+  .interact-hint.visible { opacity: 1; }
+  .interact-hint .key {
+    background: var(--sage); padding: 1px 5px; border-radius: 2px;
+    margin-right: 4px; color: var(--paper);
+  }
+
+  /* Floating status toast (e.g. "Something has changed") */
+  .status-toast {
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #95D7AE;
+    background: rgba(10, 13, 20, 0.9);
+    padding: 10px 18px;
+    border: 1px solid rgba(149, 215, 174, 0.4);
+    border-radius: 4px;
+    z-index: 15;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    white-space: nowrap;
+  }
+  .status-toast.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Dialog sequence (campfire monologue) */
+  .dialog-box {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(640px, calc(100vw - 48px));
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    box-shadow: 0 0 0 4px var(--paper), 0 10px 40px rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    padding: 18px 22px 22px;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  .dialog-box.visible { opacity: 1; pointer-events: auto; }
+  .dialog-speaker {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--sage);
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .dialog-text {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    line-height: 1.4;
+    color: var(--ink);
+    min-height: 68px;
+    letter-spacing: 0.01em;
+  }
+  .dialog-text .highlight { color: var(--sage-deep); }
+  .dialog-cursor {
+    display: inline-block; width: 10px; height: 18px;
+    background: var(--ink); vertical-align: baseline; margin-left: 2px;
+    animation: cursorBlink 0.7s infinite;
+  }
+  .dialog-next {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--sage);
+    letter-spacing: 2px;
+    text-align: right;
+    margin-top: 10px;
+    opacity: 0;
+    animation: promptBlink 1s infinite;
+  }
+  .dialog-next.visible { opacity: 1; }
+
+  /* =======================================
+     RETRO TITLE SCREEN
+     ======================================= */
+  .retro-intro {
+    position: fixed; inset: 0; background: #0a0d14;
+    z-index: 100; display: flex; align-items: center; justify-content: center;
+    padding: 24px; overflow: hidden; transition: opacity 0.8s ease;
+  }
+  .retro-intro.hidden { opacity: 0; pointer-events: none; }
+  .retro-intro::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 2px, rgba(0,0,0,0.18) 3px, rgba(0,0,0,0) 4px);
+    z-index: 3;
+  }
+  .retro-intro::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.6) 100%);
+    z-index: 2;
+  }
+  .retro-stars { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.8; }
+  .retro-star {
+    position: absolute; width: 2px; height: 2px; background: #f5ecd9;
+    animation: twinkle 3s infinite ease-in-out;
+  }
+  @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+  .retro-content { position: relative; z-index: 4; width: 100%; max-width: 580px; text-align: center; }
+  .retro-title-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 18px; margin-bottom: 40px; flex-wrap: wrap;
+  }
+  .retro-title {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(14px, 2.3vw, 20px); color: #95D7AE;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 #3a5a38, 0 0 12px rgba(149, 215, 174, 0.4);
+    line-height: 1.4;
+  }
+  .retro-sparkle {
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(12px, 1.8vw, 16px); color: #73956F;
+    animation: starBlink 1.4s infinite;
+  }
+  .retro-sparkle.delay { animation-delay: 0.7s; }
+  @keyframes starBlink { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.85); } }
+
+  .retro-body {
+    font-family: 'VT323', monospace;
+    font-size: clamp(18px, 2.4vw, 24px); line-height: 1.5; color: #f5ecd9;
+    min-height: 280px; text-align: left; letter-spacing: 0.02em;
+    padding: 0 8px; white-space: pre-wrap;
+  }
+  .retro-body .highlight { color: #95D7AE; }
+  .retro-body .dim { color: #8a8670; }
+  .retro-cursor {
+    display: inline-block; width: 10px; height: 20px; background: #f5ecd9;
+    vertical-align: baseline; margin-left: 2px;
+    animation: cursorBlink 0.75s infinite;
+  }
+  @keyframes cursorBlink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+  .retro-controls {
+    margin-top: 36px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(9px, 1.1vw, 10px); color: #73956F;
+    letter-spacing: 2px; display: flex; gap: 32px;
+    justify-content: center; flex-wrap: wrap;
+    opacity: 0; transition: opacity 0.6s ease 0.2s;
+  }
+  .retro-controls.visible { opacity: 1; }
+  .retro-controls .kpair { display: flex; align-items: center; gap: 8px; }
+  .retro-controls .kkey {
+    background: #1a2028; border: 1px solid #3a4450;
+    padding: 4px 6px; color: #f5ecd9; font-size: 9px; border-radius: 2px;
+  }
+
+  .retro-prompt {
+    margin-top: 24px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: clamp(10px, 1.3vw, 12px); color: #95D7AE;
+    letter-spacing: 3px; opacity: 0; transition: opacity 0.4s ease;
+  }
+  .retro-prompt.visible { opacity: 1; animation: promptBlink 1.2s infinite; }
+  @keyframes promptBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .retro-skip-hint {
+    position: absolute; bottom: 16px; right: 20px;
+    font-family: 'Press Start 2P', monospace; font-size: 8px;
+    color: #3a4450; letter-spacing: 1px; z-index: 5;
+  }
+</style>
+</head>
+<body>
+<div class="brand">The Counter</div>
+<div class="progress" id="progress">
+  <div class="progress-dot" data-idx="0"></div>
+  <div class="progress-dot" data-idx="1"></div>
+  <div class="progress-dot" data-idx="2"></div>
+  <div class="progress-dot" data-idx="3"></div>
+</div>
+<div class="controls-hint" id="controls-hint">
+  <span class="kbd">↑</span><span class="kbd">↓</span><span class="kbd">←</span><span class="kbd">→</span> Move &nbsp;·&nbsp; <span class="kbd">E</span> Interact
+</div>
+
+<div id="game-wrap">
+  <canvas id="game" width="480" height="270"></canvas>
+</div>
+
+<div class="scene-fade" id="scene-fade"></div>
+
+<!-- Interact hint -->
+<div class="interact-hint" id="interact-hint"><span class="key">E</span> <span id="hint-label">Look</span></div>
+
+<!-- Status toast -->
+<div class="status-toast" id="status-toast"></div>
+
+<!-- Dialog box for campfire sequence -->
+<div class="dialog-box" id="dialog-box">
+  <div class="dialog-speaker" id="dialog-speaker">THE MAKERS</div>
+  <div class="dialog-text" id="dialog-text"></div>
+  <div class="dialog-next" id="dialog-next">▼ SPACE / E</div>
+</div>
+
+<!-- Retro Title Screen -->
+<div class="retro-intro" id="retro-intro">
+  <div class="retro-stars" id="retro-stars"></div>
+  <div class="retro-content">
+    <div class="retro-title-row">
+      <div class="retro-sparkle">✦</div>
+      <div class="retro-title">ARRIVE AT<br>THE COUNTER</div>
+      <div class="retro-sparkle delay">✦</div>
+    </div>
+    <div class="retro-body" id="retro-body"></div>
+    <div class="retro-controls" id="retro-controls">
+      <div class="kpair"><span class="kkey">↑ ↓ ← →</span> MOVE</div>
+      <div class="kpair"><span class="kkey">E / SPACE</span> INTERACT</div>
+    </div>
+    <div class="retro-prompt" id="retro-prompt">► PRESS SPACE TO BEGIN</div>
+  </div>
+  <div class="retro-skip-hint" id="retro-skip-hint">[ PRESS ANY KEY TO SKIP ]</div>
+</div>
+
+<!-- Question overlay -->
+<div class="overlay" id="overlay-question">
+  <div class="panel">
+    <div class="q-label" id="q-label">A moment</div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-choices" id="q-choices"></div>
+  </div>
+</div>
+
+<!-- Anchor overlay -->
+<div class="overlay" id="overlay-anchor">
+  <div class="panel">
+    <div class="q-label">A quiet moment at the pond</div>
+    <div class="q-text">Before you look into the water — what would make this engagement feel worth your time?</div>
+    <textarea class="anchor-input" id="anchor-input" placeholder="I'd walk away feeling like it was worth it if..."></textarea>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="submitAnchor()">Look into the water →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reveal overlay -->
+<div class="overlay" id="overlay-reveal">
+  <div class="panel">
+    <div class="reveal-eyebrow">You're arriving as</div>
+    <div class="reveal-title">The <span class="accent" id="r-name">Fox</span></div>
+    <div class="reveal-tagline" id="r-tagline">Already ahead.</div>
+    <p class="reveal-bio" id="r-bio"></p>
+    <div class="reveal-grid">
+      <div class="reveal-slot">
+        <div class="label">What you bring</div>
+        <div class="value" id="r-bring"></div>
+      </div>
+      <div class="reveal-slot">
+        <div class="label">What this room owes you</div>
+        <div class="value" id="r-owed"></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="sendResult()">Send to The Counter →</button>
+      <button class="btn btn-ghost" onclick="dismissReveal()">Keep walking →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Gate locked prompt overlay -->
+<div class="overlay" id="overlay-gate-locked">
+  <div class="panel" style="max-width: 440px; text-align: center;">
+    <div class="q-label">Scratched into the door</div>
+    <div class="q-text" style="font-family: 'VT323', monospace; font-size: 26px; line-height: 1.3;">
+      "Animals only beyond this point.<br>Come back when you're one of us."
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="closeLockedGate()">Keep looking around</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==============================================================
+   ARRIVE AT THE COUNTER — GAME VERSION (v2)
+   Now with: hidden den scene, player transformation, gate, campfire
+   ============================================================== */
+
+/* -------------- CONFIG -------------- */
+const GAME_W = 480;
+const GAME_H = 270;
+const PLAYER_SPEED = 70;
+const INTERACT_RADIUS = 22;
+
+/* -------------- CANVAS -------------- */
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+/* -------------- GAME STATE -------------- */
+const state = {
+  mode: 'intro',                    // intro | playing | dialog | anchor | reveal | sequence | transition
+  scene: 'main',                    // which world scene is active
+  completed: new Set(),
+  scores: { fox: 0, otter: 0, owl: 0, hedgehog: 0 },
+  anchor: '',
+  result: null,
+  transformed: false,               // has the player become their animal?
+  transformPulse: 0,                // animation timer for transformation
+  foundCampfire: false,
+  activeInteractable: null,
+  time: 0,
+};
+
+/* -------------- PLAYER -------------- */
+const player = {
+  x: GAME_W / 2,
+  y: GAME_H / 2 + 10,
+  w: 10,
+  h: 14,
+  facing: 'down',
+  walkFrame: 0,
+  walkTimer: 0,
+  isMoving: false,
+  animFrame: 0,          // 0-3 for 4-frame sprite animations
+  animTimer: 0,
+};
+
+/* -------------- SPRITE LOADER -------------- */
+const sprites = {
+  fox: {
+    loaded: false,
+    loadedCount: 0,
+    totalCount: 0,
+    static: {},   // direction -> Image ('north','south','east','west','north-east',etc.)
+    walk: {}      // direction -> [Image, Image, Image, Image] for N/S/E/W
+  },
+};
+
+function loadFoxSprites() {
+  const fox = sprites.fox;
+  const base = 'sprites/fox/';
+  const animId = 'animation-d01f2457';
+  const staticDirs = ['north','south','east','west','north-east','north-west','south-east','south-west'];
+  const walkDirs = ['north','south','east','west'];
+
+  const imagesToTrack = [];
+
+  for (const d of staticDirs) {
+    const img = new Image();
+    img.src = `${base}rotations/${d}.png`;
+    fox.static[d] = img;
+    imagesToTrack.push(img);
+  }
+
+  for (const d of walkDirs) {
+    fox.walk[d] = [];
+    for (let i = 0; i < 4; i++) {
+      const img = new Image();
+      img.src = `${base}animations/${animId}/${d}/frame_${String(i).padStart(3,'0')}.png`;
+      fox.walk[d].push(img);
+      imagesToTrack.push(img);
+    }
+  }
+
+  fox.totalCount = imagesToTrack.length;
+  for (const img of imagesToTrack) {
+    const done = () => {
+      fox.loadedCount++;
+      if (fox.loadedCount >= fox.totalCount) {
+        fox.loaded = true;
+        console.log('🦊 Fox sprites loaded — ' + fox.totalCount + ' frames');
+      }
+    };
+    img.onload = done;
+    img.onerror = done;   // don't hang on missing files
+  }
+}
+
+/* -------------- INPUT -------------- */
+const keys = {};
+window.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+  if (['arrowup','arrowdown','arrowleft','arrowright',' ','e'].includes(e.key.toLowerCase())) {
+    e.preventDefault();
+  }
+  if (state.mode === 'playing' && (e.key.toLowerCase() === 'e' || e.key === ' ' || e.key === 'Enter')) {
+    tryInteract();
+  } else if (state.mode === 'sequence' && (e.key.toLowerCase() === 'e' || e.key === ' ' || e.key === 'Enter')) {
+    advanceDialogSequence();
+  }
+});
+window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+/* -------------- SCENE DEFINITIONS -------------- */
+const worlds = {
+  main: {
+    bg: null,
+    paintFn: paintMainBackground,
+    nodes: [
+      {
+        id: 'machine', x: 70, y: 80, w: 20, h: 26,
+        label: 'The Machine',
+        question: "You found it. This machine is humming quietly. What do you do?",
+        choices: [
+          { text: "Approach it — this looks interesting.", animal: 'fox' },
+          { text: "Go grab a friend. We should both see this.", animal: 'otter' },
+          { text: "Hang back. Watch it for a while first.", animal: 'owl' },
+          { text: "Something feels off. Keep walking.", animal: 'hedgehog' }
+        ],
+        draw: drawMachine
+      },
+      {
+        id: 'colleague', x: 385, y: 145, w: 14, h: 22,
+        label: 'A Colleague',
+        question: "They're showing you something they just built. Your first thought is...",
+        choices: [
+          { text: "Show me exactly how you did that.", animal: 'fox' },
+          { text: "I want to try that right now.", animal: 'otter' },
+          { text: "Interesting. Is this even allowed?", animal: 'owl' },
+          { text: "I'm not sure how I feel about this.", animal: 'hedgehog' }
+        ],
+        draw: drawColleague
+      },
+      {
+        id: 'cabin', x: 380, y: 55, w: 48, h: 40,
+        label: 'A Cozy Cabin',
+        question: "A free afternoon. Nothing scheduled, nothing owed. What do you do?",
+        choices: [
+          { text: "Tinker with something weird.", animal: 'fox' },
+          { text: "Find someone to grab coffee with.", animal: 'otter' },
+          { text: "Read deeply into something.", animal: 'owl' },
+          { text: "Rest. Don't feel guilty about it.", animal: 'hedgehog' }
+        ],
+        draw: drawCabin
+      },
+      {
+        id: 'doorway', x: 50, y: 170, w: 22, h: 30,
+        label: 'A Strange Doorway',
+        question: "When something new comes up at work, you usually feel...",
+        choices: [
+          { text: "Honestly? I've probably already tried it at home.", animal: 'fox' },
+          { text: "Excited. Where do I start?", animal: 'otter' },
+          { text: "Skeptical until I see it working.", animal: 'owl' },
+          { text: "Careful. I want to understand before I commit.", animal: 'hedgehog' }
+        ],
+        draw: drawDoorway
+      },
+      {
+        id: 'pond', x: 210, y: 215, w: 60, h: 36,
+        label: 'A Still Pond',
+        isPond: true,
+        draw: drawPond
+      },
+      {
+        id: 'gate', x: 226, y: 4, w: 28, h: 32,
+        label: 'A Small Door',
+        isGate: true,
+        draw: drawGate
+      }
+    ],
+    obstacles: [
+      { x: 20, y: 55, w: 24, h: 30, type: 'tree' },
+      { x: 130, y: 30, w: 24, h: 30, type: 'tree' },
+      { x: 170, y: 55, w: 22, h: 28, type: 'tree' },
+      { x: 290, y: 30, w: 24, h: 30, type: 'tree' },
+      { x: 310, y: 110, w: 22, h: 28, type: 'tree' },
+      { x: 440, y: 110, w: 22, h: 28, type: 'tree' },
+      { x: 30, y: 140, w: 22, h: 28, type: 'tree' },
+      { x: 110, y: 230, w: 22, h: 28, type: 'tree' },
+      { x: 360, y: 220, w: 22, h: 28, type: 'tree' },
+      { x: 450, y: 40, w: 22, h: 28, type: 'tree' },
+    ],
+    flowers: [
+      { x: 95, y: 135 }, { x: 150, y: 115 }, { x: 240, y: 130 },
+      { x: 280, y: 180 }, { x: 170, y: 180 }, { x: 330, y: 165 },
+      { x: 90, y: 210 }, { x: 410, y: 195 }, { x: 350, y: 90 }
+    ]
+  },
+
+  den: {
+    bg: null,
+    paintFn: paintDenBackground,
+    nodes: [
+      {
+        id: 'campfire', x: 220, y: 120, w: 40, h: 30,
+        label: 'A Warm Campfire',
+        isCampfire: true,
+        draw: drawCampfire
+      },
+      {
+        id: 'npc-1', x: 170, y: 110, w: 14, h: 22,
+        label: 'Drew',
+        isNPC: true,
+        draw: (c, x, y, t) => drawNPC(c, x, y, t, '#8b5a3c', '#d97857', 'left')
+      },
+      {
+        id: 'npc-2', x: 296, y: 110, w: 14, h: 22,
+        label: 'The Partner',
+        isNPC: true,
+        draw: (c, x, y, t) => drawNPC(c, x, y, t, '#3a5270', '#95D7AE', 'right')
+      },
+      {
+        id: 'exit', x: 226, y: 234, w: 28, h: 32,
+        label: 'Back to the Clearing',
+        isExit: true,
+        draw: drawGate
+      }
+    ],
+    obstacles: [
+      { x: 10, y: 60, w: 24, h: 30, type: 'tree-dark' },
+      { x: 50, y: 30, w: 24, h: 30, type: 'tree-dark' },
+      { x: 120, y: 40, w: 22, h: 28, type: 'tree-dark' },
+      { x: 340, y: 35, w: 22, h: 28, type: 'tree-dark' },
+      { x: 410, y: 55, w: 24, h: 30, type: 'tree-dark' },
+      { x: 450, y: 100, w: 22, h: 28, type: 'tree-dark' },
+      { x: 20, y: 160, w: 22, h: 28, type: 'tree-dark' },
+      { x: 30, y: 210, w: 22, h: 28, type: 'tree-dark' },
+      { x: 420, y: 180, w: 22, h: 28, type: 'tree-dark' },
+      { x: 440, y: 210, w: 22, h: 28, type: 'tree-dark' },
+      { x: 95, y: 100, w: 22, h: 28, type: 'tree-dark' },
+      { x: 365, y: 100, w: 22, h: 28, type: 'tree-dark' },
+    ],
+    flowers: [
+      { x: 100, y: 160 }, { x: 140, y: 185 }, { x: 310, y: 170 },
+      { x: 350, y: 200 }, { x: 80, y: 200 }, { x: 400, y: 170 }
+    ]
+  }
+};
+
+let currentWorld = worlds.main;
+
+/* -------------- BACKGROUND PAINTING -------------- */
+function paintMainBackground(c) {
+  const grd = c.createLinearGradient(0, 0, 0, GAME_H);
+  grd.addColorStop(0, '#8ba373');
+  grd.addColorStop(0.5, '#7d9865');
+  grd.addColorStop(1, '#6b885a');
+  c.fillStyle = grd;
+  c.fillRect(0, 0, GAME_W, GAME_H);
+
+  for (let i = 0; i < 1200; i++) {
+    const x = Math.floor(Math.random() * GAME_W);
+    const y = Math.floor(Math.random() * GAME_H);
+    c.fillStyle = Math.random() < 0.5 ? 'rgba(90, 121, 87, 0.5)' : 'rgba(165, 189, 140, 0.3)';
+    c.fillRect(x, y, 1, 1);
+  }
+
+  c.fillStyle = '#c9b889';
+  const pathPts = [
+    [GAME_W/2, GAME_H/2 + 25],
+    [GAME_W/2 - 10, GAME_H/2 + 10],
+    [GAME_W/2, GAME_H/2 - 5],
+    [GAME_W/2 + 15, GAME_H/2 - 15],
+    [GAME_W/2 + 5, GAME_H/2 - 40],
+    [GAME_W/2, GAME_H/2 - 60]
+  ];
+  for (const [px, py] of pathPts) {
+    c.beginPath();
+    c.arc(px, py, 10, 0, Math.PI * 2);
+    c.fill();
+  }
+  for (let i = 0; i < 100; i++) {
+    const basePt = pathPts[Math.floor(Math.random() * pathPts.length)];
+    const x = basePt[0] + (Math.random() - 0.5) * 18;
+    const y = basePt[1] + (Math.random() - 0.5) * 18;
+    c.fillStyle = Math.random() < 0.5 ? '#c9b889' : '#b89f6f';
+    c.fillRect(Math.floor(x), Math.floor(y), 1, 1);
+  }
+
+  for (const o of worlds.main.obstacles) drawTree(c, o.x, o.y);
+  for (const f of worlds.main.flowers) drawFlower(c, f.x, f.y);
+}
+
+function paintDenBackground(c) {
+  // Deeper forest — bluer, more shadowy
+  const grd = c.createLinearGradient(0, 0, 0, GAME_H);
+  grd.addColorStop(0, '#3a4a3a');
+  grd.addColorStop(0.5, '#455a45');
+  grd.addColorStop(1, '#3d5338');
+  c.fillStyle = grd;
+  c.fillRect(0, 0, GAME_W, GAME_H);
+
+  for (let i = 0; i < 1500; i++) {
+    const x = Math.floor(Math.random() * GAME_W);
+    const y = Math.floor(Math.random() * GAME_H);
+    c.fillStyle = Math.random() < 0.5 ? 'rgba(30, 45, 30, 0.5)' : 'rgba(115, 149, 111, 0.2)';
+    c.fillRect(x, y, 1, 1);
+  }
+
+  // Warm ring near the center (firelight glow on the ground)
+  const glow = c.createRadialGradient(GAME_W/2, 135, 20, GAME_W/2, 135, 140);
+  glow.addColorStop(0, 'rgba(217, 120, 87, 0.35)');
+  glow.addColorStop(0.5, 'rgba(217, 120, 87, 0.12)');
+  glow.addColorStop(1, 'rgba(217, 120, 87, 0)');
+  c.fillStyle = glow;
+  c.fillRect(0, 0, GAME_W, GAME_H);
+
+  // Soft cleared circle around fire
+  for (let r = 44; r > 38; r--) {
+    c.fillStyle = r % 2 ? 'rgba(101, 82, 66, 0.3)' : 'rgba(120, 100, 78, 0.2)';
+    c.beginPath();
+    c.arc(GAME_W/2, 135, r, 0, Math.PI * 2);
+    c.fill();
+  }
+
+  // Trees (darker)
+  for (const o of worlds.den.obstacles) drawDarkTree(c, o.x, o.y);
+  for (const f of worlds.den.flowers) drawFlower(c, f.x, f.y, true);
+
+  // Logs for the NPCs to sit on
+  drawLog(c, 160, 125);
+  drawLog(c, 300, 125);
+
+  // Some scattered pebbles near fire
+  c.fillStyle = '#6a5d47';
+  for (const [px, py] of [[226, 145], [262, 148], [232, 150], [253, 143]]) {
+    c.fillRect(px, py, 2, 2);
+  }
+}
+
+function drawLog(c, x, y) {
+  c.fillStyle = '#5a3e28';
+  c.fillRect(x, y, 22, 8);
+  c.fillStyle = '#7a5a3a';
+  c.fillRect(x, y, 22, 2);
+  c.fillRect(x + 1, y + 6, 22, 2);
+  // rings
+  c.fillStyle = '#3a2818';
+  c.fillRect(x, y + 2, 2, 4);
+  c.fillRect(x + 20, y + 2, 2, 4);
+  c.fillStyle = '#6b4a2f';
+  c.fillRect(x + 1, y + 3, 1, 2);
+  c.fillRect(x + 21, y + 3, 1, 2);
+}
+
+function drawTree(c, x, y) {
+  c.fillStyle = '#6b4f3a';
+  c.fillRect(x + 9, y + 16, 6, 14);
+  c.fillStyle = '#5a3f2d';
+  c.fillRect(x + 9, y + 16, 1, 14);
+  c.fillStyle = '#3d5b3a';
+  c.fillRect(x, y + 2, 24, 18);
+  c.fillStyle = '#5a7957';
+  c.fillRect(x + 2, y, 20, 16);
+  c.fillRect(x + 4, y + 16, 16, 2);
+  c.fillStyle = '#73956F';
+  c.fillRect(x + 4, y + 2, 16, 10);
+  c.fillStyle = '#95D7AE';
+  c.fillRect(x + 6, y + 4, 4, 2);
+  c.fillRect(x + 14, y + 6, 3, 2);
+  c.fillStyle = 'rgba(0,0,0,0.18)';
+  c.fillRect(x + 2, y + 28, 20, 2);
+}
+
+function drawDarkTree(c, x, y) {
+  c.fillStyle = '#3a2818';
+  c.fillRect(x + 9, y + 16, 6, 14);
+  c.fillStyle = '#2a1d10';
+  c.fillRect(x + 9, y + 16, 1, 14);
+  c.fillStyle = '#263526';
+  c.fillRect(x, y + 2, 24, 18);
+  c.fillStyle = '#3d5b3a';
+  c.fillRect(x + 2, y, 20, 16);
+  c.fillRect(x + 4, y + 16, 16, 2);
+  c.fillStyle = '#4a6f48';
+  c.fillRect(x + 4, y + 2, 16, 10);
+  c.fillStyle = '#5a7957';
+  c.fillRect(x + 6, y + 4, 3, 2);
+  c.fillStyle = 'rgba(0,0,0,0.35)';
+  c.fillRect(x + 2, y + 28, 20, 2);
+}
+
+function drawFlower(c, x, y, night) {
+  const colors = night
+    ? ['#b8a8c4', '#d4c4b0', '#e8d08a']
+    : ['#FCEFF9', '#f5deb3', '#ffd700', '#f5a5b8'];
+  c.fillStyle = colors[Math.floor(Math.random() * colors.length)];
+  c.fillRect(x, y, 1, 1);
+  c.fillRect(x - 1, y + 1, 1, 1);
+  c.fillRect(x + 1, y + 1, 1, 1);
+  c.fillRect(x, y + 2, 1, 1);
+  c.fillStyle = '#FFD700';
+  c.fillRect(x, y + 1, 1, 1);
+}
+
+/* -------------- INTERACTABLE DRAWING -------------- */
+function drawMachine(c, x, y, t) {
+  c.fillStyle = '#6b5a3f';
+  c.fillRect(x, y + 2, 20, 24);
+  c.fillStyle = '#8b7355';
+  c.fillRect(x + 1, y + 3, 18, 22);
+  c.fillStyle = '#6b5a3f';
+  c.fillRect(x, y, 20, 3);
+  const pulse = 0.5 + 0.5 * Math.sin(t * 3);
+  c.fillStyle = `rgba(149, 215, 174, ${0.5 + pulse * 0.5})`;
+  c.fillRect(x + 5, y + 8, 4, 4);
+  c.fillRect(x + 11, y + 8, 4, 4);
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x + 9, y + 15, 2, 6);
+  for (let i = 0; i < 3; i++) {
+    const waveY = y - 2 - i * 3 - Math.floor(t * 10) % 6;
+    c.fillStyle = `rgba(149, 215, 174, ${0.5 - i * 0.15})`;
+    c.fillRect(x + 5, waveY, 1, 1);
+    c.fillRect(x + 14, waveY, 1, 1);
+  }
+  c.fillStyle = 'rgba(0,0,0,0.2)';
+  c.fillRect(x, y + 26, 20, 2);
+}
+
+function drawColleague(c, x, y, t) {
+  const bob = Math.floor(Math.sin(t * 1.5) * 0.5);
+  y += bob;
+  c.fillStyle = '#454851';
+  c.fillRect(x + 3, y + 14, 3, 6);
+  c.fillRect(x + 8, y + 14, 3, 6);
+  c.fillStyle = '#7BAE7F';
+  c.fillRect(x + 2, y + 6, 10, 9);
+  c.fillStyle = '#d4b896';
+  c.fillRect(x + 3, y, 8, 7);
+  c.fillStyle = '#4a3528';
+  c.fillRect(x + 3, y, 8, 2);
+  c.fillRect(x + 2, y + 1, 2, 3);
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x + 5, y + 3, 1, 1);
+  c.fillRect(x + 8, y + 3, 1, 1);
+  const glowPulse = 0.5 + 0.5 * Math.sin(t * 2);
+  c.fillStyle = `rgba(149, 215, 174, ${0.3 + glowPulse * 0.4})`;
+  c.fillRect(x + 13, y + 7, 3, 3);
+  c.fillStyle = `rgba(255, 250, 240, ${0.6 + glowPulse * 0.4})`;
+  c.fillRect(x + 14, y + 8, 1, 1);
+  c.fillStyle = 'rgba(0,0,0,0.18)';
+  c.fillRect(x + 2, y + 20, 10, 1);
+}
+
+function drawCabin(c, x, y, t) {
+  c.fillStyle = 'rgba(0,0,0,0.18)';
+  c.fillRect(x + 2, y + 40, 44, 2);
+  c.fillStyle = '#9a7850';
+  c.fillRect(x + 4, y + 14, 40, 26);
+  c.fillStyle = '#7a5a3a';
+  c.fillRect(x + 4, y + 14, 1, 26);
+  for (let i = 0; i < 3; i++) {
+    c.fillStyle = '#7a5a3a';
+    c.fillRect(x + 5, y + 20 + i * 6, 38, 1);
+  }
+  c.fillStyle = '#5a3a28';
+  for (let i = 0; i < 22; i++) {
+    c.fillRect(x + i, y + 14 - i, 48 - i * 2, 2);
+    if (x + 48 - i * 2 <= x + i) break;
+  }
+  c.fillStyle = '#3a2818';
+  c.fillRect(x + 16, y + 26, 8, 14);
+  c.fillStyle = '#ffd700';
+  c.fillRect(x + 22, y + 33, 1, 1);
+  c.fillStyle = '#f5deb3';
+  c.fillRect(x + 30, y + 22, 8, 7);
+  c.fillStyle = '#c9b889';
+  c.fillRect(x + 30, y + 22, 1, 7);
+  c.fillRect(x + 37, y + 22, 1, 7);
+  c.fillStyle = '#73956F';
+  c.fillRect(x + 34, y + 22, 1, 7);
+  c.fillRect(x + 30, y + 25, 8, 1);
+  const smokeY = y - 8 - Math.floor(t * 6) % 10;
+  c.fillStyle = 'rgba(255, 250, 240, 0.7)';
+  c.fillRect(x + 8, y + 2, 4, 4);
+  c.fillStyle = 'rgba(255, 250, 240, 0.5)';
+  c.fillRect(x + 9, smokeY + 4, 2, 2);
+  c.fillStyle = 'rgba(255, 250, 240, 0.3)';
+  c.fillRect(x + 8, smokeY, 3, 2);
+}
+
+function drawDoorway(c, x, y, t) {
+  c.fillStyle = 'rgba(0,0,0,0.18)';
+  c.fillRect(x, y + 28, 22, 2);
+  c.fillStyle = '#4a3e2f';
+  c.fillRect(x, y, 22, 30);
+  c.fillStyle = '#6b5a3f';
+  c.fillRect(x + 2, y + 2, 18, 28);
+  const pulse = 0.5 + 0.5 * Math.sin(t * 2);
+  c.fillStyle = `rgba(115, 149, 111, ${0.6 + pulse * 0.4})`;
+  c.fillRect(x + 4, y + 4, 14, 24);
+  c.fillStyle = `rgba(149, 215, 174, ${0.4 + pulse * 0.4})`;
+  c.fillRect(x + 6, y + 6, 10, 20);
+  const qY = y + 10 - Math.floor(t * 8) % 8;
+  c.fillStyle = 'rgba(255, 250, 240, 0.8)';
+  c.fillRect(x + 10, qY, 1, 1);
+  c.fillRect(x + 11, qY - 1, 1, 1);
+  c.fillRect(x + 12, qY, 1, 1);
+  c.fillRect(x + 12, qY + 1, 1, 1);
+  c.fillRect(x + 12, qY + 3, 1, 1);
+}
+
+function drawPond(c, x, y, t, enabled) {
+  c.fillStyle = '#6b885a';
+  c.fillRect(x, y + 4, 60, 28);
+  c.fillRect(x + 4, y, 52, 4);
+  c.fillRect(x + 4, y + 32, 52, 4);
+  c.fillStyle = enabled ? '#5088a5' : '#6a8090';
+  c.fillRect(x + 2, y + 4, 56, 28);
+  c.fillRect(x + 6, y, 48, 4);
+  c.fillRect(x + 6, y + 32, 48, 4);
+  c.fillStyle = enabled ? '#7fb3c9' : '#8aa0b0';
+  c.fillRect(x + 4, y + 6, 52, 22);
+  c.fillRect(x + 8, y + 2, 44, 2);
+  c.fillRect(x + 8, y + 30, 44, 2);
+  if (enabled) {
+    const r1 = Math.floor(t * 10) % 8;
+    c.fillStyle = 'rgba(255, 250, 240, 0.5)';
+    c.fillRect(x + 14 + r1, y + 12, 4, 1);
+    c.fillRect(x + 38 - r1, y + 22, 5, 1);
+  } else {
+    c.fillStyle = 'rgba(255, 250, 240, 0.2)';
+    c.fillRect(x + 20, y + 12, 3, 1);
+    c.fillRect(x + 34, y + 22, 4, 1);
+  }
+  if (enabled && isNearPond()) {
+    drawReflection(c, x + 30, y + 16, t);
+  }
+}
+
+function drawGate(c, x, y, t) {
+  // A small, understated door — 28 wide × 32 tall. Tucked into the edge.
+  const open = state.transformed || state.scene === 'den';
+
+  // Ground shadow
+  c.fillStyle = 'rgba(0,0,0,0.28)';
+  c.fillRect(x + 3, y + 30, 22, 2);
+
+  // Stone frame — thin pillars and a slim lintel
+  c.fillStyle = '#6a6158';
+  c.fillRect(x + 2, y + 5, 4, 26);   // left pillar
+  c.fillRect(x + 22, y + 5, 4, 26);  // right pillar
+  c.fillRect(x + 2, y + 2, 24, 4);   // lintel
+
+  // Subtle highlights on stone
+  c.fillStyle = '#8a8278';
+  c.fillRect(x + 2, y + 5, 1, 26);
+  c.fillRect(x + 22, y + 5, 1, 26);
+  c.fillRect(x + 3, y + 1, 22, 2);
+
+  // Shadow line beneath lintel
+  c.fillStyle = '#5a5148';
+  c.fillRect(x + 2, y + 5, 24, 1);
+
+  // A tiny bit of moss — just a speck or two
+  c.fillStyle = '#5a7957';
+  c.fillRect(x + 3, y + 22, 2, 1);
+  c.fillRect(x + 23, y + 18, 2, 1);
+
+  // Inner area: door panel when closed, warm glow when open
+  const innerX = x + 6;
+  const innerY = y + 6;
+  const innerW = 16;
+  const innerH = 24;
+
+  if (open) {
+    // Gentle warm glow — no sparkle particles. Meant to feel inviting, not flashy.
+    const pulse = 0.4 + 0.2 * Math.sin(t * 2);
+    c.fillStyle = `rgba(115, 149, 111, ${0.4 + pulse * 0.15})`;
+    c.fillRect(innerX, innerY, innerW, innerH);
+    c.fillStyle = `rgba(245, 225, 175, ${0.3 + pulse * 0.18})`;
+    c.fillRect(innerX + 3, innerY + 4, innerW - 6, innerH - 8);
+    // Very soft threshold light
+    c.fillStyle = `rgba(255, 250, 240, ${0.35 + pulse * 0.2})`;
+    c.fillRect(innerX + 7, innerY + 12, 2, 1);
+  } else {
+    // Closed wooden door — plain, no sign, easy to miss.
+    c.fillStyle = '#3a2818';
+    c.fillRect(innerX, innerY, innerW, innerH);
+    // Subtle vertical planks
+    c.fillStyle = '#5a3e28';
+    c.fillRect(innerX + 5, innerY, 1, innerH);
+    c.fillRect(innerX + 10, innerY, 1, innerH);
+    c.fillStyle = '#2a1d10';
+    c.fillRect(innerX + 6, innerY, 1, innerH);
+    c.fillRect(innerX + 11, innerY, 1, innerH);
+    // Small door handle
+    c.fillStyle = '#8a8278';
+    c.fillRect(innerX + 12, innerY + 11, 1, 2);
+  }
+}
+
+function drawCampfire(c, x, y, t) {
+  const cx = x + 20;
+  // stones ring
+  c.fillStyle = '#5a544d';
+  c.fillRect(x + 8, y + 20, 4, 3);
+  c.fillRect(x + 28, y + 20, 4, 3);
+  c.fillRect(x + 14, y + 24, 4, 3);
+  c.fillRect(x + 22, y + 24, 4, 3);
+  c.fillStyle = '#7a746d';
+  c.fillRect(x + 8, y + 20, 2, 1);
+  c.fillRect(x + 28, y + 20, 2, 1);
+  // logs
+  c.fillStyle = '#5a3e28';
+  c.fillRect(x + 10, y + 16, 20, 5);
+  c.fillStyle = '#7a5a3a';
+  c.fillRect(x + 10, y + 16, 20, 1);
+  c.fillStyle = '#3a2818';
+  c.fillRect(x + 14, y + 18, 1, 2);
+  c.fillRect(x + 22, y + 18, 1, 2);
+  // flames (animated)
+  const flicker = Math.floor(t * 8) % 3;
+  // Base flame
+  c.fillStyle = '#d97857';
+  c.fillRect(x + 14, y + 10, 12, 7);
+  c.fillStyle = '#f5a623';
+  c.fillRect(x + 16, y + 8, 8, 6);
+  c.fillStyle = '#ffd700';
+  c.fillRect(x + 18, y + 10 + flicker, 4, 3);
+  // top tongues
+  if (flicker === 0) {
+    c.fillStyle = '#d97857';
+    c.fillRect(x + 17, y + 6, 2, 3);
+    c.fillRect(x + 22, y + 5, 2, 4);
+  } else if (flicker === 1) {
+    c.fillStyle = '#f5a623';
+    c.fillRect(x + 18, y + 5, 2, 4);
+    c.fillRect(x + 21, y + 7, 2, 2);
+  } else {
+    c.fillStyle = '#d97857';
+    c.fillRect(x + 16, y + 7, 2, 2);
+    c.fillRect(x + 23, y + 6, 2, 3);
+  }
+  // sparks rising
+  const sparkY = y + 4 - Math.floor(t * 12) % 10;
+  c.fillStyle = '#ffd700';
+  c.fillRect(x + 18 + (Math.floor(t * 7) % 4), sparkY, 1, 1);
+  c.fillStyle = '#f5a623';
+  c.fillRect(x + 22 - (Math.floor(t * 5) % 3), sparkY - 3, 1, 1);
+  // warm glow around
+  const glowR = 30 + Math.sin(t * 2) * 2;
+  const gr = c.createRadialGradient(cx, y + 14, 4, cx, y + 14, glowR);
+  gr.addColorStop(0, 'rgba(245, 166, 35, 0.3)');
+  gr.addColorStop(1, 'rgba(245, 166, 35, 0)');
+  c.fillStyle = gr;
+  c.fillRect(x - 10, y - 10, 60, 50);
+}
+
+function drawNPC(c, x, y, t, shirt, hair, facing) {
+  const bob = Math.floor(Math.sin(t * 1.3 + (facing === 'left' ? 0 : 0.5)) * 0.5);
+  y += bob;
+  // legs (sitting, shorter)
+  c.fillStyle = '#3a2818';
+  c.fillRect(x + 3, y + 14, 3, 5);
+  c.fillRect(x + 8, y + 14, 3, 5);
+  // body
+  c.fillStyle = shirt;
+  c.fillRect(x + 2, y + 6, 10, 9);
+  // head
+  c.fillStyle = '#d4b896';
+  c.fillRect(x + 3, y, 8, 7);
+  // hair
+  c.fillStyle = hair;
+  c.fillRect(x + 3, y, 8, 2);
+  if (facing === 'left') {
+    c.fillRect(x + 2, y + 1, 2, 3);
+  } else {
+    c.fillRect(x + 10, y + 1, 2, 3);
+  }
+  // eyes
+  c.fillStyle = '#2d2a26';
+  if (facing === 'left') {
+    c.fillRect(x + 4, y + 3, 1, 1);
+    c.fillRect(x + 6, y + 3, 1, 1);
+  } else {
+    c.fillRect(x + 7, y + 3, 1, 1);
+    c.fillRect(x + 9, y + 3, 1, 1);
+  }
+  // Shadow
+  c.fillStyle = 'rgba(0,0,0,0.25)';
+  c.fillRect(x + 2, y + 19, 10, 1);
+}
+
+function drawReflection(c, cx, cy, t) {
+  const animal = computeWinner();
+  const wave = Math.sin(t * 4) * 0.5;
+  // Use real fox sprite for reflection if loaded
+  if (animal === 'fox' && sprites.fox.loaded && sprites.fox.static.south) {
+    const img = sprites.fox.static.south;
+    if (img.complete && img.naturalWidth > 0) {
+      c.save();
+      c.globalAlpha = 0.55;
+      // Flip vertically (it's a reflection), scaled down to ~24px
+      c.translate(Math.floor(cx), Math.floor(cy + wave));
+      c.scale(0.43, -0.43);
+      c.drawImage(img, -18, -18, 36, 36);
+      c.restore();
+      return;
+    }
+  }
+  drawAnimalMini(c, cx - 5, cy - 3 + wave, animal, 0.6);
+}
+
+function drawAnimalMini(c, x, y, animal, alpha) {
+  c.save();
+  c.globalAlpha = alpha || 1;
+  const color = { fox: '#d97857', otter: '#8b6f47', owl: '#6b4e3c', hedgehog: '#5d4e37' }[animal] || '#d97857';
+  c.fillStyle = color;
+  if (animal === 'fox') {
+    c.fillRect(x + 2, y + 2, 6, 3);
+    c.fillRect(x + 1, y + 3, 1, 2);
+    c.fillRect(x + 3, y, 1, 2);
+    c.fillRect(x + 6, y, 1, 2);
+    c.fillRect(x + 8, y + 3, 2, 3);
+  } else if (animal === 'otter') {
+    c.fillRect(x + 2, y + 2, 6, 4);
+    c.fillRect(x + 3, y, 4, 2);
+  } else if (animal === 'owl') {
+    c.fillRect(x + 1, y + 1, 8, 5);
+    c.fillRect(x + 2, y, 1, 1);
+    c.fillRect(x + 7, y, 1, 1);
+  } else if (animal === 'hedgehog') {
+    c.fillRect(x + 3, y + 2, 6, 3);
+    c.fillRect(x, y + 3, 3, 2);
+    for (let i = 0; i < 4; i++) c.fillRect(x + 4 + i, y + 1, 1, 1);
+  }
+  c.restore();
+}
+
+/* -------------- PLAYER DRAWING -------------- */
+function drawPlayer(c, x, y, t) {
+  if (state.transformed && state.result) {
+    drawAnimalPlayer(c, x, y, t);
+    // transformation sparkle fades over 2s
+    if (state.transformPulse > 0) {
+      const alpha = state.transformPulse / 2;
+      for (let i = 0; i < 6; i++) {
+        const angle = (t * 3 + i * Math.PI / 3) % (Math.PI * 2);
+        const r = 10 + (2 - state.transformPulse) * 6;
+        const sx = x + Math.cos(angle) * r;
+        const sy = y + Math.sin(angle) * r;
+        c.fillStyle = `rgba(149, 215, 174, ${alpha})`;
+        c.fillRect(Math.floor(sx), Math.floor(sy), 2, 2);
+      }
+    }
+    return;
+  }
+  drawHumanPlayer(c, x, y, t);
+}
+
+function drawHumanPlayer(c, x, y, t) {
+  c.fillStyle = 'rgba(0,0,0,0.25)';
+  c.fillRect(x - 4, y + 13, 10, 2);
+  const bob = (player.walkFrame === 1) ? -1 : 0;
+  c.fillStyle = '#3a2818';
+  if (player.walkFrame === 0) {
+    c.fillRect(x - 3, y + 10 + bob, 2, 4);
+    c.fillRect(x + 2, y + 10 + bob, 2, 4);
+  } else {
+    c.fillRect(x - 2, y + 10 + bob, 2, 4);
+    c.fillRect(x + 1, y + 10 + bob, 2, 4);
+  }
+  c.fillStyle = '#8b6f47';
+  c.fillRect(x - 4, y + 4 + bob, 9, 7);
+  c.fillStyle = '#6b5a3f';
+  c.fillRect(x - 4, y + 4 + bob, 9, 1);
+  c.fillStyle = '#8b6f47';
+  c.fillRect(x - 5, y + 5 + bob, 1, 5);
+  c.fillRect(x + 5, y + 5 + bob, 1, 5);
+  c.fillStyle = '#d4b896';
+  c.fillRect(x - 3, y - 2 + bob, 7, 6);
+  c.fillStyle = '#4a3528';
+  c.fillRect(x - 3, y - 2 + bob, 7, 2);
+  c.fillRect(x - 4, y - 1 + bob, 1, 2);
+  c.fillRect(x + 4, y - 1 + bob, 1, 2);
+  c.fillStyle = '#2d2a26';
+  if (player.facing === 'left') c.fillRect(x - 2, y + 1 + bob, 1, 1);
+  else if (player.facing === 'right') c.fillRect(x + 2, y + 1 + bob, 1, 1);
+  else if (player.facing === 'up') { c.fillStyle = '#4a3528'; c.fillRect(x - 3, y + 1 + bob, 7, 3); }
+  else { c.fillRect(x - 1, y + 1 + bob, 1, 1); c.fillRect(x + 2, y + 1 + bob, 1, 1); }
+}
+
+function drawAnimalPlayer(c, x, y, t) {
+  const animal = state.result;
+
+  // Fox uses real sprite images if loaded
+  if (animal === 'fox' && sprites.fox.loaded) {
+    drawFoxFromSprites(c, x, y, t);
+    return;
+  }
+
+  // Fallback: hand-drawn pixel sprites for the other animals (and fox pre-load)
+  const bob = (player.walkFrame === 1) ? -1 : 0;
+  c.fillStyle = 'rgba(0,0,0,0.25)';
+  c.fillRect(x - 5, y + 13, 12, 2);
+  const flip = player.facing === 'left' ? -1 : 1;
+  c.save();
+  c.translate(x, y + bob);
+  c.scale(flip, 1);
+  if (animal === 'fox') drawFoxSprite(c, 0, 0);
+  else if (animal === 'otter') drawOtterSprite(c, 0, 0);
+  else if (animal === 'owl') drawOwlSprite(c, 0, 0);
+  else if (animal === 'hedgehog') drawHedgehogSprite(c, 0, 0);
+  c.restore();
+}
+
+/* Draws the fox using the imported Pixellab sprite sheet.
+   The sprites are 36x36 with content roughly in a 10x25 bbox (y=3..28).
+   We anchor the sprite so the content's feet land at player.y + 7 (ground). */
+function drawFoxFromSprites(c, x, y, t) {
+  // Soft shadow
+  c.fillStyle = 'rgba(0,0,0,0.28)';
+  c.fillRect(Math.floor(x - 5), Math.floor(y + 10), 11, 2);
+
+  // Map facing → 4-direction sprite key
+  const dirMap = { up: 'north', down: 'south', left: 'west', right: 'east' };
+  const dir = dirMap[player.facing] || 'south';
+
+  let img;
+  if (player.isMoving) {
+    const frameArr = sprites.fox.walk[dir];
+    img = frameArr && frameArr[player.animFrame % frameArr.length];
+  } else {
+    img = sprites.fox.static[dir];
+  }
+
+  if (img && img.complete && img.naturalWidth > 0) {
+    // 36x36 source scaled to 24x24 (~33% reduction). Anchored so feet land at player.y + 7.
+    c.drawImage(img, Math.floor(x - 12), Math.floor(y - 12), 24, 24);
+  } else {
+    // If this specific frame isn't ready yet, fall back to hand-drawn fox
+    const flip = player.facing === 'left' ? -1 : 1;
+    c.save();
+    c.translate(x, y);
+    c.scale(flip, 1);
+    drawFoxSprite(c, 0, 0);
+    c.restore();
+  }
+}
+
+function drawFoxSprite(c, x, y) {
+  // body
+  c.fillStyle = '#d97857';
+  c.fillRect(x - 5, y + 4, 11, 7);
+  // chest/belly cream
+  c.fillStyle = '#f5deb3';
+  c.fillRect(x - 3, y + 7, 7, 4);
+  // head
+  c.fillStyle = '#d97857';
+  c.fillRect(x - 5, y - 3, 8, 7);
+  // snout
+  c.fillStyle = '#f5deb3';
+  c.fillRect(x - 2, y + 2, 4, 2);
+  // ears
+  c.fillStyle = '#d97857';
+  c.fillRect(x - 4, y - 5, 2, 2);
+  c.fillRect(x, y - 5, 2, 2);
+  c.fillStyle = '#8b4513';
+  c.fillRect(x - 4, y - 5, 1, 1);
+  c.fillRect(x + 1, y - 5, 1, 1);
+  // eyes
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 3, y - 1, 1, 1);
+  c.fillRect(x, y - 1, 1, 1);
+  // nose
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x, y + 2, 1, 1);
+  // tail
+  c.fillStyle = '#d97857';
+  c.fillRect(x + 6, y + 3, 3, 5);
+  c.fillRect(x + 7, y + 2, 2, 5);
+  c.fillStyle = '#fffaf0';
+  c.fillRect(x + 8, y + 6, 1, 1);
+  // legs
+  c.fillStyle = '#8b4513';
+  c.fillRect(x - 4, y + 11, 2, 2);
+  c.fillRect(x + 2, y + 11, 2, 2);
+}
+
+function drawOtterSprite(c, x, y) {
+  // body
+  c.fillStyle = '#8b6f47';
+  c.fillRect(x - 5, y + 3, 12, 8);
+  // belly
+  c.fillStyle = '#d4b896';
+  c.fillRect(x - 3, y + 6, 8, 4);
+  // head
+  c.fillStyle = '#8b6f47';
+  c.fillRect(x - 5, y - 3, 8, 7);
+  // ears (small round)
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x - 5, y - 4, 2, 1);
+  c.fillRect(x + 1, y - 4, 2, 1);
+  // face lighter
+  c.fillStyle = '#d4b896';
+  c.fillRect(x - 3, y + 1, 4, 3);
+  // eyes
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 3, y - 1, 1, 1);
+  c.fillRect(x, y - 1, 1, 1);
+  c.fillStyle = '#fffaf0';
+  c.fillRect(x - 4, y - 1, 1, 1);
+  c.fillRect(x + 1, y - 1, 1, 1);
+  // nose
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 1, y + 2, 2, 1);
+  // whiskers
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x - 7, y + 2, 1, 1);
+  c.fillRect(x + 3, y + 2, 1, 1);
+  // arms holding rock
+  c.fillStyle = '#8b6f47';
+  c.fillRect(x - 3, y + 5, 2, 4);
+  c.fillRect(x + 3, y + 5, 2, 4);
+  // shell/rock
+  c.fillStyle = '#c9b889';
+  c.fillRect(x - 1, y + 6, 3, 3);
+  c.fillStyle = '#a89168';
+  c.fillRect(x - 1, y + 8, 3, 1);
+  // tail (flat)
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x + 7, y + 6, 3, 4);
+  // legs
+  c.fillStyle = '#3a2818';
+  c.fillRect(x - 4, y + 11, 2, 2);
+  c.fillRect(x + 2, y + 11, 2, 2);
+}
+
+function drawOwlSprite(c, x, y) {
+  // body
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x - 6, y + 2, 13, 9);
+  // feather pattern
+  c.fillStyle = '#d4a574';
+  c.fillRect(x - 4, y + 4, 1, 1);
+  c.fillRect(x, y + 4, 1, 1);
+  c.fillRect(x + 4, y + 4, 1, 1);
+  c.fillRect(x - 5, y + 7, 1, 1);
+  c.fillRect(x - 1, y + 7, 1, 1);
+  c.fillRect(x + 3, y + 7, 1, 1);
+  c.fillRect(x - 3, y + 9, 1, 1);
+  c.fillRect(x + 1, y + 9, 1, 1);
+  // head
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x - 6, y - 4, 13, 6);
+  // feather tufts (ears)
+  c.fillStyle = '#6b4e3c';
+  c.fillRect(x - 5, y - 6, 1, 2);
+  c.fillRect(x + 5, y - 6, 1, 2);
+  // face disk lighter
+  c.fillStyle = '#d4a574';
+  c.fillRect(x - 5, y - 3, 11, 5);
+  // big eyes
+  c.fillStyle = '#fffaf0';
+  c.fillRect(x - 4, y - 2, 3, 3);
+  c.fillRect(x + 2, y - 2, 3, 3);
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 3, y - 1, 1, 1);
+  c.fillRect(x + 3, y - 1, 1, 1);
+  // beak
+  c.fillStyle = '#f5a623';
+  c.fillRect(x, y + 1, 2, 1);
+  c.fillRect(x, y + 2, 1, 1);
+  // legs/feet
+  c.fillStyle = '#f5a623';
+  c.fillRect(x - 3, y + 11, 2, 2);
+  c.fillRect(x + 2, y + 11, 2, 2);
+}
+
+function drawHedgehogSprite(c, x, y) {
+  // body (spikes)
+  c.fillStyle = '#5d4e37';
+  c.fillRect(x - 3, y + 2, 10, 9);
+  // spike texture
+  c.fillStyle = '#8b7355';
+  c.fillRect(x - 1, y + 3, 1, 1);
+  c.fillRect(x + 3, y + 3, 1, 1);
+  c.fillRect(x + 1, y + 5, 1, 1);
+  c.fillRect(x + 5, y + 5, 1, 1);
+  c.fillRect(x - 2, y + 7, 1, 1);
+  c.fillRect(x + 2, y + 7, 1, 1);
+  c.fillRect(x + 6, y + 7, 1, 1);
+  c.fillRect(x, y + 9, 1, 1);
+  c.fillRect(x + 4, y + 9, 1, 1);
+  // top spike zigzag
+  c.fillStyle = '#5d4e37';
+  c.fillRect(x - 2, y, 2, 3);
+  c.fillRect(x + 1, y + 1, 1, 2);
+  c.fillRect(x + 3, y, 2, 3);
+  c.fillRect(x + 6, y + 1, 1, 2);
+  // face (peach)
+  c.fillStyle = '#e8c89b';
+  c.fillRect(x - 5, y + 3, 4, 5);
+  // nose (pointy)
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 6, y + 5, 1, 1);
+  // eye
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 3, y + 5, 1, 1);
+  // tiny feet
+  c.fillStyle = '#2d2a26';
+  c.fillRect(x - 2, y + 11, 2, 2);
+  c.fillRect(x + 3, y + 11, 2, 2);
+}
+
+/* -------------- COLLISION -------------- */
+function rectCollide(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
+function canMoveTo(nx, ny) {
+  if (nx - player.w/2 < 2 || nx + player.w/2 > GAME_W - 2) return false;
+  if (ny - 2 < 30 || ny + player.h/2 > GAME_H - 6) return false;
+  const feetX = nx - player.w/2;
+  const feetY = ny + player.h/2 - 4;
+  const feetW = player.w;
+  const feetH = 4;
+  for (const o of currentWorld.obstacles) {
+    if (rectCollide(feetX, feetY, feetW, feetH, o.x + 4, o.y + 22, o.w - 8, 8)) return false;
+  }
+  for (const n of currentWorld.nodes) {
+    if (n.id === 'pond') continue;
+    // NPCs are blocking too
+    if (rectCollide(feetX, feetY, feetW, feetH, n.x + 2, n.y + n.h - 6, n.w - 4, 6)) return false;
+  }
+  return true;
+}
+
+/* -------------- INTERACTION -------------- */
+function dist(ax, ay, bx, by) {
+  const dx = ax - bx, dy = ay - by;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function getNearbyInteractable() {
+  for (const n of currentWorld.nodes) {
+    // Skip completed standard questions (not gates, ponds, NPCs, campfire, exits)
+    if (state.completed.has(n.id) && !n.isGate && !n.isExit && !n.isCampfire) continue;
+    // Pond only enabled after 4 main-scene questions done
+    if (n.id === 'pond' && state.completed.size < 4) continue;
+    const cx = n.x + n.w / 2;
+    const cy = n.y + n.h / 2;
+    const range = INTERACT_RADIUS + Math.max(n.w, n.h) / 2 - 10;
+    if (dist(player.x, player.y, cx, cy) < range) return n;
+  }
+  return null;
+}
+
+function isNearPond() {
+  const pond = currentWorld.nodes.find(n => n.id === 'pond');
+  if (!pond) return false;
+  const cx = pond.x + pond.w / 2;
+  const cy = pond.y + pond.h / 2;
+  return dist(player.x, player.y, cx, cy) < 45;
+}
+
+function tryInteract() {
+  const node = getNearbyInteractable();
+  if (!node) return;
+  if (node.isPond) {
+    openAnchor();
+  } else if (node.isGate) {
+    if (state.transformed) {
+      // Pass to den
+      transitionScene('den', { x: 240, y: 220 });
+    } else {
+      showOverlay('overlay-gate-locked');
+      state.mode = 'dialog';
+    }
+  } else if (node.isExit) {
+    // Return to main scene
+    transitionScene('main', { x: 240, y: 50 });
+  } else if (node.isCampfire) {
+    startDialogSequence('campfire');
+  } else if (node.isNPC) {
+    // Flavor dialog for NPCs
+    startDialogSequence(node.id === 'npc-1' ? 'npc-drew' : 'npc-partner');
+  } else {
+    openQuestion(node);
+  }
+}
+
+/* -------------- OVERLAYS / DIALOG -------------- */
+function showOverlay(id) {
+  document.querySelectorAll('.overlay').forEach(el => el.classList.remove('visible'));
+  document.getElementById(id).classList.add('visible');
+}
+function hideOverlays() {
+  document.querySelectorAll('.overlay').forEach(el => el.classList.remove('visible'));
+}
+
+function startGame() {
+  hideOverlays();
+  const retro = document.getElementById('retro-intro');
+  if (retro) {
+    retro.classList.add('hidden');
+    setTimeout(() => { retro.style.display = 'none'; }, 900);
+  }
+  state.mode = 'playing';
+}
+
+function closeLockedGate() {
+  hideOverlays();
+  state.mode = 'playing';
+}
+
+function openQuestion(node) {
+  state.mode = 'dialog';
+  state.activeInteractable = node;
+  document.getElementById('q-label').textContent = node.label;
+  document.getElementById('q-text').textContent = node.question;
+  const choicesEl = document.getElementById('q-choices');
+  choicesEl.innerHTML = '';
+  node.choices.forEach((choice, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'q-choice';
+    btn.innerHTML = `<span class="num">${i + 1}</span><span>${choice.text}</span>`;
+    btn.addEventListener('click', () => answerQuestion(choice));
+    choicesEl.appendChild(btn);
+  });
+  showOverlay('overlay-question');
+}
+
+function answerQuestion(choice) {
+  state.scores[choice.animal] += 2;
+  state.completed.add(state.activeInteractable.id);
+  updateProgress();
+  state.activeInteractable = null;
+  state.mode = 'playing';
+  hideOverlays();
+}
+
+function openAnchor() {
+  state.mode = 'anchor';
+  showOverlay('overlay-anchor');
+  setTimeout(() => document.getElementById('anchor-input').focus(), 400);
+}
+
+function submitAnchor() {
+  state.anchor = document.getElementById('anchor-input').value.trim();
+  state.result = computeWinner();
+  state.completed.add('pond');
+  const a = animals[state.result];
+  document.getElementById('r-name').textContent = a.name;
+  document.getElementById('r-tagline').textContent = a.tagline;
+  document.getElementById('r-bio').textContent = a.bio;
+  document.getElementById('r-bring').textContent = a.bring;
+  document.getElementById('r-owed').textContent = a.owed;
+  state.mode = 'reveal';
+  showOverlay('overlay-reveal');
+}
+
+function computeWinner() {
+  const order = ['fox', 'owl', 'otter', 'hedgehog'];
+  let best = order[0];
+  for (const key of order) {
+    if (state.scores[key] > state.scores[best]) best = key;
+  }
+  return best;
+}
+
+function dismissReveal() {
+  hideOverlays();
+  triggerTransformation();
+}
+
+function sendResult() {
+  const payload = {
+    animal: state.result,
+    anchor: state.anchor,
+    foundCampfire: state.foundCampfire,
+    scores: state.scores,
+    timestamp: new Date().toISOString()
+  };
+  console.log('Would send:', payload);
+  hideOverlays();
+  triggerTransformation();
+  setTimeout(() => {
+    showToast("Sent. Keep walking — there's more to find.", 4000);
+  }, 1500);
+}
+
+function triggerTransformation() {
+  if (state.transformed) { state.mode = 'playing'; return; }
+  state.transformed = true;
+  state.transformPulse = 2;
+  state.mode = 'playing';
+  showToast("Something has changed. Explore.", 3000);
+}
+
+function updateProgress() {
+  const dots = document.querySelectorAll('#progress .progress-dot');
+  const countNonPond = [...state.completed].filter(id =>
+    id !== 'pond' && id !== 'gate' && id !== 'campfire' && id !== 'exit' && !id.startsWith('npc'))
+    .length;
+  dots.forEach((d, i) => d.classList.toggle('done', i < countNonPond));
+}
+
+function showToast(text, duration) {
+  const t = document.getElementById('status-toast');
+  t.textContent = text;
+  t.classList.add('visible');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('visible'), duration || 2500);
+}
+
+/* -------------- SCENE TRANSITIONS -------------- */
+function transitionScene(sceneName, playerPos) {
+  state.mode = 'transition';
+  const fade = document.getElementById('scene-fade');
+  fade.classList.add('visible');
+  setTimeout(() => {
+    currentWorld = worlds[sceneName];
+    state.scene = sceneName;
+    player.x = playerPos.x;
+    player.y = playerPos.y;
+    if (sceneName === 'den' && !state.foundCampfire) {
+      setTimeout(() => showToast("You found the den. Have a seat.", 3500), 500);
+    }
+    setTimeout(() => {
+      fade.classList.remove('visible');
+      state.mode = 'playing';
+    }, 200);
+  }, 550);
+}
+
+/* -------------- DIALOG SEQUENCES -------------- */
+const dialogSequences = {
+  campfire: {
+    speaker: 'THE MAKERS',
+    lines: [
+      "Hey. You made it past the gate.",
+      "Most people finish the pond and close the tab. We don't blame them — that was the end of the official part.",
+      "But you kept walking.",
+      "Here's something we didn't say out loud on the way in:",
+      "This entire game — the walk, the animals, the pond, the typewriter — we built it in about two days.",
+      { text: "Not because we're great developers. We're not.", className: 'highlight' },
+      "We built it by describing what we wanted to an AI, and iterating until it felt right.",
+      "That's the thing we come into your organization to teach. Not how to use AI. How to build with it.",
+      { text: "When we meet in person, tell us you found the campfire.", className: 'highlight' },
+      "We've got a little something for you.",
+      "See you in the room."
+    ],
+    onComplete: () => {
+      state.foundCampfire = true;
+      showToast("★  BADGE EARNED: Campfire Finder", 4000);
+    }
+  },
+  'npc-drew': {
+    speaker: 'DREW',
+    lines: ["Good to see you. Take a seat by the fire when you're ready."]
+  },
+  'npc-partner': {
+    speaker: 'THE PARTNER',
+    lines: ["You made it. Drew was hoping someone would."]
+  }
+};
+
+let dialogState = { active: null, lineIdx: 0, charIdx: 0, displayed: '', typing: false, timer: null };
+
+function startDialogSequence(key) {
+  const seq = dialogSequences[key];
+  if (!seq) return;
+  state.mode = 'sequence';
+  dialogState.active = seq;
+  dialogState.lineIdx = 0;
+  dialogState.charIdx = 0;
+  dialogState.displayed = '';
+  document.getElementById('dialog-speaker').textContent = seq.speaker;
+  document.getElementById('dialog-box').classList.add('visible');
+  document.getElementById('dialog-next').classList.remove('visible');
+  typeNextChar();
+}
+
+function typeNextChar() {
+  if (!dialogState.active) return;
+  const line = dialogState.active.lines[dialogState.lineIdx];
+  const text = typeof line === 'string' ? line : line.text;
+  const cls = typeof line === 'object' && line.className ? line.className : '';
+  if (dialogState.charIdx < text.length) {
+    dialogState.displayed += text[dialogState.charIdx];
+    const html = cls
+      ? `<span class="${cls}">${escapeHtml(dialogState.displayed)}</span>`
+      : escapeHtml(dialogState.displayed);
+    document.getElementById('dialog-text').innerHTML = html + '<span class="dialog-cursor"></span>';
+    dialogState.charIdx++;
+    dialogState.typing = true;
+    dialogState.timer = setTimeout(typeNextChar, 28);
+  } else {
+    dialogState.typing = false;
+    document.getElementById('dialog-next').classList.add('visible');
+  }
+}
+
+function advanceDialogSequence() {
+  if (dialogState.typing) {
+    // Skip to end of current line
+    clearTimeout(dialogState.timer);
+    const line = dialogState.active.lines[dialogState.lineIdx];
+    const text = typeof line === 'string' ? line : line.text;
+    const cls = typeof line === 'object' && line.className ? line.className : '';
+    dialogState.displayed = text;
+    const html = cls
+      ? `<span class="${cls}">${escapeHtml(text)}</span>`
+      : escapeHtml(text);
+    document.getElementById('dialog-text').innerHTML = html + '<span class="dialog-cursor"></span>';
+    dialogState.charIdx = text.length;
+    dialogState.typing = false;
+    document.getElementById('dialog-next').classList.add('visible');
+    return;
+  }
+  // Advance to next line
+  dialogState.lineIdx++;
+  if (dialogState.lineIdx >= dialogState.active.lines.length) {
+    // Done
+    endDialogSequence();
+    return;
+  }
+  dialogState.charIdx = 0;
+  dialogState.displayed = '';
+  document.getElementById('dialog-next').classList.remove('visible');
+  typeNextChar();
+}
+
+function endDialogSequence() {
+  const box = document.getElementById('dialog-box');
+  box.classList.remove('visible');
+  const completeFn = dialogState.active && dialogState.active.onComplete;
+  dialogState.active = null;
+  state.mode = 'playing';
+  if (completeFn) completeFn();
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+/* -------------- ANIMALS -------------- */
+const animals = {
+  fox: {
+    name: 'Fox', tagline: 'Already ahead.',
+    bio: "Foxes don't wait for permission. They see something interesting and move toward it — curious, quick, happy to improvise. You've probably already been experimenting on your own. You'll be the one helping others see what's possible.",
+    bring: "Energy, confidence, and the instinct to try things before they're approved.",
+    owed: "A challenge worthy of your skill. Don't bore us, and we won't bore you."
+  },
+  otter: {
+    name: 'Otter', tagline: 'Shows up ready.',
+    bio: "Otters arrive with both hands open. Curious, eager, social — they aren't afraid of looking foolish, they're afraid of missing the fun. You haven't had as much practice with this yet, but you have more than enough enthusiasm to make up for it.",
+    bring: "Openness, optimism, and the pull that gets others off the sidelines.",
+    owed: "A real task, not a warm-up. You came here to build something."
+  },
+  owl: {
+    name: 'Owl', tagline: 'Watches first.',
+    bio: "Owls know things. They've seen enough waves of new technology to stay measured. You're engaged with this, but you're not going to clap along just because everyone else is. Your skepticism isn't resistance — it's quality control.",
+    bring: "Perspective, pattern recognition, and the questions that make ideas sharper.",
+    owed: "Your concerns taken seriously. Not dismissed, not rushed past."
+  },
+  hedgehog: {
+    name: 'Hedgehog', tagline: 'Careful, and right to be.',
+    bio: "Hedgehogs are gentle, thoughtful, and honest about what they don't know. You're not hiding from change — you're asking for the conditions to engage with it on your terms. That's a reasonable ask, and this engagement is built around it.",
+    bring: "Honesty, patience, and the quiet insights that confident voices often miss.",
+    owed: "Space. Control over pace. Nobody is going to surprise you into something."
+  }
+};
+
+/* -------------- GAME LOOP -------------- */
+let lastTime = 0;
+function loop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.1);
+  lastTime = ts;
+  state.time += dt;
+  if (state.transformPulse > 0) state.transformPulse = Math.max(0, state.transformPulse - dt);
+  if (state.mode === 'playing') update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+function update(dt) {
+  let vx = 0, vy = 0;
+  if (keys['arrowleft'] || keys['a']) vx -= 1;
+  if (keys['arrowright'] || keys['d']) vx += 1;
+  if (keys['arrowup'] || keys['w']) vy -= 1;
+  if (keys['arrowdown'] || keys['s']) vy += 1;
+  if (vx !== 0 && vy !== 0) { const inv = 1 / Math.sqrt(2); vx *= inv; vy *= inv; }
+
+  const moving = vx !== 0 || vy !== 0;
+  player.isMoving = moving;
+  if (moving) {
+    if (Math.abs(vx) > Math.abs(vy)) player.facing = vx > 0 ? 'right' : 'left';
+    else player.facing = vy > 0 ? 'down' : 'up';
+    player.walkTimer += dt;
+    if (player.walkTimer > 0.18) { player.walkTimer = 0; player.walkFrame = 1 - player.walkFrame; }
+    // 4-frame sprite animation (faster cycle, ~8 fps)
+    player.animTimer += dt;
+    if (player.animTimer > 0.125) {
+      player.animTimer = 0;
+      player.animFrame = (player.animFrame + 1) % 4;
+    }
+  } else {
+    player.walkFrame = 0;
+    player.animFrame = 0;
+    player.animTimer = 0;
+  }
+
+  const dx = vx * PLAYER_SPEED * dt;
+  const dy = vy * PLAYER_SPEED * dt;
+  const nx = player.x + dx;
+  if (canMoveTo(nx, player.y)) player.x = nx;
+  const ny = player.y + dy;
+  if (canMoveTo(player.x, ny)) player.y = ny;
+
+  updateInteractHint();
+}
+
+function updateInteractHint() {
+  const node = getNearbyInteractable();
+  const hint = document.getElementById('interact-hint');
+  if (node) {
+    const scale = canvas.getBoundingClientRect().width / GAME_W;
+    const rect = canvas.getBoundingClientRect();
+    const sx = rect.left + (node.x + node.w / 2) * scale;
+    const sy = rect.top + (node.y - 4) * scale;
+    hint.style.left = sx + 'px';
+    hint.style.top = sy + 'px';
+    let label = node.label;
+    if (node.isGate && !state.transformed) label = 'Read the sign';
+    else if (node.isGate) label = 'Enter';
+    else if (node.isExit) label = 'Go back';
+    hint.querySelector('#hint-label').textContent = label;
+    hint.classList.add('visible');
+  } else {
+    hint.classList.remove('visible');
+  }
+}
+
+/* -------------- RENDER -------------- */
+function render() {
+  ctx.drawImage(currentWorld.bg, 0, 0);
+
+  const entities = [];
+  for (const n of currentWorld.nodes) {
+    entities.push({
+      y: n.y + n.h,
+      render: (c) => {
+        c.save();
+        if (n.isPond) {
+          n.draw(c, n.x, n.y, state.time, state.completed.size >= 4);
+          if (state.completed.size >= 4 && !state.completed.has('pond')) {
+            const pulse = 0.5 + 0.5 * Math.sin(state.time * 3);
+            c.fillStyle = `rgba(149, 215, 174, ${pulse})`;
+            c.fillRect(n.x + 28, n.y - 4, 4, 1);
+            c.fillRect(n.x + 30, n.y - 6, 1, 1);
+          }
+        } else if (n.isGate || n.isExit || n.isCampfire || n.isNPC) {
+          n.draw(c, n.x, n.y, state.time);
+        } else if (state.completed.has(n.id)) {
+          c.globalAlpha = 0.45;
+          n.draw(c, n.x, n.y, state.time);
+          c.globalAlpha = 1;
+          c.fillStyle = '#73956F';
+          c.fillRect(n.x + n.w/2 - 2, n.y - 8, 1, 1);
+          c.fillRect(n.x + n.w/2 - 1, n.y - 7, 1, 1);
+          c.fillRect(n.x + n.w/2, n.y - 6, 1, 1);
+          c.fillRect(n.x + n.w/2 + 1, n.y - 7, 1, 1);
+          c.fillRect(n.x + n.w/2 + 2, n.y - 8, 1, 1);
+        } else {
+          n.draw(c, n.x, n.y, state.time);
+          const near = getNearbyInteractable();
+          if (near && near.id === n.id) {
+            c.fillStyle = '#73956F';
+            c.fillRect(n.x + n.w/2, n.y - 4, 1, 1);
+          }
+        }
+        c.restore();
+      }
+    });
+  }
+  entities.push({
+    y: player.y + player.h / 2,
+    render: (c) => drawPlayer(c, player.x, player.y, state.time)
+  });
+  entities.sort((a, b) => a.y - b.y);
+  entities.forEach(e => e.render(ctx));
+
+  // Vignette
+  const vg = ctx.createRadialGradient(GAME_W/2, GAME_H/2, GAME_H/3, GAME_W/2, GAME_H/2, GAME_W/1.3);
+  vg.addColorStop(0, 'rgba(0,0,0,0)');
+  vg.addColorStop(1, state.scene === 'den' ? 'rgba(0,0,0,0.55)' : 'rgba(0,0,0,0.35)');
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, GAME_W, GAME_H);
+}
+
+/* -------------- RESPONSIVE -------------- */
+function fitCanvas() {
+  const wrap = document.getElementById('game-wrap');
+  const maxW = wrap.clientWidth;
+  const maxH = wrap.clientHeight;
+  const scale = Math.max(1, Math.floor(Math.min(maxW / GAME_W, maxH / GAME_H)));
+  canvas.style.width = (GAME_W * scale) + 'px';
+  canvas.style.height = (GAME_H * scale) + 'px';
+}
+window.addEventListener('resize', fitCanvas);
+
+/* =======================================
+   AUDIO — typewriter blip (Web Audio API)
+   Generated procedurally, no audio file needed.
+   ======================================= */
+let audioCtx = null;
+let audioUnlocked = false;
+
+function ensureAudioCtx() {
+  if (!audioCtx) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    } catch (e) { audioCtx = null; return null; }
+  }
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume().then(() => { audioUnlocked = true; }).catch(() => {});
+  } else if (audioCtx.state === 'running') {
+    audioUnlocked = true;
+  }
+  return audioCtx;
+}
+
+// Unlock audio on first user interaction anywhere on the page.
+['keydown', 'click', 'touchstart', 'pointerdown'].forEach(evt => {
+  document.addEventListener(evt, ensureAudioCtx, { passive: true });
+});
+
+/* Plays a short typewriter blip for a given character.
+   Square wave, quick attack and decay, pitch varies slightly per character. */
+function playTypeBlip(char) {
+  if (!audioUnlocked || !audioCtx || audioCtx.state !== 'running') return;
+  if (!char) return;
+  // Skip characters that shouldn't make sound
+  if (char === ' ' || char === '\n' || char === '\t') return;
+  if (/[.,;:!?"\-'"]/.test(char)) return;
+
+  // Base frequency + gentle variance per character code
+  const base = 680;                     // slightly above E5, brighter than A4
+  const variance = (char.charCodeAt(0) % 5) * 18; // 0, 18, 36, 54, 72 Hz
+  const freq = base + variance;
+
+  const now = audioCtx.currentTime;
+  const attack = 0.004;
+  const release = 0.055;
+  const stopAt = now + 0.06;
+
+  // Square wave — the bright, retro "chip" character of the sound
+  const oscSq = audioCtx.createOscillator();
+  const gSq = audioCtx.createGain();
+  oscSq.type = 'square';
+  oscSq.frequency.value = freq;
+  oscSq.connect(gSq);
+  gSq.connect(audioCtx.destination);
+  gSq.gain.setValueAtTime(0, now);
+  gSq.gain.linearRampToValueAtTime(0.022, now + attack);
+  gSq.gain.exponentialRampToValueAtTime(0.0001, now + release);
+  oscSq.start(now);
+  oscSq.stop(stopAt);
+
+  // Triangle wave at same fundamental — adds warmth to fill the "hollow"
+  // feeling of a pure square wave without changing its retro character.
+  const oscTri = audioCtx.createOscillator();
+  const gTri = audioCtx.createGain();
+  oscTri.type = 'triangle';
+  oscTri.frequency.value = freq;
+  oscTri.connect(gTri);
+  gTri.connect(audioCtx.destination);
+  gTri.gain.setValueAtTime(0, now);
+  gTri.gain.linearRampToValueAtTime(0.018, now + attack);
+  gTri.gain.exponentialRampToValueAtTime(0.0001, now + release);
+  oscTri.start(now);
+  oscTri.stop(stopAt);
+}
+
+/* =======================================
+   RETRO TITLE SCREEN
+   ======================================= */
+const retroSegments = [
+  { text: "Hey there.\n\n", speed: 45, pause: 550 },
+  { text: "I know what you're thinking.\n", speed: 32, pause: 280 },
+  { text: "This doesn't look like work.\n\n", speed: 32, pause: 750 },
+  { text: "That's the point.\n\n", speed: 55, pause: 750 },
+  { text: "We believe in showing, not telling.\n", speed: 28, pause: 260 },
+  { text: "So rather than send you a slide deck,\n", speed: 28, pause: 200 },
+  { text: "we made this.\n\n", speed: 30, pause: 700 },
+  { text: "It's a funner way to make a simple\nargument:\n\n", speed: 28, pause: 550 },
+  { text: "You can change your work\n", speed: 48, pause: 500, className: 'highlight' },
+  { text: "just like we've changed ours.\n\n", speed: 48, pause: 800, className: 'highlight' },
+  { text: "See you in the room.", speed: 40, pause: 0 }
+];
+
+let retroState = { started: false, done: false, skipped: false, segmentIndex: 0, charIndex: 0, timer: null };
+
+function startRetroTypewriter() {
+  const body = document.getElementById('retro-body');
+  const cursor = '<span class="retro-cursor"></span>';
+  body.innerHTML = cursor;
+  function step() {
+    if (retroState.skipped) return;
+    if (retroState.segmentIndex >= retroSegments.length) { finishRetro(); return; }
+    const seg = retroSegments[retroState.segmentIndex];
+    const spanClass = seg.className ? ` class="${seg.className}"` : '';
+    let html = '';
+    for (let i = 0; i < retroState.segmentIndex; i++) {
+      const s = retroSegments[i];
+      const cls = s.className ? ` class="${s.className}"` : '';
+      html += `<span${cls}>${escapeHtml(s.text)}</span>`;
+    }
+    const partial = seg.text.slice(0, retroState.charIndex + 1);
+    html += `<span${spanClass}>${escapeHtml(partial)}</span>${cursor}`;
+    body.innerHTML = html;
+    // Blip sound for the character we just typed
+    playTypeBlip(seg.text[retroState.charIndex]);
+    retroState.charIndex++;
+    if (retroState.charIndex >= seg.text.length) {
+      retroState.segmentIndex++;
+      retroState.charIndex = 0;
+      retroState.timer = setTimeout(step, seg.pause);
+    } else {
+      retroState.timer = setTimeout(step, seg.speed);
+    }
+  }
+  step();
+}
+
+function skipRetroTypewriter() {
+  if (retroState.done) return;
+  retroState.skipped = true;
+  clearTimeout(retroState.timer);
+  const body = document.getElementById('retro-body');
+  let html = '';
+  for (const s of retroSegments) {
+    const cls = s.className ? ` class="${s.className}"` : '';
+    html += `<span${cls}>${escapeHtml(s.text)}</span>`;
+  }
+  html += '<span class="retro-cursor"></span>';
+  body.innerHTML = html;
+  finishRetro();
+}
+
+function finishRetro() {
+  retroState.done = true;
+  document.getElementById('retro-controls').classList.add('visible');
+  const prompt = document.getElementById('retro-prompt');
+  prompt.textContent = '► PRESS SPACE TO BEGIN';
+  prompt.classList.add('visible');
+  const skipHint = document.getElementById('retro-skip-hint');
+  if (skipHint) skipHint.style.display = 'none';
+}
+
+function populateRetroStars() {
+  const container = document.getElementById('retro-stars');
+  const count = 40;
+  for (let i = 0; i < count; i++) {
+    const star = document.createElement('div');
+    star.className = 'retro-star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.animationDelay = (Math.random() * 3) + 's';
+    star.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+    if (Math.random() < 0.2) {
+      star.style.width = '3px'; star.style.height = '3px'; star.style.background = '#95D7AE';
+    } else if (Math.random() < 0.15) {
+      star.style.background = '#73956F';
+    }
+    container.appendChild(star);
+  }
+}
+
+function handleRetroKey(e) {
+  const retro = document.getElementById('retro-intro');
+  if (!retro || retro.classList.contains('hidden')) return;
+
+  // First press: unlock audio and kick off the typewriter
+  if (!retroState.started) {
+    ensureAudioCtx();
+    retroState.started = true;
+    document.getElementById('retro-prompt').classList.remove('visible');
+    const skipHint = document.getElementById('retro-skip-hint');
+    if (skipHint) skipHint.style.display = '';
+    startRetroTypewriter();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return;
+  }
+
+  // Second state: typewriter running — skip it
+  if (!retroState.done) {
+    skipRetroTypewriter();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    return;
+  }
+
+  // Third state: typewriter done — start the game
+  startGame();
+  e.preventDefault();
+  e.stopImmediatePropagation();
+}
+
+window.addEventListener('keydown', handleRetroKey, true);
+document.getElementById('retro-intro').addEventListener('click', (e) => {
+  const fakeEvent = { preventDefault: () => {}, stopImmediatePropagation: () => {} };
+  handleRetroKey(fakeEvent);
+});
+
+/* -------------- INIT BACKGROUNDS -------------- */
+function prePaintBackgrounds() {
+  // Paint each world's background once
+  for (const key in worlds) {
+    const w = worlds[key];
+    const bg = document.createElement('canvas');
+    bg.width = GAME_W;
+    bg.height = GAME_H;
+    const c = bg.getContext('2d');
+    c.imageSmoothingEnabled = false;
+    w.paintFn(c);
+    w.bg = bg;
+  }
+}
+
+/* -------------- INIT -------------- */
+prePaintBackgrounds();
+fitCanvas();
+populateRetroStars();
+loadFoxSprites();
+// Don't auto-start the typewriter — wait for the user's first keypress/click.
+// This unlocks browser audio (blocked until user interaction) so the typing
+// sound is audible from the very first character.
+(function showInitialPrompt() {
+  const prompt = document.getElementById('retro-prompt');
+  prompt.textContent = '► PRESS ANY KEY TO BEGIN';
+  prompt.classList.add('visible');
+  const skipHint = document.getElementById('retro-skip-hint');
+  if (skipHint) skipHint.style.display = 'none';
+})();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
