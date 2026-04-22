@@ -28,7 +28,7 @@
     color: #8A8F94; text-transform: uppercase;
   }
   .row { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px; }
-  .row.quads { grid-template-columns: repeat(4, 1fr); }
+  .row.quads { grid-template-columns: repeat(5, 1fr); }
   .row.insitu { grid-template-columns: 1fr; margin-top: 36px; }
   .card {
     background: #1F3933;
@@ -93,10 +93,11 @@
 </header>
 
 <div class="row quads">
-  <div class="card"><div class="tag">01</div><svg id="alien-1" viewBox="0 0 200 200"></svg><div class="name"><span>PODLET</span><em>01/04</em></div></div>
-  <div class="card"><div class="tag">02</div><svg id="alien-2" viewBox="0 0 200 200"></svg><div class="name"><span>SPROUT</span><em>02/04</em></div></div>
-  <div class="card"><div class="tag">03</div><svg id="alien-3" viewBox="0 0 200 200"></svg><div class="name"><span>TOWER</span><em>03/04</em></div></div>
-  <div class="card"><div class="tag">04</div><svg id="alien-4" viewBox="0 0 200 200"></svg><div class="name"><span>BLINK</span><em>04/04</em></div></div>
+  <div class="card"><div class="tag">01</div><svg id="alien-1" viewBox="0 0 200 200"></svg><div class="name"><span>PODLET</span><em>01/05</em></div></div>
+  <div class="card"><div class="tag">02</div><svg id="alien-2" viewBox="0 0 200 200"></svg><div class="name"><span>SPROUT</span><em>02/05</em></div></div>
+  <div class="card"><div class="tag">03</div><svg id="alien-3" viewBox="0 0 200 200"></svg><div class="name"><span>TOWER</span><em>03/05</em></div></div>
+  <div class="card"><div class="tag">04</div><svg id="alien-4" viewBox="0 0 200 200"></svg><div class="name"><span>BLINK</span><em>04/05</em></div></div>
+  <div class="card"><div class="tag">05</div><svg id="alien-5" viewBox="0 0 200 200"></svg><div class="name"><span>SUIT</span><em>05/05</em></div></div>
 </div>
 
 <div class="row insitu">
@@ -285,10 +286,59 @@ const BLINK = [
 ];
 const P_BLINK = { 'b': MINT, 'h': '#C5EBD4', 's': '#6FA886', 'e': PAPER, 'p': LAV_DEEP, 'm': INK, 'a': SAGE_DEEP, 'f': INK, 'H': '#6FA886' };
 
+/* ──────────────────────────────────────────
+   05 — SUIT — Podlet DNA, but corporate. Sage head, slicked
+   antenna, charcoal blazer with lapels + collar, white shirt,
+   tiny sage tie, and a little briefcase in one hand.
+   Keeps the same round face, big eyes, smile.
+   Legend additions:
+     J = jacket (charcoal)   j = jacket highlight
+     L = lapel edge (darker) W = shirt white
+     t = tie (sage)           T = tie knot (sage deep)
+     c = briefcase body       C = briefcase handle/ink
+   ───────────────────────────────────────── */
+const SUIT = [
+  '.........aa.........',
+  '.........aa.........',
+  '........bbbb........',
+  '.......bbbbbb.......',
+  '......bbbbbbbb......',
+  '.....hhbbbbbbss.....',
+  '....hhwwbbbbwwss....',    // brow pixels, a new face element
+  '....hbbeebbeebsss...',
+  '....hbbepbbbpebss...',    // single-pixel pupils (vs Podlet's 2-wide)
+  '....hbbeebbeebsss...',
+  '....hhbbbmmmmbbss...',    // slightly wider smile line
+  '....hbbbmmmmmmbbs...',
+  '.....hbBbmmmmbBbs...',
+  '....JJJJWWTTWWJJJJ..',    // collar
+  '...JJJJJLWTTWLJJJJJ.',    // lapels
+  '..JJJJJJLtttLJJJJJJ.',    // lapel edges + red tie
+  '..JJJ.JJJLtLJJJJ.JJJ',    // arm gaps
+  '..JJJ.JJJJttJJJJ.JJJ',
+  '..JJJ.JJJJttJJJJ.JJJ',
+  '..HHH.JJJJJJJJJJ.HHH',    // both sage hands peeking out of cuffs
+  '...CC.JJJ....JJJ....',    // briefcase strap next to left hand + legs
+  '...CC.JJJ....JJJ....',
+  '.....ffff....ffff...',
+];
+const P_SUIT = {
+  'b': SAGE, 'h': MINT, 's': SAGE_DEEP,
+  'e': PAPER, 'p': INK, 'm': INK, 'B': BLUSH,
+  'w': INK, /* brow pixels in ink for definition */
+  'a': SAGE_DEEP, 'f': INK,
+  'J': '#2A2E33', 'j': '#454851', 'L': '#1A1C20',
+  'W': PAPER,
+  't': '#B23A3A', 'T': '#7A1F1F',  /* RED tie */
+  'H': SAGE, /* hands: same sage as head skin */
+  'c': '#6B4A22', 'C': '#3F2A10',  /* briefcase: leather brown + ink edge */
+};
+
 render('alien-1', PODLET, P_PODLET);
 render('alien-2', SPROUT, P_SPROUT);
 render('alien-3', TOWER,  P_TOWER);
 render('alien-4', BLINK,  P_BLINK);
+render('alien-5', SUIT,   P_SUIT);
 
 render('crew-1', PODLET, P_PODLET);
 render('crew-2', SPROUT, P_SPROUT);
