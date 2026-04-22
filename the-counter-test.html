@@ -114,7 +114,20 @@ nav {
   text-transform: uppercase;
 }
 nav .nav-links {
-  display: flex; gap: 28px;
+  display: flex; gap: 56px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+nav .nav-links a + a {
+  position: relative;
+}
+nav .nav-links a + a::before {
+  content: '·';
+  position: absolute;
+  left: -30px;
+  color: var(--muted);
+  opacity: 0.6;
 }
 nav .nav-links a {
   color: var(--ink);
@@ -181,11 +194,10 @@ section { position: relative; padding: 120px 0; }
 }
 
 .hero {
-  padding: 100px 0 60px;
+  padding: 32px 0 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   position: relative;
   overflow: hidden;
 }
@@ -378,19 +390,21 @@ section { position: relative; padding: 120px 0; }
 }
 
 .hero-center {
-  max-width: 1200px;
-  padding-top: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding-top: 0;
 }
 .hero-center .pill { margin-bottom: 36px; }
 
 .hero-head {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: clamp(36px, 4vw, 54px);
-  line-height: 1.05;
+  font-size: clamp(30px, 3vw, 44px);
+  line-height: 1.08;
   letter-spacing: -0.02em;
   color: var(--ink);
-  max-width: 100%;
+  max-width: 18ch;
+  text-wrap: balance;
 }
 .hero-head em { font-style: italic; }
 .hero-head .hi {
@@ -455,14 +469,16 @@ section { position: relative; padding: 120px 0; }
 .hero h1 .no-orphan { white-space: nowrap; }
 
 .hero-sub {
-  margin-top: 40px;
-  max-width: 100%;
-  font-size: clamp(22px, 2.2vw, 30px);
+  margin-top: 32px;
+  max-width: none;
+  font-size: clamp(17px, 1.4vw, 20px);
   color: var(--ink-soft);
   line-height: 1.55;
+  white-space: nowrap;
 }
+.hero-sub.hero-sub-close { white-space: normal; }
 .hero-sub-close {
-  margin-top: 32px;
+  margin-top: 20px;
 }
 
 .scribble {
@@ -498,41 +514,54 @@ section { position: relative; padding: 120px 0; }
 .annot-hero-1::before { display: none; }
 
 .hero-cta-row {
-  margin-top: 56px;
+  margin-top: 40px;
   display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
 }
 .btn-chunky {
-  display: inline-flex; align-items: center; gap: 14px;
+  display: inline-flex; align-items: center; gap: 10px;
   background: var(--ink);
   color: var(--paper);
-  padding: 22px 36px;
+  padding: 13px 22px;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 16px;
-  letter-spacing: 0.15em;
+  font-size: 12px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   text-decoration: none;
-  box-shadow: 6px 6px 0 var(--marker);
+  box-shadow: 4px 4px 0 var(--marker);
   transition: all .15s;
   border: 2px solid var(--ink);
 }
 .btn-chunky:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: 9px 9px 0 var(--marker);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--marker);
   background: var(--fluency);
   border-color: var(--fluency);
 }
-.btn-chunky .arrow { font-family: 'Instrument Serif', serif; font-size: 22px; font-style: italic; }
+.btn-chunky .arrow { font-family: 'Instrument Serif', serif; font-size: 16px; font-style: italic; }
+
+.pov-btn {
+  background: var(--marker);
+  color: var(--paper);
+  border-color: var(--marker);
+  box-shadow: 4px 4px 0 var(--fluency-2);
+}
+.pov-btn:hover {
+  background: var(--marker-2);
+  border-color: var(--marker-2);
+  box-shadow: 6px 6px 0 var(--fluency-2);
+}
 
 .logos-row {
   margin-top: auto;
-  padding-top: 60px;
+  width: 100%;
+  padding: 14px 32px;
   display: flex;
   align-items: center;
   gap: 48px;
-  padding-bottom: 0;
   border-top: 1px solid var(--line);
   overflow: hidden;
   white-space: nowrap;
+  background: var(--paper);
 }
 .logos-row .logos-label {
   font-family: 'JetBrains Mono', monospace;
@@ -567,6 +596,8 @@ section { position: relative; padding: 120px 0; }
 
 .pf-wrap {
   position: relative;
+  padding: 0;
+  background: var(--ink-deep);
 }
 .pf-track {
   position: relative;
@@ -628,13 +659,7 @@ section { position: relative; padding: 120px 0; }
   outline-offset: -1px;
 }
 .pf-pov::after {
-  content: '01';
-  position: absolute;
-  top: 28px; right: 40px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--fluency-2);
-  letter-spacing: 0.2em;
+  content: none;
 }
 .pov-inner {
   display: grid;
@@ -664,6 +689,7 @@ section { position: relative; padding: 120px 0; }
   margin: 24px 0 28px;
   max-width: 18ch;
 }
+.pov-head em { color: var(--fluency-2); font-style: italic; }
 .pov-head .crossed {
   position: relative;
   display: inline-block;
@@ -718,12 +744,13 @@ section { position: relative; padding: 120px 0; }
 .fluency-head {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: clamp(34px, 4.8vw, 64px);
-  line-height: 0.98;
+  font-size: clamp(30px, 3.4vw, 44px);
+  line-height: 1.1;
   letter-spacing: -0.015em;
-  max-width: 920px;
+  max-width: 1100px;
   margin-top: 14px;
 }
+.fluency-head em { white-space: nowrap; }
 .fluency-head .hi {
   background: linear-gradient(180deg, transparent 0 58%, var(--highlight) 58% 94%, transparent 94%);
   padding: 0 8px;
@@ -760,7 +787,7 @@ section { position: relative; padding: 120px 0; }
 }
 
 .compare {
-  margin-top: 16px;
+  margin: 16px auto 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
@@ -768,7 +795,7 @@ section { position: relative; padding: 120px 0; }
   border: 2px solid var(--ink);
   position: relative;
   box-shadow: 12px 12px 0 rgba(42,46,51,0.08);
-  max-width: 1100px;
+  max-width: 960px;
 }
 .compare > div {
   padding: 24px 28px 28px;
@@ -787,13 +814,16 @@ section { position: relative; padding: 120px 0; }
 .compare h4 {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-size: 32px;
-  line-height: 1;
+  font-size: clamp(18px, 1.6vw, 22px);
+  line-height: 1.25;
   margin-bottom: 18px;
-  font-style: italic;
+  font-style: normal;
+  color: var(--ink-soft);
 }
-.compare .col-fluency h4,
 .compare .col-fluency h3 { color: var(--fluency); }
+.col-accent { font-weight: 700; font-style: italic; }
+.col-accent-literacy { color: var(--marker); }
+.col-accent-fluency { color: var(--fluency); }
 .compare ul { list-style: none; }
 .compare li {
   padding: 9px 0;
@@ -813,14 +843,9 @@ section { position: relative; padding: 120px 0; }
 .compare li.dim { color: var(--muted); }
 
 .col-header-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 16px;
-  margin-bottom: 14px;
-}
-.col-header-row .col-titles {
-  flex-shrink: 0;
+  display: block;
+  margin-bottom: 18px;
+  min-height: 72px;
 }
 .col-header-row .col-titles h3 {
   margin-bottom: 4px;
@@ -830,24 +855,32 @@ section { position: relative; padding: 120px 0; }
 }
 
 .literacy-margin, .fluency-margin {
+  position: absolute;
+  top: 28px;
   font-family: 'Caveat', cursive;
   font-size: 20px;
-  line-height: 1.2;
+  line-height: 1.15;
   pointer-events: none;
   display: flex;
-  align-items: flex-end;
-  gap: 5px;
+  align-items: center;
+  gap: 8px;
   white-space: nowrap;
-  padding-top: 6px;
+  z-index: 2;
 }
 .literacy-margin {
+  right: 100%;
+  margin-right: 8px;
   color: var(--marker);
   transform: rotate(-1deg);
 }
 .fluency-margin {
+  left: 100%;
+  margin-left: 8px;
   color: var(--fluency);
   transform: rotate(1deg);
 }
+.literacy-margin .lm-text { text-align: right; }
+.fluency-margin .fm-text { text-align: left; }
 .literacy-margin u, .fluency-margin u {
   text-decoration: none;
   border-bottom: 2px solid currentColor;
@@ -855,15 +888,13 @@ section { position: relative; padding: 120px 0; }
 }
 .literacy-margin svg, .fluency-margin svg {
   flex-shrink: 0;
-  width: 20px;
-  height: 30px;
+  width: 48px;
+  height: 24px;
   overflow: visible;
 }
 
-@media (max-width: 880px) {
-  .col-header-row { flex-direction: column; gap: 4px; }
-  .literacy-margin, .fluency-margin { white-space: normal; }
-  .literacy-margin svg, .fluency-margin svg { display: none; }
+@media (max-width: 1200px) {
+  .literacy-margin, .fluency-margin { display: none; }
 }
 
 .compare-arrow {
@@ -974,13 +1005,14 @@ section { position: relative; padding: 120px 0; }
 .book-title {
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
-  font-style: italic;
+  font-style: normal;
   font-size: clamp(22px, 1.9vw, 26px);
-  line-height: 1.12;
+  line-height: 1.15;
   color: var(--ink-soft);
   letter-spacing: -0.01em;
   margin: 2px 0 4px;
 }
+.book-title em { color: var(--fluency); font-style: italic; }
 .book-divider {
   height: 1px;
   background: rgba(42,46,51,0.18);
@@ -994,10 +1026,10 @@ section { position: relative; padding: 120px 0; }
 }
 .book-toc li {
   display: flex;
-  gap: 12px;
-  padding: 8px 0;
+  gap: 14px;
+  padding: 18px 0;
   font-size: 15px;
-  line-height: 1.4;
+  line-height: 1.45;
   color: var(--ink-soft);
   border-bottom: 1px dotted rgba(42,46,51,0.12);
 }
@@ -1500,8 +1532,8 @@ section { position: relative; padding: 120px 0; }
 /* Waypoints — absolute positioning on the map */
 .wp {
   position: absolute;
-  width: 460px;
-  max-width: 44%;
+  width: 360px;
+  max-width: 36%;
   z-index: 4;
   opacity: 0.35;
   transform: translateY(18px);
@@ -1543,48 +1575,14 @@ section { position: relative; padding: 120px 0; }
    Inline .wp-pin inside each .wp is hidden on desktop (shown only on mobile fallback). */
 .wp-pin-inline { display: none; }
 
-/* Coin + handwritten note under the Sorting Hat polaroid (wp-2) —
-   the hat "spits out" a coin (which feeds the jackpot in wp-3). */
+/* Sorting Hat pixel SVG sits inside the wp-2 polaroid frame. */
 .wp-2 .wp-art { position: relative; }
-.wp-coin {
-  position: absolute;
-  left: -42px;
-  bottom: -32px;
-  width: 78px; height: 78px;
-  transform: rotate(-12deg);
-  z-index: 3;
-  filter: drop-shadow(2px 4px 6px rgba(60,40,10,0.28));
-  pointer-events: none;
-}
-.wp-coin svg { width: 100%; height: 100%; }
-.wp-coin img { width: 100%; height: 100%; object-fit: contain; }
-.wp-coin-note {
-  position: absolute;
-  left: -34px;
-  bottom: -56px;
-  font-family: 'Caveat', cursive;
-  font-size: 22px;
-  color: var(--marker);
-  line-height: 1.1;
-  transform: rotate(-3deg);
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  z-index: 3;
-}
-.wp-coin-note .arrow {
-  font-size: 26px;
-  color: var(--marker);
-  line-height: 1;
-  transform: translateY(-1px);
-}
-.wp-coin-note em {
-  font-style: italic;
-  color: var(--marker-2);
-}
-@media (max-width: 960px) {
-  .wp-coin, .wp-coin-note { display: none; }
+.wp-hat-svg {
+  width: 320px;
+  max-width: 100%;
+  aspect-ratio: 4/3;
+  display: block;
+  background: #F3ECD6;
 }
 .hm-pins {
   position: absolute;
@@ -1658,11 +1656,12 @@ section { position: relative; padding: 120px 0; }
   font-family: 'Instrument Serif', serif;
   font-weight: 400;
   font-style: italic;
-  font-size: clamp(26px, 2.9vw, 38px);
-  line-height: 1.08;
+  font-size: clamp(21px, 2.1vw, 26px);
+  line-height: 1.12;
   color: var(--ink);
   margin-bottom: 16px;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 .wp-head em { font-style: italic; color: var(--marker); }
 .wp-head strong { font-weight: 500; font-style: normal; }
@@ -1810,6 +1809,28 @@ section { position: relative; padding: 120px 0; }
 .wp-term-stars i:nth-child(10){ left:88%; top:70%; }
 .wp-term-stars i:nth-child(11){ left:14%; top:32%; width:1.5px; height:1.5px; }
 .wp-term-stars i:nth-child(12){ left:92%; top:28%; width:1.5px; height:1.5px; }
+
+/* wp-1 cohort aliens — five SVG aliens lined up, overlapping the postcard */
+.wp-crew {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  z-index: 3;
+  pointer-events: none;
+  filter: drop-shadow(0 5px 5px rgba(0,0,0,0.32));
+}
+.wp-crew svg {
+  width: 96px;
+  height: 96px;
+  display: block;
+  margin: 0 -14px;
+  overflow: visible;
+}
 
 /* Final destination — X sits inline to the left of the heading */
 .wp-5-head-row {
@@ -3864,21 +3885,6 @@ footer.site a:hover { color: var(--marker); }
 <!-- progress bar -->
 <div class="progress" id="progress"></div>
 
-<!-- TOP MANIFESTO TICKER -->
-<div class="ticker">
-  <div class="ticker-track">
-    <span class="dot">§</span> THE COUNTER — AN AI FLUENCY STUDIO.
-    <span class="dot">§</span> WE BUILD WITH YOUR PEOPLE.
-    <span class="dot">§</span> SIX WEEKS · SIDE BY SIDE.
-    <span class="dot">§</span> FLUENCY, NOT LITERACY.
-    <span class="dot">§</span> CAPABILITY THAT COMPOUNDS.
-    <span class="dot">§</span> THE COUNTER — AN AI FLUENCY STUDIO.
-    <span class="dot">§</span> WE BUILD WITH YOUR PEOPLE.
-    <span class="dot">§</span> SIX WEEKS · SIDE BY SIDE.
-    <span class="dot">§</span> FLUENCY, NOT LITERACY.
-  </div>
-</div>
-
 <!-- NAV -->
 <nav>
   <div class="logo">
@@ -3886,30 +3892,13 @@ footer.site a:hover { color: var(--marker); }
     <small>/ an AI fluency studio</small>
   </div>
   <div class="nav-links">
-    <a href="#pov">POV</a>
-    <a href="#fluency">Fluency</a>
-    <a href="#how">How</a>
-    <a href="#cases">Cases</a>
-    <a href="#about">About</a>
+    <a href="#pov">Our POV</a>
+    <a href="#popup">What The Counter Is</a>
+    <a href="#outcomes">What You Get</a>
+    <a href="#cases">Bringing It to Life</a>
+    <a href="#about">Who We Are</a>
   </div>
-  <a href="#contact" class="nav-cta">Start →</a>
 </nav>
-
-<!-- side rail -->
-<div class="side-rail">
-  THE COUNTER · §01 §02 §03 §04
-  <span class="dots">
-    <span class="rdot active" data-target="hero"></span>
-    <span class="rdot" data-target="pov"></span>
-    <span class="rdot" data-target="fluency"></span>
-    <span class="rdot" data-target="popup"></span>
-    <span class="rdot" data-target="how"></span>
-    <span class="rdot" data-target="outcomes"></span>
-    <span class="rdot" data-target="cases"></span>
-    <span class="rdot" data-target="about"></span>
-    <span class="rdot" data-target="contact"></span>
-  </span>
-</div>
 
 <main>
 
@@ -3917,7 +3906,7 @@ footer.site a:hover { color: var(--marker); }
      HERO
      ================================================================ -->
 <section class="hero" id="hero">
-  <div class="wrap" style="flex:1; display:flex; flex-direction:column;">
+  <div class="wrap hero-wrap" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
     <!-- Desk artifacts — the buyer's POV as overheard to-dos.
          Decorative; sits behind the main composition. -->
 
@@ -3946,19 +3935,17 @@ footer.site a:hover { color: var(--marker); }
     </div>
 
     <div class="hero-center">
-      <span class="pill"><span class="blink"></span> THE COUNTER · AI FLUENCY STUDIO</span>
+      <span class="pill"><span class="blink"></span> THE COUNTER · AN AI FLUENCY STUDIO</span>
 
       <h1 class="hero-head">
-        A billion-dollar company was just built<br>
-        <em>by <span class="hi">one person</span></em> using AI.
+        A billion-dollar company was just built <em>by <span class="hi">one person</span></em> using AI.
       </h1>
 
       <p class="hero-sub">
         Yet most teams are using AI to <span style="text-decoration: line-through; color: var(--muted);">transform their industry</span> summarize meetings.
       </p>
       <p class="hero-sub hero-sub-close">
-        That&rsquo;s the gap.<br>
-        We close it.
+        That&rsquo;s the gap The Counter helps close.
       </p>
 
       <div class="hero-cta-row">
@@ -3967,15 +3954,15 @@ footer.site a:hover { color: var(--marker); }
         </a>
       </div>
     </div>
+  </div>
 
-    <!-- logos -->
-    <div class="logos-row">
-      <span class="logos-label">Founders with experience at</span>
-      <div style="overflow:hidden; flex:1;">
-        <div class="logos-scroll">
-          <span>AbbVie</span><span>BNY</span><span>Chase</span><span>Comcast</span><span>GSK</span><span>Inova</span><span>Kaiser Permanente</span><span>Kimberly-Clark</span><span>Nike</span><span>NTT</span><span>Tyson</span><span>The Washington Post</span>
-          <span>AbbVie</span><span>BNY</span><span>Chase</span><span>Comcast</span><span>GSK</span><span>Inova</span><span>Kaiser Permanente</span><span>Kimberly-Clark</span><span>Nike</span><span>NTT</span><span>Tyson</span><span>The Washington Post</span>
-        </div>
+  <!-- logos bridge -->
+  <div class="logos-row">
+    <span class="logos-label">Founders with experience at</span>
+    <div style="overflow:hidden; flex:1;">
+      <div class="logos-scroll">
+        <span>AbbVie</span><span>BNY</span><span>Chase</span><span>Comcast</span><span>GSK</span><span>Inova</span><span>Kaiser Permanente</span><span>Kimberly-Clark</span><span>Nike</span><span>NTT</span><span>Tyson</span><span>The Washington Post</span>
+        <span>AbbVie</span><span>BNY</span><span>Chase</span><span>Comcast</span><span>GSK</span><span>Inova</span><span>Kaiser Permanente</span><span>Kimberly-Clark</span><span>Nike</span><span>NTT</span><span>Tyson</span><span>The Washington Post</span>
       </div>
     </div>
   </div>
@@ -3998,30 +3985,27 @@ footer.site a:hover { color: var(--marker); }
           <div class="pov-copy-col">
             <span class="section-label">01 · Our Perspective</span>
             <h2 class="pov-head">
-              Stop teaching AI. <em>Start working with it.</em>
+              Stop teaching AI.<br><em>Start working with it.</em>
             </h2>
-            <div class="pov-lede">
-              <span class="scribble" style="font-size: 32px; margin-top: 16px;">click to read →</span>
+            <div class="pov-lede" style="margin-top: 16px;">
+              <a href="the-counter-perspective-2.html" class="btn-chunky pov-btn">
+                Read our full POV <span class="arrow">→</span>
+              </a>
             </div>
           </div>
           <div class="pov-book-col">
-            <a class="book-card pf-book" id="pfBook" href="the-counter-counterpoint.html" aria-label="Read our full perspective">
+            <a class="book-card pf-book" id="pfBook" href="the-counter-perspective-2.html" aria-label="Read our full perspective">
               <span class="book-tape"></span>
-              <div class="book-spine-edge" aria-hidden="true">
-                <span>§01</span><span>§02</span><span>§03</span><span>§04</span>
-              </div>
               <div class="book-pages" aria-hidden="true"></div>
               <div class="book-inner">
-                <div class="book-eyebrow">Our Perspective · 10 min read · April 2026</div>
-                <h3 class="book-title">Stop teaching <em>AI.</em> Start working with it.</h3>
+                <div class="book-eyebrow">Our Point of View</div>
+                <h3 class="book-title">Stop teaching AI.<br><em>Start working with it.</em></h3>
                 <div class="book-divider"></div>
                 <ul class="book-toc">
-                  <li><span>§01</span> You may be investing in AI literacy when what you really need is AI fluency.</li>
-                  <li><span>§02</span> What looks like progress can be just enough to make you think you are further along than you are.</li>
-                  <li><span>§03</span> The real opportunity is not just doing today&rsquo;s work faster &mdash; it is discovering work your business could not do before.</li>
+                  <li><span>01</span> You may be investing in AI literacy when what you really need is AI fluency.</li>
+                  <li><span>02</span> What looks like progress can be just enough to make you think you are further along than you are.</li>
+                  <li><span>03</span> The real opportunity is not just doing today&rsquo;s work faster &mdash; it is discovering work your business could not do before.</li>
                 </ul>
-                <div class="book-byline"><b>Fred Sham</b> &amp; <b>Drew Castellaw</b></div>
-                <div class="book-read">Read our perspective <span aria-hidden="true">→</span></div>
               </div>
             </a>
           </div>
@@ -4033,23 +4017,24 @@ footer.site a:hover { color: var(--marker); }
         <div class="pf-inner fluency-inner" id="fluency">
           <h2 class="fluency-head">This gap exists because learning what AI can do <em>is not the same as</em> knowing how to work with it.</h2>
 
-          <div class="compare-subtitles">
-            <p class="compare-sub compare-sub-literacy">AI literacy trainings are what organizations invest in today.</p>
-            <p class="compare-sub compare-sub-fluency">AI fluency is what we develop directly with your teams and their real work.</p>
-          </div>
-
           <div class="compare">
+            <span class="literacy-margin" aria-hidden="true">
+              <span class="lm-text">teaches what<br>AI can do</span>
+              <svg viewBox="0 0 48 24" aria-hidden="true">
+                <path d="M2 12 C 14 12, 30 11, 44 10 M 38 5 L 44 10 L 38 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="fluency-margin" aria-hidden="true">
+              <svg viewBox="0 0 48 24" aria-hidden="true">
+                <path d="M46 12 C 34 12, 18 11, 4 10 M 10 5 L 4 10 L 10 15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span class="fm-text">builds the instinct<br>to <u>think and work with</u> AI</span>
+            </span>
             <div class="col-literacy">
               <div class="col-header-row">
                 <div class="col-titles">
-                  <h4>Literacy</h4>
+                  <h4><b class="col-accent col-accent-literacy">AI Literacy</b> trainings are what organizations invest in today.</h4>
                 </div>
-                <span class="literacy-margin" aria-hidden="true">
-                  <svg viewBox="0 0 24 36" aria-hidden="true">
-                    <path d="M12 2 C 12 10, 11 22, 10 30 M 5 24 L 10 30 L 15 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span class="lm-text">teaches them<br>what AI can do.</span>
-                </span>
               </div>
               <ul>
                 <li><span class="mark">✓</span> Knowledge of AI tools</li>
@@ -4064,14 +4049,8 @@ footer.site a:hover { color: var(--marker); }
             <div class="col-fluency">
               <div class="col-header-row">
                 <div class="col-titles">
-                  <h4>Fluency</h4>
+                  <h4><b class="col-accent col-accent-fluency">AI Fluency</b> is what we develop directly with your teams in their real work.</h4>
                 </div>
-                <span class="fluency-margin" aria-hidden="true">
-                  <svg viewBox="0 0 24 36" aria-hidden="true">
-                    <path d="M12 2 C 12 10, 11 22, 10 30 M 5 24 L 10 30 L 15 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span class="fm-text">builds the instinct<br>to <u>think and work with</u> AI.</span>
-                </span>
               </div>
               <ul>
                 <li><span class="mark">✓</span> Knowledge of AI tools</li>
@@ -4161,7 +4140,7 @@ footer.site a:hover { color: var(--marker); }
      ================================================================ -->
 <section class="how" id="how">
   <div class="wrap">
-    <h2 class="reveal">How The Counter works.</h2>
+    <h2 class="reveal">What is the Counter Experience?</h2>
 
     <div class="hm-map" id="hmMap">
       <!-- decorative protractor — signals the hand-drawn 'sketch' feel -->
@@ -4231,15 +4210,21 @@ footer.site a:hover { color: var(--marker); }
         <span class="wp-pin wp-pin-inline">01</span>
         <div class="wp-card">
           <span class="wp-label">Before we begin</span>
-          <h3 class="wp-head">We partner with you to shape the right cohort and set the experience up for a <em>strong start</em>.</h3>
+          <h3 class="wp-head">We partner with you to shape the right cohort and set the experience up for a <em>strong&nbsp;start</em>.</h3>
         </div>
         <div class="wp-art">
           <div class="wp-terminal" aria-hidden="true">
             <div class="wp-term-stars">
               <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
             </div>
-            <div class="wp-term-title"><span class="wp-term-line"><span class="wp-term-spk">✦</span>ARRIVE AT<span class="wp-term-spk">✦</span></span><br>THE COUNTER</div>
-            <div class="wp-term-press"><span class="caret">▸</span>PRESS ANY KEY TO BEGIN</div>
+            <div class="wp-term-title"><span class="wp-term-line"><span class="wp-term-spk">✦</span>PRESS ANY<span class="wp-term-spk">✦</span></span><br>KEY TO BEGIN</div>
+          </div>
+          <div class="wp-crew" aria-hidden="true">
+            <svg id="wp-alien-1" viewBox="0 0 200 200"></svg>
+            <svg id="wp-alien-2" viewBox="0 0 200 200"></svg>
+            <svg id="wp-alien-3" viewBox="0 0 200 200"></svg>
+            <svg id="wp-alien-4" viewBox="0 0 200 200"></svg>
+            <svg id="wp-alien-5" viewBox="0 0 200 200"></svg>
           </div>
         </div>
       </div>
@@ -4252,29 +4237,8 @@ footer.site a:hover { color: var(--marker); }
           <h3 class="wp-head">Then we work with each person to choose and clarify a problem already in their work as the <em>focus</em> for their experience.</h3>
         </div>
         <div class="wp-art">
-          <img src="sorting-hat-green.png" alt="The Sorting Hat">
-          <div class="wp-art-cap">the Sorting Hat helps people refine their problem so it is the right size for this experience &mdash; and sets off red flags for technology, security, compliance, etc.</div>
-          <div class="wp-coin" aria-hidden="true">
-            <!-- Placeholder coin SVG — swap for <img src="Coin.png"> once provided -->
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <radialGradient id="coinFace" cx="40%" cy="38%" r="70%">
-                  <stop offset="0%" stop-color="#FFE08A"/>
-                  <stop offset="55%" stop-color="#E9B34A"/>
-                  <stop offset="100%" stop-color="#A67417"/>
-                </radialGradient>
-                <radialGradient id="coinEdge" cx="50%" cy="50%" r="52%">
-                  <stop offset="85%" stop-color="#B8862A" stop-opacity="0"/>
-                  <stop offset="100%" stop-color="#6B4A12" stop-opacity="0.65"/>
-                </radialGradient>
-              </defs>
-              <circle cx="50" cy="50" r="46" fill="url(#coinFace)" stroke="#8A5F1B" stroke-width="2"/>
-              <circle cx="50" cy="50" r="46" fill="url(#coinEdge)"/>
-              <circle cx="50" cy="50" r="38" fill="none" stroke="#8A5F1B" stroke-width="1.2" stroke-dasharray="2 3" opacity="0.75"/>
-              <text x="50" y="60" text-anchor="middle" font-family="Georgia, serif" font-size="34" font-weight="700" fill="#5A3F10" opacity="0.85">&#9733;</text>
-            </svg>
-          </div>
-          <span class="wp-coin-note"><span class="arrow">&larr;</span>the hat spits out a coin</span>
+          <svg id="wp-sorting-hat" class="wp-hat-svg" viewBox="0 0 200 200" aria-label="The Sorting Hat"></svg>
+          <div class="wp-art-cap">The Sorting Hat teaches people how to refine their problem so that is the right size for this experience and will not set off red flags for enterprise Technology, Regulatory, etc.</div>
         </div>
       </div>
 
@@ -5174,6 +5138,236 @@ footer.site a:hover { color: var(--marker); }
     }
   })();
 
+})();
+</script>
+
+<script>
+/* Cohort aliens for WAYPOINT 01 postcard — pixel grids rendered as SVG rects. */
+(function(){
+  const SAGE='#73956F', SAGE_DEEP='#5B7A58', SAGE_DARK='#3F5B3D';
+  const MINT='#95D7AE', LIME='#B8C96A', LIME_DEEP='#8A9B48', LIME_LIGHT='#D8E27B';
+  const INK='#2A2E33', PAPER='#F6F0E1', BLUSH='#E3A4A4';
+  const LAV_DEEP='#8E78B5';
+  const CELL = 8;
+
+  function render(svgId, grid, palette) {
+    const svg = document.getElementById(svgId);
+    if (!svg) return;
+    svg.innerHTML = '';
+    svg.setAttribute('shape-rendering', 'crispEdges');
+    const NS = 'http://www.w3.org/2000/svg';
+    const rows = grid.length, cols = grid[0].length;
+    const offX = (200 - cols * CELL) / 2;
+    const offY = (200 - rows * CELL) / 2;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const ch = grid[y][x];
+        if (ch === '.' || ch === ' ') continue;
+        const fill = palette[ch];
+        if (!fill) continue;
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', offX + x * CELL);
+        r.setAttribute('y', offY + y * CELL);
+        r.setAttribute('width', CELL);
+        r.setAttribute('height', CELL);
+        r.setAttribute('fill', fill);
+        svg.appendChild(r);
+      }
+    }
+  }
+
+  const PODLET = [
+    '.........aa.........',
+    '.........aa.........',
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......bbbbbbbb......',
+    '.....hhbbbbbbss.....',
+    '....hhbbbbbbbbss....',
+    '....hbbeebbeebsss...',
+    '....hbbeppbeppbss...',
+    '....hbbeebbeebsss...',
+    '....hhbbbbmmbbss....',
+    '....hbbbbmmmmbbs....',
+    '.....hbBbbmmbBbs....',
+    '....bbbbbbbbbbbbb...',
+    '...bbbbbbbbbbbbbbb..',
+    '..bbbbbbbbbbbbbbbbb.',
+    '..bb.bbbbbbbbbb..bb.',
+    '..bb.bbbbbbbbbb..bb.',
+    '..HH.bbbbbbbbbb..HH.',
+    '.....bbbb..bbbb.....',
+    '.....bbbb..bbbb.....',
+    '....ffff....ffff....',
+  ];
+  const P_PODLET = { 'b':SAGE,'h':MINT,'s':SAGE_DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'a':SAGE_DEEP,'f':INK,'H':SAGE_DEEP };
+
+  const SPROUT = [
+    '.........aa.........',
+    '........aaaa........',
+    '.......aabbaa.......',
+    '......aabbbbaa......',
+    '.....aabbbbbbaa.....',
+    '....bbbbbbbbbbbb....',
+    '...bbbbbbbbbbbbbb...',
+    '..hhbbbbbbbbbbbbss..',
+    '..hbbbeepbbbpeebss..',
+    '..hbbbeepbbbpeebss..',
+    '..hbbbbbbBBbbbbbss..',
+    '..hbbbbbBmmBbbbbss..',
+    '..hbbbbbbmmbbbbbss..',
+    '...bbbbbbbbbbbbbb...',
+    '...bbbbbbbbbbbbbb...',
+    '..HHbbbbbbbbbbbbHH..',
+    '..HHbbbbbbbbbbbbHH..',
+    '....bbbbbbbbbbbb....',
+    '.....bbbb..bbbb.....',
+    '.....bbbb..bbbb.....',
+    '....ffff....ffff....',
+    '....ffff....ffff....',
+  ];
+  const P_SPROUT = { 'b':LIME,'h':LIME_LIGHT,'s':LIME_DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'a':SAGE_DEEP,'f':INK,'H':LIME_DEEP };
+
+  const TOWER = [
+    '.........aa.........',
+    '........aaaa........',
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......hbbbbbbs......',
+    '......hbbbbbbs......',
+    '......hbmmbmms......',
+    '......hbbbbbbs......',
+    '......hbbBmBbs......',
+    '......hbbmmmbs......',
+    '......hbbbbbbs......',
+    '......bbbbbbbb......',
+    '.....bbbbbbbbbb.....',
+    '....HHbbbbbbbbHH....',
+    '....HHbbbbbbbbHH....',
+    '....HHbbbbbbbbHH....',
+    '.....bbbbbbbbbb.....',
+    '.....bbbbbbbbbb.....',
+    '......bbbbbbbb......',
+    '......bbbb.bbb......',
+    '.....bbbb...bbb.....',
+    '....ffff....ffff....',
+  ];
+  const P_TOWER = { 'b':SAGE_DEEP,'h':SAGE,'s':SAGE_DARK,'m':INK,'B':BLUSH,'a':SAGE_DARK,'f':INK,'H':SAGE_DARK };
+
+  const BLINK = [
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......bbbbbbbb......',
+    '.....hbbbbbbbbs.....',
+    '....hbbbbbbbbbbs....',
+    '...hhbbbbbbbbbbss...',
+    '...hbbeeebbeeebss...',
+    '...hbbepppbepppss...',
+    '...hbbeppebeppebss..',
+    '...hbbbbbbbbbbbbss..',
+    '...hbbbbbmmbbbbbss..',
+    '...hbbbbbbbbbbbbss..',
+    '....bbbbbbbbbbbb....',
+    '...bbbbbbbbbbbbbb...',
+    '..HHbbbbbbbbbbbbHH..',
+    '..HHbbbbbbbbbbbbHH..',
+    '...bbbbbbbbbbbbbb...',
+    '....bbbbbbbbbbbb....',
+    '.....bbbbbbbbbb.....',
+    '.....bbbb..bbbb.....',
+    '.....bbbb..bbbb.....',
+    '....ffff....ffff....',
+  ];
+  const P_BLINK = { 'b':MINT,'h':'#C5EBD4','s':'#6FA886','e':PAPER,'p':LAV_DEEP,'m':INK,'a':SAGE_DEEP,'f':INK,'H':'#6FA886' };
+
+  const SUIT = [
+    '.........aa.........',
+    '.........aa.........',
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......bbbbbbbb......',
+    '.....hhbbbbbbss.....',
+    '....hhwwbbbbwwss....',
+    '....hbbeebbeebsss...',
+    '....hbbepbbbpebss...',
+    '....hbbeebbeebsss...',
+    '....hhbbbmmmmbbss...',
+    '....hbbbmmmmmmbbs...',
+    '.....hbBbmmmmbBbs...',
+    '....JJJJWWTTWWJJJJ..',
+    '...JJJJJLWTTWLJJJJJ.',
+    '..JJJJJJLtttLJJJJJJ.',
+    '..JJJ.JJJLtLJJJJ.JJJ',
+    '..JJJ.JJJJttJJJJ.JJJ',
+    '..JJJ.JJJJttJJJJ.JJJ',
+    '..HHH.JJJJJJJJJJ.HHH',
+    '...CC.JJJ....JJJ....',
+    '...CC.JJJ....JJJ....',
+    '.....ffff....ffff...',
+  ];
+  const P_SUIT = {
+    'b':SAGE,'h':MINT,'s':SAGE_DEEP,
+    'e':PAPER,'p':INK,'m':INK,'B':BLUSH,
+    'w':INK,'a':SAGE_DEEP,'f':INK,
+    'J':'#2A2E33','L':'#1A1C20','W':PAPER,
+    't':'#B23A3A','T':'#7A1F1F',
+    'H':SAGE,'c':'#6B4A22','C':'#3F2A10',
+  };
+
+  render('wp-alien-1', PODLET, P_PODLET);
+  render('wp-alien-2', SPROUT, P_SPROUT);
+  render('wp-alien-3', TOWER,  P_TOWER);
+  render('wp-alien-4', BLINK,  P_BLINK);
+  render('wp-alien-5', SUIT,   P_SUIT);
+
+  /* Sorting Hat — purple rounded character with eyes, smile, and stars,
+     in the same pixel-art style as the cohort aliens. */
+  const HAT_PURPLE       = '#7C67C8';
+  const HAT_PURPLE_LIGHT = '#A79BE0';
+  const HAT_PURPLE_DEEP  = '#4E3E8F';
+  const HAT_BG           = '#2E2357';
+  const STAR_YELLOW      = '#F5C93E';
+  const STAR_WHITE       = '#F6F0E1';
+
+  const HAT = [
+    '........bbbb........',
+    '.......bbbbbbb......',
+    '......bbbbbbbbb.....',
+    '.....bbbbbbbbbbb....',
+    '....bbbbybbbbbbbb...',
+    '....bbybbbbbwbbbbs..',
+    '...hbbbbbbbbbbbbbss.',
+    '...hbbbbbybbbbbbbss.',
+    '...hbbbbbbbbbbbbbss.',
+    '...hbbkkbbbbbkkbbss.',
+    '...hbeeEbbbbbeeEbss.',
+    '...hbbbbbbbbbbbbbss.',
+    '...hbPPbbbmmmbbPPss.',
+    '...hbbbbmmmmmbbbbss.',
+    '....hbbbbbbbbbbbbss.',
+    '.bbbbbbbbbbbbbbbbbb.',
+    'bbbbbbbbbbbbbbbbbbbb',
+    '.ssssssssssssssssss.',
+    '....................',
+    '....................',
+    '....................',
+    '....................',
+  ];
+  const P_HAT = {
+    'b': HAT_PURPLE,
+    'h': HAT_PURPLE_LIGHT,
+    's': HAT_PURPLE_DEEP,
+    'e': PAPER,
+    'E': INK,
+    'k': INK,
+    'm': INK,
+    'P': BLUSH,
+    'y': STAR_YELLOW,
+    'w': STAR_WHITE,
+  };
+  const hatSvg = document.getElementById('wp-sorting-hat');
+  if (hatSvg) hatSvg.style.background = HAT_BG;
+  render('wp-sorting-hat', HAT, P_HAT);
 })();
 </script>
 
