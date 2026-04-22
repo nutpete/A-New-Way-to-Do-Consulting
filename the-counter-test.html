@@ -628,7 +628,7 @@ section { position: relative; padding: 120px 0; }
   outline-offset: -1px;
 }
 .pf-pov::after {
-  content: '§01';
+  content: '01';
   position: absolute;
   top: 28px; right: 40px;
   font-family: 'JetBrains Mono', monospace;
@@ -704,13 +704,8 @@ section { position: relative; padding: 120px 0; }
   will-change: opacity;
 }
 .pf-fluency::after {
-  content: '§02';
-  position: absolute;
-  top: 28px; right: 40px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--fluency);
-  letter-spacing: 0.2em;
+  content: '';
+  display: none;
 }
 .fluency-inner {
   display: flex;
@@ -743,8 +738,29 @@ section { position: relative; padding: 120px 0; }
 }
 .zine-intro .scribble { display: block; margin-top: 6px; }
 
+.compare-subtitles {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  max-width: 1100px;
+}
+.compare-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  letter-spacing: 0.01em;
+  padding: 0 28px 12px;
+}
+.compare-sub-fluency { color: var(--fluency); }
+@media (max-width: 720px) {
+  .compare-subtitles { grid-template-columns: 1fr; }
+  .compare-sub { padding-bottom: 4px; }
+}
+
 .compare {
-  margin-top: 28px;
+  margin-top: 16px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0;
@@ -1089,7 +1105,7 @@ section { position: relative; padding: 120px 0; }
   font-size: 19px;
   color: var(--ink-soft);
   line-height: 1.55;
-  max-width: 480px;
+  max-width: 520px;
 }
 
 .receipt {
@@ -1166,6 +1182,118 @@ section { position: relative; padding: 120px 0; }
   color: var(--marker);
   transform: rotate(-3deg);
 }
+
+/* Bold "over time..." line in popup-left */
+.popup-left p.popup-bold {
+  margin-top: 24px;
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 19px;
+  line-height: 1.5;
+  max-width: 520px;
+}
+
+/* Modal trigger button — black body with red left border, Book-a-time style */
+.popup-modal-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 36px;
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-left: 6px solid var(--marker);
+  padding: 16px 22px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 6px 0 rgba(42,46,51,0.12);
+  transition: transform .15s ease, box-shadow .15s ease;
+  text-align: left;
+  line-height: 1.35;
+  max-width: 520px;
+}
+.popup-modal-trigger .arrow { font-family: 'Instrument Serif', serif; font-size: 18px; letter-spacing: 0; }
+.popup-modal-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 rgba(42,46,51,0.16);
+}
+
+/* Right column needs to be a positioning context for the modal overlay */
+.popup-right { position: relative; }
+
+/* Modal overlay — covers only the receipt / engagement order card */
+.popup-modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28,32,36,0.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 20;
+  padding: 24px;
+  animation: popupModalIn .22s ease-out;
+}
+.popup-modal[hidden] { display: none; }
+@keyframes popupModalIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.popup-modal-inner {
+  background: var(--ink-deep);
+  border: 2px solid var(--ink-deep);
+  border-left: 6px solid var(--marker);
+  box-shadow:
+    0 28px 48px -22px rgba(0,0,0,0.6),
+    0 4px 0 rgba(0,0,0,0.25);
+  padding: 38px 36px 36px;
+  max-width: 460px;
+  width: 100%;
+  margin-left: auto;
+  position: relative;
+  color: var(--paper);
+}
+.popup-modal-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--marker-2);
+  display: block;
+  margin-bottom: 12px;
+}
+.popup-modal-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.05;
+  margin-bottom: 16px;
+  color: var(--paper);
+}
+.popup-modal-title em { font-style: italic; color: var(--marker-2); }
+.popup-modal-body {
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(246,240,225,0.82);
+}
+.popup-modal-close {
+  position: absolute;
+  top: 8px; right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--paper);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: 'Instrument Serif', serif;
+  transition: color .15s ease;
+}
+.popup-modal-close:hover { color: var(--marker-2); }
 
 .how {
   padding: 140px 0 120px;
@@ -1678,7 +1806,7 @@ section { position: relative; padding: 120px 0; }
      Caveat's 'X' rides a touch low, and the rotate amplifies that. */
   transform: translate(-3px, -4px) rotate(-8deg);
 }
-.wp-5 .wp-head { max-width: 22ch; margin: 0; text-align: left; }
+.wp-5 .wp-head { max-width: 48ch; margin: 0; text-align: left; }
 .wp-5 .wp-text { max-width: 60ch; margin: 0 0 32px; }
 
 .wp-portrait {
@@ -1960,7 +2088,7 @@ section { position: relative; padding: 120px 0; }
   overflow: hidden;
 }
 .outcomes::before {
-  content: '§03';
+  content: '03';
   position: absolute;
   top: 40px; right: 40px;
   font-family: 'JetBrains Mono', monospace;
@@ -1988,6 +2116,70 @@ section { position: relative; padding: 120px 0; }
 }
 @media (max-width: 1080px) { .cards { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+
+/* Outcomes — eyebrow + lede on left, 2x2 outcome boxes on right */
+.outcomes-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.2fr;
+  gap: 80px;
+  align-items: start;
+}
+.outcomes-left .section-label { color: var(--fluency-2); }
+.outcomes-left .section-label::before { background: var(--fluency-2); }
+.outcomes-lede {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 2.8vw, 40px);
+  line-height: 1.18;
+  color: var(--paper);
+  margin-top: 28px;
+  letter-spacing: -0.01em;
+}
+.outcomes-right {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.outcome-box {
+  background: rgba(246,240,225,0.03);
+  border: 1px solid rgba(246,240,225,0.16);
+  padding: 26px 24px 28px;
+  position: relative;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+.outcome-box:hover {
+  transform: translateY(-4px);
+  background: rgba(246,240,225,0.06);
+  border-color: rgba(149,215,174,0.5);
+}
+.outcome-box .outcome-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  color: var(--fluency-2);
+  display: block;
+  margin-bottom: 14px;
+}
+.outcome-box h3 {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.05;
+  color: var(--paper);
+  margin-bottom: 10px;
+}
+.outcome-box p {
+  font-size: 14px;
+  color: rgba(246,240,225,0.72);
+  line-height: 1.55;
+}
+@media (max-width: 1080px) {
+  .outcomes-grid { grid-template-columns: 1fr; gap: 48px; }
+}
+@media (max-width: 600px) {
+  .outcomes-right { grid-template-columns: 1fr; }
+}
 
 .card-trade {
   position: relative;
@@ -3755,9 +3947,9 @@ footer.site a:hover { color: var(--marker); }
       <div class="pf-layer pf-pov" id="pfPov">
         <div class="pf-inner pov-inner">
           <div class="pov-copy-col">
-            <span class="section-label">§01 · Our Perspective</span>
+            <span class="section-label">01 · Our Perspective</span>
             <h2 class="pov-head">
-              You can&rsquo;t buy enough AI and technology to solve the problems of your <em>people.</em>
+              Stop teaching AI. <em>Start working with it.</em>
             </h2>
             <div class="pov-lede">
               <span class="scribble" style="font-size: 32px; margin-top: 16px;">click to read →</span>
@@ -3772,12 +3964,12 @@ footer.site a:hover { color: var(--marker); }
               <div class="book-pages" aria-hidden="true"></div>
               <div class="book-inner">
                 <div class="book-eyebrow">Our Perspective · 10 min read · April 2026</div>
-                <h3 class="book-title">You can&rsquo;t buy enough AI and technology to solve the problems of your people.</h3>
+                <h3 class="book-title">Stop teaching <em>AI.</em> Start working with it.</h3>
                 <div class="book-divider"></div>
                 <ul class="book-toc">
-                  <li><span>§01</span> The gap between AI's potential and AI in practice</li>
-                  <li><span>§02</span> Expertise isn't what AI replaces, it's what AI demands</li>
-                  <li><span>§03</span> Your people aren't the problem. They're the answer.</li>
+                  <li><span>§01</span> You may be investing in AI literacy when what you really need is AI fluency.</li>
+                  <li><span>§02</span> What looks like progress can be just enough to make you think you are further along than you are.</li>
+                  <li><span>§03</span> The real opportunity is not just doing today&rsquo;s work faster &mdash; it is discovering work your business could not do before.</li>
                 </ul>
                 <div class="book-byline"><b>Fred Sham</b> &amp; <b>Drew Castellaw</b></div>
                 <div class="book-read">Read our perspective <span aria-hidden="true">→</span></div>
@@ -3790,17 +3982,17 @@ footer.site a:hover { color: var(--marker); }
       <!-- Paper Fluency layer — fades in behind -->
       <div class="pf-layer pf-fluency" id="pfFluency">
         <div class="pf-inner fluency-inner" id="fluency">
-          <span class="section-label">§02 · The spread</span>
-          <h2 class="fluency-head">
-            Organizations are investing in <span class="hi">AI literacy</span>.<br>
-            We build <em>AI fluency.</em>
-          </h2>
+          <h2 class="fluency-head">This gap exists because learning what AI can do <em>is not the same as</em> knowing how to work with it.</h2>
+
+          <div class="compare-subtitles">
+            <p class="compare-sub compare-sub-literacy">AI literacy trainings are what organizations invest in today.</p>
+            <p class="compare-sub compare-sub-fluency">AI fluency is what we develop directly with your teams and their real work.</p>
+          </div>
 
           <div class="compare">
             <div class="col-literacy">
               <div class="col-header-row">
                 <div class="col-titles">
-                  <h3>Column A</h3>
                   <h4>Literacy</h4>
                 </div>
                 <span class="literacy-margin" aria-hidden="true">
@@ -3823,7 +4015,6 @@ footer.site a:hover { color: var(--marker); }
             <div class="col-fluency">
               <div class="col-header-row">
                 <div class="col-titles">
-                  <h3>Column B</h3>
                   <h4>Fluency</h4>
                 </div>
                 <span class="fluency-margin" aria-hidden="true">
@@ -3858,12 +4049,14 @@ footer.site a:hover { color: var(--marker); }
   <div class="wrap">
     <div class="popup-wrap">
       <div class="popup-left">
-        <span class="section-label reveal">§03 · What we are</span>
-        <h2 class="reveal">
-          A fast track to AI fluency.
-        </h2>
-        <p class="reveal">We embed with a small cohort from your teams to work on real problems they&rsquo;re trying to solve — building the mindsets, behaviors, and skills that make using AI to problem-solve <em>instinctual and second nature</em> in their everyday work.</p>
-        <p class="reveal" style="margin-top: 20px; font-size: 17px;">Short-lived by design. Long-lasting in effect.</p>
+        <span class="section-label reveal">02 · What the Counter is</span>
+        <h2 class="reveal">Your fast track to <em>fluency.</em></h2>
+        <p class="reveal">We guide a cohort from your team through a hands-on experience designed to solve problems and priorities they are already working on over four to six weeks. In the process, they develop the mindsets, behaviors, and skills to think and work with AI in practice &mdash; not just learn about it in theory.</p>
+        <p class="reveal popup-bold">Over time, working and thinking with AI becomes more fluid, instinctual, and eventually second nature to their ways of working.</p>
+
+        <button type="button" class="popup-modal-trigger reveal" id="existingToolsTrigger" aria-haspopup="dialog" aria-controls="existingToolsModal">
+          What if my company already has existing AI tools and guidelines? <span class="arrow">&rarr;</span>
+        </button>
       </div>
 
       <div class="popup-right reveal">
@@ -3883,6 +4076,16 @@ footer.site a:hover { color: var(--marker); }
             <span>FLUENCY</span>
           </div>
         </div>
+
+        <!-- Modal that overlays the engagement order only -->
+        <div class="popup-modal" id="existingToolsModal" role="dialog" aria-modal="true" aria-labelledby="existingToolsTitle" hidden>
+          <button type="button" class="popup-modal-close" aria-label="Close">&times;</button>
+          <div class="popup-modal-inner">
+            <span class="popup-modal-eyebrow">Your existing stack</span>
+            <h3 class="popup-modal-title" id="existingToolsTitle">The Counter works <em>alongside</em> what you already have.</h3>
+            <p class="popup-modal-body">The Counter experience gives teams a safe sandbox to practice and build AI fluency without creating conflict with your existing enterprise AI strategy, tools, LLMs, or governance.</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -3893,7 +4096,6 @@ footer.site a:hover { color: var(--marker); }
      ================================================================ -->
 <section class="how" id="how">
   <div class="wrap">
-    <span class="section-label reveal">§04 · How it works</span>
     <h2 class="reveal">How The Counter works.</h2>
 
     <div class="hm-map" id="hmMap">
@@ -3963,9 +4165,8 @@ footer.site a:hover { color: var(--marker); }
       <div class="wp wp-1" data-wp="1">
         <span class="wp-pin wp-pin-inline">01</span>
         <div class="wp-card">
-          <span class="wp-label">~1 week before</span>
-          <h3 class="wp-head">Before we arrive, we do the prep <em>together</em>.</h3>
-          <p class="wp-text">With a cross-functional or select team, we lock in the date, the scope, and the comms that get your team prepared for what comes next.</p>
+          <span class="wp-label">Before we begin</span>
+          <h3 class="wp-head">We partner with you to shape the right cohort and set the experience up for a <em>strong start</em>.</h3>
         </div>
         <div class="wp-art">
           <div class="wp-terminal" aria-hidden="true">
@@ -3982,13 +4183,12 @@ footer.site a:hover { color: var(--marker); }
       <div class="wp wp-2" data-wp="2">
         <span class="wp-pin wp-pin-inline">02</span>
         <div class="wp-card">
-          <span class="wp-label">The workshop &middot; 1 day</span>
-          <h3 class="wp-head">We teach and help them find the best way to <em>start</em> with their problems.</h3>
-          <p class="wp-text">A full day on how to think and work <em>with</em> AI, so that this way of thinking is second nature by the end of it. We use the <strong>Sorting Hat</strong> to take their problems and determine which is the best fit to develop in the coming weeks.</p>
+          <span class="wp-label">In-person cohort workshop</span>
+          <h3 class="wp-head">Then we work with each person to choose and clarify a problem already in their work as the <em>focus</em> for their experience.</h3>
         </div>
         <div class="wp-art">
-          <img src="Sorting%20Hat.png" alt="The Sorting Hat">
-          <div class="wp-art-cap">the hat is surprisingly good at this.</div>
+          <img src="sorting-hat-green.png" alt="The Sorting Hat">
+          <div class="wp-art-cap">the Sorting Hat helps people refine their problem so it is the right size for this experience &mdash; and sets off red flags for technology, security, compliance, etc.</div>
           <div class="wp-coin" aria-hidden="true">
             <!-- Placeholder coin SVG — swap for <img src="Coin.png"> once provided -->
             <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -4017,10 +4217,8 @@ footer.site a:hover { color: var(--marker); }
       <div class="wp wp-3" data-wp="3">
         <span class="wp-pin wp-pin-inline">03</span>
         <div class="wp-card">
-          <span class="wp-label">The interviews</span>
-          <h3 class="wp-head">One-on-one, we make the solution <em>real</em>.</h3>
-          <p class="wp-text">A discussion guide runs the conversation &mdash; they only have to talk. Their coin goes into <strong>the Concept Generator Jackpot</strong>, three concepts land, they pick one, and by the hour&rsquo;s end we&rsquo;ve built a prototype live in <strong>Claude</strong> &mdash; clickable screens, real functions, the whole shape of it.</p>
-          <span class="wp-annot">&larr; tool #2 + a live prototype</span>
+          <span class="wp-label">Guided one-on-one Counter experience</span>
+          <h3 class="wp-head">One by one, we help them think and work with AI to turn that problem into a <em>working prototype</em> in hours, not months.</h3>
         </div>
         <div class="wp-art">
           <img src="Jackpot.png" alt="The Concept Generator Jackpot">
@@ -4032,9 +4230,8 @@ footer.site a:hover { color: var(--marker); }
       <div class="wp wp-4" data-wp="4">
         <span class="wp-pin wp-pin-inline">04</span>
         <div class="wp-card">
-          <span class="wp-label">In the wild &middot; ~3 weeks</span>
-          <h3 class="wp-head">They use it in real work. We iterate <em>together</em>.</h3>
-          <p class="wp-text">Each person takes their prototype into their day-to-day. Over the weeks we reconnect &mdash; hearing what&rsquo;s landing, what&rsquo;s broken, what they wish it did &mdash; and coach them through the iteration themselves. This is where instinct compounds.</p>
+          <span class="wp-label">Individual experiments &amp; cohort capstone</span>
+          <h3 class="wp-head">They take the prototype into their real work &mdash; <em>test, learn, and iterate</em> until it works in practice.</h3>
         </div>
         <div class="wp-art">
           <div class="wp-sketch">
@@ -4061,24 +4258,13 @@ footer.site a:hover { color: var(--marker); }
         </div>
       </div>
 
-      <!-- WAYPOINT 05 — Destination: a person becomes proof -->
+      <!-- WAYPOINT 05 — Destination: proof -->
       <div class="wp wp-5" data-wp="5">
         <div class="wp-5-head-row">
           <div class="wp-x-wrap">
             <span class="wp-x">X</span>
           </div>
-          <h3 class="wp-head">They become <span class="proof-badge">PROOF <span class="checkmark"></span></span> for the whole org.</h3>
-        </div>
-        <div class="wp-card">
-          <p class="wp-text">Multiple people across your organization have built real solutions and developed the fluency to keep going on their own. They become internal advocates. And that serves as the proof to take it further, to more teams, and at a bigger scale.</p>
-          <div class="wp-portrait">
-            <div class="wp-portrait-img">M</div>
-            <div class="wp-portrait-body">
-              <span class="wp-portrait-eyebrow">case study</span>
-              <div class="wp-portrait-role">Dispute Investigator</div>
-              <div class="wp-portrait-quote">&ldquo;I stopped asking <em>can AI do this</em>? and started asking <em>what should I build next</em>?&rdquo;</div>
-            </div>
-          </div>
+          <h3 class="wp-head">By the end, they have <em>real solutions</em> in hand &mdash; and the confidence to keep thinking and working with AI more fluently on their own. And you have the <span class="proof-badge">PROOF <span class="checkmark"></span></span> you need to scale it further.</h3>
         </div>
       </div>
 
@@ -4095,76 +4281,32 @@ footer.site a:hover { color: var(--marker); }
      ================================================================ -->
 <section class="outcomes" id="outcomes">
   <div class="wrap">
-    <span class="section-label reveal">§05 · Outcomes</span>
-    <h2 class="reveal">What The Counter <em>delivers.</em></h2>
-
-    <div class="cards">
-      <div class="card-trade reveal">
-        <div class="card-trade-inner">
-          <div class="c-num">OUTCOME · 01 / 04</div>
-          <div class="c-visual">
-            <svg viewBox="0 0 60 60" aria-hidden="true">
-              <rect x="8" y="12" width="44" height="36" rx="3"/>
-              <line x1="14" y1="22" x2="34" y2="22"/>
-              <line x1="14" y1="30" x2="40" y2="30"/>
-              <line x1="14" y1="38" x2="28" y2="38"/>
-              <circle cx="46" cy="40" r="5" stroke="#95D7AE" stroke-width="1.8"/>
-            </svg>
-          </div>
-          <h3>Functional Tools</h3>
-          <p>The working solutions they built themselves, designed for the problems they actually face.</p>
-        </div>
+    <div class="outcomes-grid">
+      <div class="outcomes-left">
+        <span class="section-label reveal">03 · What you get</span>
+        <p class="outcomes-lede reveal">The Counter is a science-backed experience designed around applied practice, curiosity, playfulness, and safe experimentation &mdash; which is why it produces outcomes traditional corporate programs rarely can.</p>
       </div>
 
-      <div class="card-trade reveal">
-        <div class="card-trade-inner">
-          <div class="c-num">OUTCOME · 02 / 04</div>
-          <div class="c-visual">
-            <svg viewBox="0 0 60 60" aria-hidden="true">
-              <circle cx="30" cy="30" r="14"/>
-              <circle cx="30" cy="30" r="22" stroke-dasharray="3 3"/>
-              <line x1="30" y1="8" x2="30" y2="12"/>
-              <line x1="30" y1="48" x2="30" y2="52"/>
-              <line x1="8" y1="30" x2="12" y2="30"/>
-              <line x1="48" y1="30" x2="52" y2="30"/>
-            </svg>
-          </div>
-          <h3>AI Fluency</h3>
-          <p>The ability to think and work with AI to solve problems and prototype solutions in hours.</p>
+      <div class="outcomes-right">
+        <div class="outcome-box reveal">
+          <span class="outcome-num">01</span>
+          <h3>AI fluent</h3>
+          <p>The cohort builds the skills, mindsets, and confidence to think and work with AI more instinctively in their day-to-day work.</p>
         </div>
-      </div>
-
-      <div class="card-trade reveal">
-        <div class="card-trade-inner">
-          <div class="c-num">OUTCOME · 03 / 04</div>
-          <div class="c-visual">
-            <svg viewBox="0 0 60 60" aria-hidden="true">
-              <path d="M10 40 Q30 10 50 40"/>
-              <circle cx="10" cy="40" r="3" fill="#95D7AE"/>
-              <circle cx="50" cy="40" r="3" fill="#95D7AE"/>
-              <circle cx="30" cy="22" r="4" fill="#9D5A5A"/>
-              <line x1="30" y1="22" x2="30" y2="50" stroke-dasharray="2 3"/>
-            </svg>
-          </div>
-          <h3>Lived Experience</h3>
-          <p>Once your people have felt what this feels like, they don't go back — they pull others in.</p>
+        <div class="outcome-box reveal">
+          <span class="outcome-num">02</span>
+          <h3>Real solutions</h3>
+          <p>The cohort leaves with prototypes and solutions that solve the problems they were working on.</p>
         </div>
-      </div>
-
-      <div class="card-trade reveal">
-        <div class="card-trade-inner">
-          <div class="c-num">OUTCOME · 04 / 04</div>
-          <div class="c-visual">
-            <svg viewBox="0 0 60 60" aria-hidden="true">
-              <rect x="12" y="10" width="36" height="40" rx="2"/>
-              <line x1="18" y1="20" x2="42" y2="20"/>
-              <line x1="18" y1="28" x2="38" y2="28"/>
-              <line x1="18" y1="36" x2="42" y2="36"/>
-              <circle cx="30" cy="50" r="4" fill="#95D7AE" stroke="none"/>
-            </svg>
-          </div>
-          <h3>Evidence to Scale</h3>
-          <p>Documented feedback, reported results, and proof points to make the case for going further.</p>
+        <div class="outcome-box reveal">
+          <span class="outcome-num">03</span>
+          <h3>New possibilities</h3>
+          <p>The organization begins to uncover opportunities, solutions, and forms of value they would not have reached through traditional ways of working.</p>
+        </div>
+        <div class="outcome-box reveal">
+          <span class="outcome-num">04</span>
+          <h3>Proof to scale</h3>
+          <p>You come away with the proof points needed to bring other leaders along and make the case to scale AI fluency more broadly.</p>
         </div>
       </div>
     </div>
@@ -4176,7 +4318,7 @@ footer.site a:hover { color: var(--marker); }
      ================================================================ -->
 <section class="cases" id="cases">
   <div class="wrap">
-    <span class="section-label reveal">§06 · In practice</span>
+    <span class="section-label reveal">04 · Bringing it to life</span>
     <h2 class="reveal">What it looks like <em>when it's real.</em></h2>
 
     <div class="folder-cabinet reveal">
@@ -4206,9 +4348,9 @@ footer.site a:hover { color: var(--marker); }
               <div class="case-eyebrow">
                 <span class="sector">FINANCIAL SERVICES</span>
               </div>
-              <h3>A dispute adjudication analyst could decide any case in minutes, but they were never assembled in the way she needed them.</h3>
+              <h3>A fraud dispute analyst had everything she needed to make the call, just not in one place.</h3>
               <div class="case-body">
-                <p>Maya spent most of her time not on judgment, but on rebuilding case files &mdash; pulling narratives, rebuttals, and transaction records from three different systems twenty times a day. In one session, she built a tool that assembles the full fact pattern, surfaces contradictions, separates verified evidence from unverified claims, and scaffolds everything she needs for the determination. The judgment is still hers. The prep is what&rsquo;s been taken off her plate.</p>
+                <p>Maya was spending too much time hunting through different systems to piece together what happened before she could even begin reviewing the dispute. She created a prototype that pulled the relevant information into one place, highlighted contradictions, separated confirmed facts from unsupported claims, and gave her a clearer starting point for making the decision.</p>
               </div>
               <div class="case-metric">Assembly &rarr; Judgment</div>
             </div>
@@ -4348,9 +4490,9 @@ footer.site a:hover { color: var(--marker); }
               <div class="case-eyebrow">
                 <span class="sector">LIFE SCIENCES</span>
               </div>
-              <h3>A market researcher had the strategy in her head, but it took three weeks in an agency to get that thinking on paper.</h3>
+              <h3>A marketer already had the strategy in her head, but it still took weeks and an outside agency to turn it into something the business could use.</h3>
               <div class="case-body">
-                <p>Rachel knew her patient data, her approved claims, and her strategic direction better than anyone. But turning that into concept foundations meant outsourcing to an agency that didn&rsquo;t know her data. In one session, she built a tool that assembled her own material into four full strategic concepts &mdash; each traceable to source, each ready for MLR review the same week.</p>
+                <p>Rachel knew the outcomes data, approved claims, and strategic direction better than anyone. She created a prototype that pulled those inputs together, shaped them into clear concept territories, kept each one traceable to sources, and made them ready for review in a fraction of the usual time.</p>
               </div>
               <div class="case-metric">Outsourced &rarr; Owned</div>
             </div>
@@ -4485,9 +4627,9 @@ footer.site a:hover { color: var(--marker); }
               <div class="case-eyebrow">
                 <span class="sector">CONSUMER GOODS</span>
               </div>
-              <h3>A diaper formulation R&amp;D scientist had years of data on polymer absorption, but she never had time to use it.</h3>
+              <h3>An R&amp;D scientist had years of formulation data that could have made experimentation much faster, but it was buried in files she never had time to use.</h3>
               <div class="case-body">
-                <p>Sarah had a decade of test cycle results sitting in files she flew past every week. She&rsquo;d always suspected a non-linear interaction between surfactant levels and particle size &mdash; but never had time to prove it. In a single session, she built a tool that made her entire history queryable, surfaced the hypothesis she&rsquo;d written down in 2019 and almost forgotten, and let her run fifty what-if scenarios in the time it used to take to run five.</p>
+                <p>Sarah had a decade of test results across polymer absorption, surfactant levels, and particle size, along with a hunch about how those variables might be interacting. She created a prototype that made her past experiments searchable, surfaced patterns across prior test cycles, and let her run digital scenarios to predict likely performance before moving into physical testing. Instead of relying only on slower lab cycles, she had a faster way to focus where to experiment next.</p>
               </div>
               <div class="case-metric">5 &rarr; 50 hypotheses / cycle</div>
             </div>
@@ -4632,7 +4774,7 @@ footer.site a:hover { color: var(--marker); }
   <div class="wrap">
     <div class="about-wrap">
       <div class="reveal">
-        <span class="section-label">§07 · Who we are</span>
+        <span class="section-label">05 · Who we are</span>
         <h2>Two people <em>tired</em> of AI workshops that only teach prompting.</h2>
         <p>We've spent years watching companies spend millions on AI initiatives that go nowhere. The knowledge and the talking points, what you should teach about AI, has been <em>hammered home</em>. But no one has taken the time to sit with people and show them what's possible with the problems they face every day.</p>
         <p>That's The Counter. It's founded on the rare belief in corporate life that people are not the problem to be managed through this process &mdash; they're the answer.</p>
@@ -4663,7 +4805,7 @@ footer.site a:hover { color: var(--marker); }
 <section class="cta" id="contact">
   <div class="wrap">
     <div class="cta-inner">
-      <span class="section-label reveal" style="color: var(--fluency-2);">§08 · Come build</span>
+      <span class="section-label reveal" style="color: var(--fluency-2);">06 · Come build</span>
       <h2 class="reveal">
         Tell me and I forget.<br>
         Teach me and I remember.<br>
@@ -4895,6 +5037,28 @@ footer.site a:hover { color: var(--marker); }
     positionPins();
     addEventListener('load', positionPins);
     up();
+  })();
+
+  // Existing-tools modal — overlays the engagement order card
+  (function initExistingToolsModal(){
+    const trigger = document.getElementById('existingToolsTrigger');
+    const modal   = document.getElementById('existingToolsModal');
+    if (!trigger || !modal) return;
+    const close = modal.querySelector('.popup-modal-close');
+
+    const open = () => {
+      modal.hidden = false;
+      // move focus to close button for accessibility
+      if (close) close.focus();
+    };
+    const hide = () => { modal.hidden = true; trigger.focus(); };
+
+    trigger.addEventListener('click', open);
+    if (close) close.addEventListener('click', hide);
+    modal.addEventListener('click', (e) => { if (e.target === modal) hide(); });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) hide();
+    });
   })();
 
 })();

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Counter — Cohort aliens (cuter)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0; padding: 48px 24px 80px;
+    font-family: 'JetBrains Mono', monospace;
+    background: #F6F0E1;
+    background-image:
+      linear-gradient(to right,  rgba(42,46,51,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px);
+    background-size: 36px 36px, 36px 36px;
+    min-height: 100vh;
+    color: #2A2E33;
+  }
+  header { max-width: 1240px; margin: 0 auto 32px; }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-weight: 400; font-style: italic;
+    font-size: 44px; margin: 0 0 8px; letter-spacing: -0.01em;
+  }
+  .sub {
+    font-size: 11px; letter-spacing: 0.22em;
+    color: #8A8F94; text-transform: uppercase;
+  }
+  .row { max-width: 1240px; margin: 0 auto; display: grid; gap: 28px; }
+  .row.quads { grid-template-columns: repeat(4, 1fr); }
+  .row.insitu { grid-template-columns: 1fr; margin-top: 36px; }
+  .card {
+    background: #1F3933;
+    aspect-ratio: 1/1;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .card.paper { background: #F6F0E1; }
+  .card::before {
+    content:''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(to bottom, rgba(255,255,255,0.04) 0 1px, transparent 1px 3px);
+    pointer-events: none; z-index: 2;
+  }
+  .card .tag {
+    position: absolute; top: 12px; left: 14px;
+    font-size: 10px; letter-spacing: 0.22em;
+    color: rgba(246,240,225,0.55); text-transform: uppercase; z-index: 3;
+  }
+  .card.paper .tag { color: rgba(42,46,51,0.5); }
+  .card .name {
+    position: absolute; bottom: 14px; left: 14px; right: 14px; z-index: 3;
+    font-family: 'Press Start 2P', monospace; font-size: 10px;
+    color: #95D7AE; letter-spacing: 0.12em;
+    display: flex; justify-content: space-between;
+  }
+  .card .name em { color: rgba(246,240,225,0.45); font-style: normal; }
+  .card svg { width: 80%; height: 80%; display: block; }
+
+  .band {
+    background: #F6F0E1;
+    border: 1px solid rgba(42,46,51,0.14);
+    padding: 56px 48px;
+    display: grid; grid-template-columns: 1fr auto; gap: 48px;
+    align-items: center;
+  }
+  .band-copy .eyebrow {
+    font-size: 11px; letter-spacing: 0.22em;
+    color: #9D5A5A; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .band-copy h2 {
+    font-family: 'Instrument Serif', serif; font-weight: 400; font-style: italic;
+    font-size: 38px; line-height: 1.15; margin: 0 0 14px; color: #2A2E33;
+    max-width: 620px;
+  }
+  .band-copy p {
+    font-size: 14px; line-height: 1.6; color: #454851; max-width: 520px; margin: 0;
+  }
+  .crew { display: flex; align-items: flex-end; gap: 10px; }
+  .crew svg { width: 96px; height: 96px; display: block; }
+  .crew .pedestal { display: flex; flex-direction: column; align-items: center; }
+  .crew .pedestal::after {
+    content: ''; width: 72px; height: 6px; background: rgba(42,46,51,0.1);
+    border-radius: 50%; margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Cohort aliens — cuter &amp; more person-shaped</h1>
+  <div class="sub">now with shoulders · arms · little feet · ready to be posed</div>
+</header>
+
+<div class="row quads">
+  <div class="card"><div class="tag">01</div><svg id="alien-1" viewBox="0 0 200 200"></svg><div class="name"><span>PODLET</span><em>01/04</em></div></div>
+  <div class="card"><div class="tag">02</div><svg id="alien-2" viewBox="0 0 200 200"></svg><div class="name"><span>SPROUT</span><em>02/04</em></div></div>
+  <div class="card"><div class="tag">03</div><svg id="alien-3" viewBox="0 0 200 200"></svg><div class="name"><span>TOWER</span><em>03/04</em></div></div>
+  <div class="card"><div class="tag">04</div><svg id="alien-4" viewBox="0 0 200 200"></svg><div class="name"><span>BLINK</span><em>04/04</em></div></div>
+</div>
+
+<div class="row insitu">
+  <div class="band">
+    <div class="band-copy">
+      <div class="eyebrow">§ COHORT DESIGN</div>
+      <h2>We partner with you to shape the right cohort — and set the stage for a strong start.</h2>
+      <p>Each group is assembled with intent: mixed seniority, complementary roles, shared stakes. From day one the crew has momentum, not introductions.</p>
+    </div>
+    <div class="crew">
+      <div class="pedestal"><svg id="crew-1" viewBox="0 0 200 200"></svg></div>
+      <div class="pedestal"><svg id="crew-2" viewBox="0 0 200 200"></svg></div>
+      <div class="pedestal"><svg id="crew-3" viewBox="0 0 200 200"></svg></div>
+      <div class="pedestal"><svg id="crew-4" viewBox="0 0 200 200"></svg></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SAGE = '#73956F', SAGE_DEEP = '#5B7A58', SAGE_DARK = '#3F5B3D';
+const MINT = '#95D7AE', LIME = '#B8C96A', LIME_DEEP = '#8A9B48', LIME_LIGHT = '#D8E27B';
+const INK = '#2A2E33', PAPER = '#F6F0E1', BLUSH = '#E3A4A4', MARKER = '#9D5A5A';
+const LAV = '#BEA8E0', LAV_DEEP = '#8E78B5';
+
+/* 22-wide x 22-tall grids → each cell = 8px in a 200 viewBox (176 content, 12px pad both sides) */
+const CELL = 8;
+const GRID_W = 22, GRID_H = 22;
+
+function render(svgId, grid, palette) {
+  const svg = document.getElementById(svgId);
+  svg.innerHTML = '';
+  svg.setAttribute('shape-rendering', 'crispEdges');
+  const NS = 'http://www.w3.org/2000/svg';
+  const rows = grid.length, cols = grid[0].length;
+  const offX = (200 - cols * CELL) / 2;
+  const offY = (200 - rows * CELL) / 2;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const ch = grid[y][x];
+      if (ch === '.' || ch === ' ') continue;
+      const fill = palette[ch];
+      if (!fill) continue;
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('x', offX + x * CELL);
+      r.setAttribute('y', offY + y * CELL);
+      r.setAttribute('width', CELL);
+      r.setAttribute('height', CELL);
+      r.setAttribute('fill', fill);
+      svg.appendChild(r);
+    }
+  }
+  // ground shadow below each character
+  const g = document.createElementNS(NS, 'ellipse');
+  g.setAttribute('cx', 100); g.setAttribute('cy', offY + rows * CELL + 4);
+  g.setAttribute('rx', 46); g.setAttribute('ry', 4);
+  g.setAttribute('fill', 'rgba(0,0,0,0.18)');
+  svg.insertBefore(g, svg.firstChild);
+}
+
+/* LEGEND
+   .  empty        b  body base
+   h  highlight    s  shadow
+   e  eye white    p  pupil
+   m  mouth/line   B  blush
+   a  antenna/hair tip
+   f  foot/shoe    H  hand/arm accent
+   k  knockout dark (inner line)
+*/
+
+/* ─────────────────────────────────────────────────────────
+   01 — PODLET — round-headed kid with stubby arms and feet.
+   Little antenna, big eyes, open smile. Sage body.
+   ───────────────────────────────────────────────────────── */
+const PODLET = [
+  '.........aa.........',
+  '.........aa.........',
+  '........bbbb........',
+  '.......bbbbbb.......',
+  '......bbbbbbbb......',
+  '.....hhbbbbbbss.....',
+  '....hhbbbbbbbbss....',
+  '....hbbeebbeebsss...',
+  '....hbbeppbeppbss...',
+  '....hbbeebbeebsss...',
+  '....hhbbbbmmbbss....',
+  '....hbbbbmmmmbbs....',
+  '.....hbBbbmmbBbs....',
+  '....bbbbbbbbbbbbb...',  // shoulders flare out
+  '...bbbbbbbbbbbbbbb..',
+  '..bbbbbbbbbbbbbbbbb.',
+  '..bb.bbbbbbbbbb..bb.',  // gap between arm and body
+  '..bb.bbbbbbbbbb..bb.',
+  '..HH.bbbbbbbbbb..HH.',  // hands
+  '.....bbbb..bbbb.....',  // legs
+  '.....bbbb..bbbb.....',
+  '....ffff....ffff....',  // feet/shoes
+];
+const P_PODLET = { 'b': SAGE, 'h': MINT, 's': SAGE_DEEP, 'e': PAPER, 'p': INK, 'm': INK, 'B': BLUSH, 'a': SAGE_DEEP, 'f': INK, 'H': SAGE_DEEP };
+
+/* ─────────────────────────────────────────────────────────
+   02 — SPROUT — lime kid with leaf-ear tufts, small round body.
+   ───────────────────────────────────────────────────────── */
+const SPROUT = [
+  '.........aa.........',
+  '........aaaa........',
+  '.......aabbaa.......',
+  '......aabbbbaa......',
+  '.....aabbbbbbaa.....',
+  '....bbbbbbbbbbbb....',
+  '...bbbbbbbbbbbbbb...',  // leaf ears poke out
+  '..hhbbbbbbbbbbbbss..',
+  '..hbbbeepbbbpeebss..',
+  '..hbbbeepbbbpeebss..',
+  '..hbbbbbbBBbbbbbss..',
+  '..hbbbbbBmmBbbbbss..',
+  '..hbbbbbbmmbbbbbss..',
+  '...bbbbbbbbbbbbbb...',
+  '...bbbbbbbbbbbbbb...',
+  '..HHbbbbbbbbbbbbHH..',  // arms at sides
+  '..HHbbbbbbbbbbbbHH..',
+  '....bbbbbbbbbbbb....',
+  '.....bbbb..bbbb.....',
+  '.....bbbb..bbbb.....',
+  '....ffff....ffff....',
+  '....ffff....ffff....',
+];
+const P_SPROUT = { 'b': LIME, 'h': LIME_LIGHT, 's': LIME_DEEP, 'e': PAPER, 'p': INK, 'm': INK, 'B': BLUSH, 'a': SAGE_DEEP, 'f': INK, 'H': LIME_DEEP };
+
+/* ─────────────────────────────────────────────────────────
+   03 — TOWER — tall narrow person, single tuft of hair, closed
+   sleepy eyes, small smile. Deep sage.
+   ───────────────────────────────────────────────────────── */
+const TOWER = [
+  '.........aa.........',
+  '........aaaa........',
+  '........bbbb........',
+  '.......bbbbbb.......',
+  '......hbbbbbbs......',
+  '......hbbbbbbs......',
+  '......hbmmbmms......',  // closed eyes (— —)
+  '......hbbbbbbs......',
+  '......hbbBmBbs......',
+  '......hbbmmmbs......',
+  '......hbbbbbbs......',
+  '......bbbbbbbb......',
+  '.....bbbbbbbbbb.....',
+  '....HHbbbbbbbbHH....',
+  '....HHbbbbbbbbHH....',
+  '....HHbbbbbbbbHH....',
+  '.....bbbbbbbbbb.....',
+  '.....bbbbbbbbbb.....',
+  '......bbbbbbbb......',
+  '......bbbb.bbb......',
+  '.....bbbb...bbb.....',
+  '....ffff....ffff....',
+];
+const P_TOWER = { 'b': SAGE_DEEP, 'h': SAGE, 's': SAGE_DARK, 'm': INK, 'B': BLUSH, 'a': SAGE_DARK, 'f': INK, 'H': SAGE_DARK };
+
+/* ─────────────────────────────────────────────────────────
+   04 — BLINK — mint pear-shaped person, big almond eyes,
+   tiny smile, lavender pupils for variety.
+   ───────────────────────────────────────────────────────── */
+const BLINK = [
+  '........bbbb........',
+  '.......bbbbbb.......',
+  '......bbbbbbbb......',
+  '.....hbbbbbbbbs.....',
+  '....hbbbbbbbbbbs....',
+  '...hhbbbbbbbbbbss...',
+  '...hbbeeebbeeebss...',
+  '...hbbepppbepppss...',
+  '...hbbeppebeppebss..',
+  '...hbbbbbbbbbbbbss..',
+  '...hbbbbbmmbbbbbss..',
+  '...hbbbbbbbbbbbbss..',
+  '....bbbbbbbbbbbb....',
+  '...bbbbbbbbbbbbbb...',
+  '..HHbbbbbbbbbbbbHH..',
+  '..HHbbbbbbbbbbbbHH..',
+  '...bbbbbbbbbbbbbb...',
+  '....bbbbbbbbbbbb....',
+  '.....bbbbbbbbbb.....',
+  '.....bbbb..bbbb.....',
+  '.....bbbb..bbbb.....',
+  '....ffff....ffff....',
+];
+const P_BLINK = { 'b': MINT, 'h': '#C5EBD4', 's': '#6FA886', 'e': PAPER, 'p': LAV_DEEP, 'm': INK, 'a': SAGE_DEEP, 'f': INK, 'H': '#6FA886' };
+
+render('alien-1', PODLET, P_PODLET);
+render('alien-2', SPROUT, P_SPROUT);
+render('alien-3', TOWER,  P_TOWER);
+render('alien-4', BLINK,  P_BLINK);
+
+render('crew-1', PODLET, P_PODLET);
+render('crew-2', SPROUT, P_SPROUT);
+render('crew-3', TOWER,  P_TOWER);
+render('crew-4', BLINK,  P_BLINK);
+</script>
+</body>
+</html>
