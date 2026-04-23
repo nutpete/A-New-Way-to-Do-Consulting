@@ -1781,9 +1781,12 @@
       max-width: 520px;
     }
 
-    /* ───── Objection dialogue — SUIT bark + Counter response ───── */
+    /* ───── Objection dialogue — SUIT bark + Counter response ─────
+       Big top margin keeps this exchange below the fold when reading
+       the receipt; scroll-triggered reveal-late fades it in once
+       the user has scrolled past the receipt. */
     .objection-row {
-      margin-top: 96px;
+      margin-top: 220px;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
       gap: 56px;
@@ -1849,14 +1852,17 @@
       pointer-events: none;
     }
 
-    .objection-bubble-tag {
+    /* Attribution below the quote — italic serif so it feels like
+       it's completing the quote, not labeling it. */
+    .objection-bubble-attr {
       display: block;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--marker);
-      margin-bottom: 10px;
+      margin-top: 16px;
+      font-family: 'Instrument Serif', serif;
+      font-style: italic;
+      font-size: 22px;
+      color: rgba(42, 46, 51, 0.72);
+      text-align: right;
+      letter-spacing: 0.01em;
     }
 
     .objection-bubble-text {
@@ -1875,6 +1881,42 @@
       width: 70px;
       height: 70px;
       pointer-events: none;
+    }
+
+    /* Wrapper so we can float the "wait." pre-bubble above the main
+       shout without getting clipped by the bubble's clip-path. */
+    .objection-bubble-wrap {
+      position: relative;
+    }
+
+    /* Quiet setup beat: "wait." appears above the shout, reads as a
+       comic double-take before the full rant explodes. */
+    .objection-prebubble {
+      position: absolute;
+      top: -80px;
+      left: 24px;
+      background: var(--paper-card);
+      padding: 14px 36px 10px;
+      border-radius: 32px;
+      font-family: 'Caveat', cursive;
+      font-size: 56px;
+      line-height: 1;
+      color: var(--ink);
+      transform: rotate(-5deg);
+      box-shadow: 5px 5px 0 rgba(42, 46, 51, 0.18);
+      z-index: 4;
+      white-space: nowrap;
+    }
+
+    .objection-prebubble::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 36px;
+      width: 20px;
+      height: 20px;
+      background: var(--paper-card);
+      transform: rotate(45deg);
     }
 
     /* Right — calm Counter response card */
@@ -1926,7 +1968,7 @@
       .objection-row {
         grid-template-columns: 1fr;
         gap: 48px;
-        margin-top: 64px;
+        margin-top: 140px;
       }
 
       .objection-bark {
@@ -1946,6 +1988,12 @@
     }
 
     @media (max-width: 560px) {
+      .objection-prebubble {
+        font-size: 42px;
+        top: -62px;
+        left: 16px;
+      }
+
       .objection-bark {
         grid-template-columns: 1fr;
         justify-items: center;
@@ -5435,6 +5483,29 @@
       line-height: 1.55;
     }
 
+    /* Architect's-sketch icons — top-right of each box.
+       Quiet mint accent marks, fine stroke, round caps. */
+    .outcome-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      color: var(--fluency-2);
+      opacity: 0.55;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+      transition: opacity .2s ease;
+    }
+
+    .outcome-box:hover .outcome-icon {
+      opacity: 0.9;
+    }
+
     @media (max-width: 1080px) {
       .outcomes-grid {
         grid-template-columns: 1fr;
@@ -5883,28 +5954,6 @@
       to {
         opacity: 1;
       }
-    }
-
-    .carousel-dots {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      padding: 10px 0 6px;
-      background: #1C2024;
-    }
-
-    .carousel-dots .cdot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(246, 240, 225, 0.2);
-      cursor: pointer;
-      transition: all .2s;
-    }
-
-    .carousel-dots .cdot.active {
-      background: var(--fluency-2);
-      transform: scale(1.3);
     }
 
     .scr-stats {
@@ -7275,50 +7324,13 @@
       font-style: italic;
     }
 
-    /* Per-case dots and bezel tones so bezel/dots harmonize with the screen */
-    #case1 .carousel-dots {
-      background: #0C1116;
-    }
-
-    #case1 .carousel-dots .cdot {
-      background: rgba(110, 231, 183, 0.25);
-    }
-
-    #case1 .carousel-dots .cdot.active {
-      background: #6EE7B7;
-    }
-
+    /* Per-case laptop-base tones so bezel harmonizes with the screen */
     #case1 .laptop-base {
       background: linear-gradient(180deg, #2A3540 0%, #141B23 100%);
     }
 
-    #case2 .carousel-dots {
-      background: #E8DFC7;
-      border-top: 1px solid rgba(90, 63, 36, 0.15);
-    }
-
-    #case2 .carousel-dots .cdot {
-      background: rgba(90, 63, 36, 0.35);
-    }
-
-    #case2 .carousel-dots .cdot.active {
-      background: #9D5A5A;
-    }
-
     #case2 .laptop-base {
       background: linear-gradient(180deg, #C8BFA6 0%, #9C8E6C 100%);
-    }
-
-    #case3 .carousel-dots {
-      background: #0F1823;
-    }
-
-    #case3 .carousel-dots .cdot {
-      background: rgba(216, 112, 112, 0.28);
-    }
-
-    #case3 .carousel-dots .cdot.active {
-      background: #D87070;
     }
 
     #case3 .laptop-base {
@@ -7599,6 +7611,19 @@
     }
 
     .reveal.on {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* Delayed reveal — waits until the element is well into the viewport
+       before fading in, so nearby content doesn't "peek" prematurely. */
+    .reveal-late {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity .9s ease, transform .9s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .reveal-late.on {
       opacity: 1;
       transform: none;
     }
@@ -7888,8 +7913,8 @@
                     <ul class="book-toc">
                       <li><span>01</span> You may be investing in AI literacy when what you really need is AI fluency.
                       </li>
-                      <li><span>02</span> What looks like progress can be just enough to make you think you are further
-                        along than you are.</li>
+                      <li><span>02</span> Fluency isn&rsquo;t something you can sit through. It&rsquo;s built in the
+                        work itself, the same way any real capability is.</li>
                       <li><span>03</span> The real opportunity is not just doing today&rsquo;s work faster &mdash; it is
                         discovering work your business could not do before.</li>
                     </ul>
@@ -7975,16 +8000,15 @@
               <div class="r-title">THE COUNTER</div>
               <div class="r-sub">ENGAGEMENT ORDER</div>
 
-              <div class="r-row"><span>Set up in</span><span>1 week</span></div>
-              <div class="r-row"><span>Embed with</span><span>4–6 people</span></div>
-              <div class="r-row"><span>Build</span><span>2 weeks</span></div>
-              <div class="r-row"><span>Iteration / coach</span><span>3 weeks</span></div>
-              <div class="r-row"><span>Ideas built</span><span>1/pp</span></div>
-              <div class="r-row"><span>Capability</span><span>yours to scale</span></div>
+              <div class="r-row"><span>Instinct</span><span>how to think + work with AI</span></div>
+              <div class="r-row"><span>Curriculum</span><span>your cohort&rsquo;s real problems</span></div>
+              <div class="r-row"><span>Coaching</span><span>through iteration</span></div>
+              <div class="r-row"><span>Prototypes</span><span>one per person</span></div>
+              <div class="r-row"><span>Cohort</span><span>your future advocates</span></div>
 
               <div class="r-total">
                 <span>NET RESULT</span>
-                <span>AI FLUENCY</span>
+                <span>AI FLUENCY &middot; IN WEEKS</span>
               </div>
             </div>
           </div>
@@ -7993,26 +8017,29 @@
         <!-- ──────────────────────────────────────────
          Objection dialogue — the SUIT bark + Counter response
          ────────────────────────────────────────── -->
-        <div class="objection-row reveal" aria-label="Addressing existing AI tools and guidelines">
+        <div class="objection-row reveal-late" aria-label="Addressing existing AI tools and guidelines">
           <div class="objection-bark">
             <div class="objection-suit" aria-hidden="true">
               <svg id="suitAlien" viewBox="0 0 200 200" shape-rendering="crispEdges" role="img"
                 aria-label="SUIT character"></svg>
               <span class="suit-floor" aria-hidden="true"></span>
             </div>
-            <div class="objection-bubble">
-              <span class="objection-bubble-tag">Every exec, every time</span>
-              <p class="objection-bubble-text">&ldquo;Our company already has existing AI tools and guidelines!&rdquo;
-              </p>
-              <svg class="objection-sparks" viewBox="0 0 60 60" aria-hidden="true">
-                <g fill="none" stroke="#9D5A5A" stroke-width="2.4" stroke-linecap="round">
-                  <line x1="10" y1="10" x2="18" y2="18" />
-                  <line x1="50" y1="14" x2="42" y2="22" />
-                  <line x1="6" y1="34" x2="16" y2="34" />
-                  <line x1="54" y1="44" x2="44" y2="42" />
-                  <line x1="30" y1="4" x2="30" y2="14" />
-                </g>
-              </svg>
+            <div class="objection-bubble-wrap">
+              <div class="objection-prebubble" aria-hidden="true">wait.</div>
+              <div class="objection-bubble">
+                <p class="objection-bubble-text">&ldquo;Our company already has existing AI tools and guidelines!&rdquo;
+                </p>
+                <span class="objection-bubble-attr">&mdash; every exec</span>
+                <svg class="objection-sparks" viewBox="0 0 60 60" aria-hidden="true">
+                  <g fill="none" stroke="#9D5A5A" stroke-width="2.4" stroke-linecap="round">
+                    <line x1="10" y1="10" x2="18" y2="18" />
+                    <line x1="50" y1="14" x2="42" y2="22" />
+                    <line x1="6" y1="34" x2="16" y2="34" />
+                    <line x1="54" y1="44" x2="44" y2="42" />
+                    <line x1="30" y1="4" x2="30" y2="14" />
+                  </g>
+                </svg>
+              </div>
             </div>
           </div>
           <div class="objection-response">
@@ -8888,23 +8915,48 @@
           <div class="outcomes-right">
             <div class="outcome-box reveal">
               <span class="outcome-num">01</span>
+              <svg class="outcome-icon" viewBox="0 0 40 40" aria-hidden="true">
+                <!-- Flowing signature — fluency / motion -->
+                <path d="M5 26 Q 12 10 19 22 T 33 16" />
+                <circle cx="33" cy="16" r="0.8" fill="currentColor" stroke="none" />
+              </svg>
               <h3>AI fluent</h3>
               <p>The cohort builds the skills, mindsets, and confidence to think and work with AI more instinctively in
                 their day-to-day work.</p>
             </div>
             <div class="outcome-box reveal">
               <span class="outcome-num">02</span>
+              <svg class="outcome-icon" viewBox="0 0 40 40" aria-hidden="true">
+                <!-- Two offset rectangles — something built, with depth -->
+                <rect x="6" y="14" width="20" height="20" />
+                <rect x="14" y="6" width="20" height="20" />
+              </svg>
               <h3>Real solutions</h3>
               <p>The cohort leaves with prototypes and solutions that solve the problems they were working on.</p>
             </div>
             <div class="outcome-box reveal">
               <span class="outcome-num">03</span>
+              <svg class="outcome-icon" viewBox="0 0 40 40" aria-hidden="true">
+                <!-- Branching paths from one origin — new possibilities -->
+                <path d="M6 32 L 19 20" />
+                <path d="M19 20 L 30 9" />
+                <path d="M19 20 L 34 19" />
+                <path d="M19 20 L 31 30" />
+                <circle cx="19" cy="20" r="1.6" fill="currentColor" stroke="none" />
+              </svg>
               <h3>New possibilities</h3>
               <p>The organization begins to uncover opportunities, solutions, and forms of value they would not have
                 reached through traditional ways of working.</p>
             </div>
             <div class="outcome-box reveal">
               <span class="outcome-num">04</span>
+              <svg class="outcome-icon" viewBox="0 0 40 40" aria-hidden="true">
+                <!-- Dashed stamp frame with checkmark — proof / approved -->
+                <g transform="rotate(-5 20 20)">
+                  <rect x="5" y="10" width="30" height="20" stroke-dasharray="2.2 2.6" />
+                </g>
+                <path d="M12 22 L 18 28 L 29 14" />
+              </svg>
               <h3>Proof to scale</h3>
               <p>You come away with the proof points needed to bring other leaders along and make the case to scale AI
                 fluency more broadly.</p>
@@ -9089,12 +9141,6 @@
                         </div>
 
                       </div>
-                      <div class="carousel-dots" data-case="case3">
-                        <span class="cdot active"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
-                      </div>
                     </div>
                     <div class="laptop-base"></div>
                   </div>
@@ -9242,12 +9288,6 @@
                           </div>
                         </div>
 
-                      </div>
-                      <div class="carousel-dots" data-case="case2">
-                        <span class="cdot active"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
                       </div>
                     </div>
                     <div class="laptop-base"></div>
@@ -9429,12 +9469,6 @@
                         </div>
 
                       </div>
-                      <div class="carousel-dots" data-case="case1">
-                        <span class="cdot active"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
-                        <span class="cdot"></span>
-                      </div>
                     </div>
                     <div class="laptop-base"></div>
                   </div>
@@ -9529,6 +9563,12 @@
       const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); io.unobserve(e.target); } }), { threshold: 0.12 });
       document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
+      // Delayed reveal: fires only once the element has pushed well into
+      // the viewport (negative bottom rootMargin holds it back), so the
+      // objection exchange doesn't "peek" while user is reading the receipt.
+      const ioLate = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('on'); ioLate.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px -25% 0px' });
+      document.querySelectorAll('.reveal-late').forEach(el => ioLate.observe(el));
+
       document.querySelectorAll('.drawer-trigger').forEach(btn => btn.addEventListener('click', () => {
         const d = document.getElementById(btn.dataset.drawer);
         if (!d) return;
@@ -9547,7 +9587,6 @@
         const car = document.querySelector(`.screen-carousel[data-case="${id}"]`);
         if (car) {
           const ss = car.querySelectorAll('.screen'); ss.forEach((s, j) => s.classList.toggle('active', j === 0));
-          document.querySelectorAll(`.carousel-dots[data-case="${id}"] .cdot`).forEach((d, j) => d.classList.toggle('active', j === 0));
         }
       }
       tabs.forEach((t, i) => t.addEventListener('click', () => activate(i)));
@@ -9555,16 +9594,13 @@
       // Carousel autoplay — cycles through each case's screens every 4s.
       // Reads the current active screen each tick, so it survives tab resets in activate().
       document.querySelectorAll('.screen-carousel').forEach(car => {
-        const id = car.dataset.case;
         const ss = car.querySelectorAll('.screen');
         if (ss.length < 2) return;
-        const ds = document.querySelectorAll(`.carousel-dots[data-case="${id}"] .cdot`);
         setInterval(() => {
           let cur = 0;
           ss.forEach((s, j) => { if (s.classList.contains('active')) cur = j; });
           const next = (cur + 1) % ss.length;
           ss.forEach((s, j) => s.classList.toggle('active', j === next));
-          ds.forEach((d, j) => d.classList.toggle('active', j === next));
         }, 4000);
       });
 
