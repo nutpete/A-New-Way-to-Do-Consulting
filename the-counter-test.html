@@ -1930,7 +1930,7 @@
 
     .hm-map {
       position: relative;
-      min-height: 2800px;
+      min-height: 3400px;
       max-width: 1280px;
       margin: 40px auto 0;
       padding: 48px 56px 160px;
@@ -2048,6 +2048,85 @@
       z-index: 2;
     }
 
+    /* Decorative space elements — sit behind the path + pins (z:1) and
+       fill empty space on alternating sides of each waypoint. Each
+       element has its own subtle ambient motion. */
+    .hm-space-field {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .hm-space {
+      position: absolute;
+      image-rendering: pixelated;
+      pointer-events: none;
+    }
+    .hm-space > svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    /* Planet — right of waypoint 01 */
+    .hm-planet {
+      width: 110px;
+      right: 5%;
+      top: 4%;
+      filter: drop-shadow(0 0 14px rgba(227, 164, 164, 0.35));
+      animation: hm-space-float 11s ease-in-out infinite;
+    }
+    /* Supernova — left of waypoint 02 */
+    .hm-supernova {
+      width: 80px;
+      left: 6%;
+      top: 24%;
+      filter: drop-shadow(0 0 18px rgba(255, 224, 102, 0.5));
+      animation: hm-space-pulse 3.8s ease-in-out infinite;
+    }
+    /* Spiral galaxy — right of waypoint 03 */
+    .hm-galaxy {
+      width: 130px;
+      right: 4%;
+      top: 46%;
+      filter: drop-shadow(0 0 16px rgba(169, 141, 206, 0.4));
+      animation: hm-space-drift 14s ease-in-out 1.2s infinite;
+    }
+    /* Black hole — left of waypoint 04 */
+    .hm-blackhole {
+      width: 120px;
+      left: 5%;
+      top: 68%;
+      filter: drop-shadow(0 0 20px rgba(255, 138, 60, 0.45));
+    }
+    /* Spin only the accretion disc + core, so the drop-shadow halo stays
+       steady (cleaner feel than the whole bounding box rotating). */
+    .hm-blackhole > svg {
+      animation: hm-space-spin 28s linear infinite;
+    }
+
+    @keyframes hm-space-float {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-10px); }
+    }
+    @keyframes hm-space-drift {
+      0%, 100% { transform: translate(0, 0); }
+      50%      { transform: translate(-6px, -8px); }
+    }
+    @keyframes hm-space-pulse {
+      0%, 100% { transform: scale(1);    opacity: 0.85; }
+      50%      { transform: scale(1.12); opacity: 1;    }
+    }
+    @keyframes hm-space-spin {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* Hide on narrow viewports where the map collapses into a single
+       column — decorative space would crowd the waypoint cards. */
+    @media (max-width: 900px) {
+      .hm-space-field { display: none; }
+    }
+
     .hm-trail-ghost {
       fill: none;
       stroke: rgba(93, 72, 48, 0.38);
@@ -2103,18 +2182,18 @@
     }
 
     .wp-3 {
-      top: 1080px;
+      top: 1380px;
       left: 60px;
     }
 
     .wp-4 {
-      top: 1520px;
+      top: 2120px;
       right: 60px;
       text-align: right;
     }
 
     .wp-5 {
-      top: 2320px;
+      top: 2920px;
       left: 50%;
       transform: translate(-50%, 18px);
       width: 760px;
@@ -2173,17 +2252,8 @@
       display: none;
     }
 
-    /* Sorting Hat pixel SVG sits inside the wp-2 polaroid frame. */
     .wp-2 .wp-art {
       position: relative;
-    }
-
-    .wp-hat-svg {
-      width: 320px;
-      max-width: 100%;
-      aspect-ratio: 4/3;
-      display: block;
-      background: #F3ECD6;
     }
 
     .hm-pins {
@@ -3161,14 +3231,22 @@
       display: none;
     }
 
+    /* Character-description captions (the Sorting Hat note, the Counter
+       caption, etc.) share the HUD-label typography of .wp-label so the
+       characters feel labeled by the same system that titles the cards. */
     .how .wp-1 .wp-art-cap,
     .how .wp-2 .wp-art-cap,
     .how .wp-3 .wp-art-cap,
     .how .wp-4 .wp-art-cap {
-      color: #E8FBEF;
-      font-size: 22px;
-      line-height: 1.2;
-      text-shadow: 0 0 2px rgba(166, 240, 200, 0.35);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 400;
+      font-size: 12px;
+      line-height: 1.65;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #A6F0C8;
+      text-align: center;
+      text-shadow: 0 0 6px rgba(166, 240, 200, 0.35);
     }
 
     /* Standalone aliens (wp-1) — no terminal, no HUD frame, just a row
@@ -3207,9 +3285,10 @@
       white-space: nowrap;
     }
 
-    /* Sorting Hat — playful pixel character floats on the starfield,
-       with a speech-bubble callout below. The boxed polaroid/HUD
-       frame is dropped. */
+    /* Sorting Hat — rendered in the same pixel-art language as the
+       cohort aliens (chunky 8px cells). Caption sits beneath the
+       character as a lightweight handwritten note, matching the
+       wp-3 wp-art-cap treatment rather than a speech bubble. */
     .how .wp-2 .wp-art.wp-art-bare {
       background: transparent;
       border: none;
@@ -3217,70 +3296,159 @@
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
       padding: 0;
-      margin-top: 14px;
-      margin-left: auto;
-      max-width: 340px;
+      margin: 14px auto 0;
+      max-width: 320px;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
-      gap: 14px;
+      align-items: center;
+      gap: 10px;
+    }
+    /* Center-align every waypoint card's text (label + head) regardless
+       of whether the container sits left or right on the path — the
+       "How" section now reads symmetrically. */
+    .how .wp-1 .wp-card,
+    .how .wp-2 .wp-card,
+    .how .wp-3 .wp-card,
+    .how .wp-4 .wp-card,
+    .how .wp-1 .wp-card .wp-label,
+    .how .wp-2 .wp-card .wp-label,
+    .how .wp-3 .wp-card .wp-label,
+    .how .wp-4 .wp-card .wp-label,
+    .how .wp-1 .wp-card .wp-head,
+    .how .wp-2 .wp-card .wp-head,
+    .how .wp-3 .wp-card .wp-head,
+    .how .wp-4 .wp-card .wp-head {
+      text-align: center;
     }
     .how .wp-2 .wp-art.wp-art-bare::before,
     .how .wp-2 .wp-art.wp-art-bare::after {
       display: none;
     }
-    .how .wp-2 .wp-hat-svg {
-      background: transparent;
-      width: 220px;
-      height: 220px;
-      aspect-ratio: 1 / 1;
+    .how .wp-2 svg.wp-hat-pixel {
+      width: 200px;
+      height: 200px;
       display: block;
-      margin-right: 10px;
+      overflow: visible;  /* let sparkles render outside the viewBox */
       image-rendering: pixelated;
-      filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.35))
-              drop-shadow(0 0 8px rgba(124, 103, 200, 0.4));
+      shape-rendering: crispEdges;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5))
+              drop-shadow(0 0 22px rgba(155, 126, 209, 0.55));
     }
-    .wp-hat-speech {
+    /* Gentle bob — the hat drifts in the nebula rather than sitting
+       dead still. Only kicks in after the waypoint scrolls into view. */
+    @keyframes wp-hat-bob {
+      0%, 100% { transform: translateY(-3px); }
+      50%      { transform: translateY(4px); }
+    }
+    .how .wp-2.drawn svg.wp-hat-pixel {
+      animation: wp-hat-bob 4s ease-in-out infinite;
+    }
+    /* Sparkle twinkle — staggered phases so the three groups pulse
+       out of sync, giving the "magic" read without feeling busy. */
+    @keyframes wp-hat-sparkle {
+      0%, 100% { opacity: 1; }
+      45%, 55% { opacity: 0.2; }
+    }
+    .how .wp-2.drawn svg.wp-hat-pixel .spark-a {
+      animation: wp-hat-sparkle 2.6s ease-in-out infinite;
+    }
+    .how .wp-2.drawn svg.wp-hat-pixel .spark-b {
+      animation: wp-hat-sparkle 2.6s ease-in-out 0.9s infinite;
+    }
+    .how .wp-2.drawn svg.wp-hat-pixel .spark-c {
+      animation: wp-hat-sparkle 2.6s ease-in-out 1.7s infinite;
+    }
+    /* Hat caption rides on a soft nebula haze so it reads as part of
+       the scene rather than floating on the starfield. The haze is a
+       blurred radial gradient pseudo-element behind the text — purple
+       core (echoing the hat's glow) fading through mint to transparent,
+       with no hard edge. Sized wider and taller than the text so it
+       feels like dust the text is drifting through. */
+    /* The haze spans the full hat stage so the hat appears to sit *in*
+       the nebula rather than the text floating below it. Large negative
+       inset on the caption pushes the radial glow up and out past the
+       text, generous horizontal spread, with the purple core shifted
+       upward so density peaks near the base of the hat. */
+    /* Sorting Hat is a character who *speaks* — displayed as a classic
+       JRPG/Pokemon-style dialogue panel: dark bordered box, floating
+       name plate tag at the top-left overlapping the border, blinking
+       "continue" arrow at the bottom-right. Wrapper .wp-hat-cap just
+       centers the dialog and kills inherited .wp-art-cap styling. */
+    .how .wp-2 .wp-hat-cap,
+    .how .wp-3 .wp-slot-cap {
       position: relative;
-      width: 100%;
-      max-width: 320px;
-      padding: 14px 18px 15px;
-      background: rgba(10, 16, 28, 0.82);
-      border: 1px solid rgba(166, 240, 200, 0.5);
-      border-radius: 12px;
-      font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
-      font-weight: 400;
-      font-size: 14.5px;
-      line-height: 1.5;
-      letter-spacing: 0.01em;
-      color: #E8EEF5;
+      max-width: 340px;
+      padding: 0;
+      text-transform: none;
+      letter-spacing: 0;
+      text-shadow: none;
+      font-family: inherit;
+      color: inherit;
       text-align: left;
+    }
+    .how .wp-2 .wp-hat-dialog,
+    .how .wp-3 .wp-hat-dialog {
+      position: relative;
+      padding: 20px 22px 26px;
+      background: rgba(10, 16, 28, 0.92);
+      border: 2px solid #A6F0C8;
+      border-radius: 4px;
       box-shadow:
-        0 0 0 1px rgba(166, 240, 200, 0.08),
-        0 10px 22px -10px rgba(0, 0, 0, 0.6),
-        0 0 22px -10px rgba(110, 231, 183, 0.35);
+        inset 0 0 0 2px rgba(10, 16, 28, 0.95),
+        inset 0 0 0 3px rgba(166, 240, 200, 0.55),
+        0 0 22px rgba(166, 240, 200, 0.22),
+        0 10px 28px -12px rgba(0, 0, 0, 0.7);
+      shape-rendering: crispEdges;
     }
-    /* Tail points up from the bubble toward the hat's face */
-    .wp-hat-speech::before,
-    .wp-hat-speech::after {
-      content: '';
+    .how .wp-2 .wp-hat-nameplate,
+    .how .wp-3 .wp-hat-nameplate {
       position: absolute;
-      right: 44px;
-      width: 0;
-      height: 0;
-    }
-    .wp-hat-speech::before {
       top: -11px;
-      border-left: 11px solid transparent;
-      border-right: 11px solid transparent;
-      border-bottom: 11px solid rgba(166, 240, 200, 0.5);
+      left: 14px;
+      padding: 4px 10px 3px;
+      background: rgba(10, 16, 28, 0.98);
+      border: 2px solid #A6F0C8;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #A6F0C8;
+      text-shadow: 0 0 6px rgba(166, 240, 200, 0.5);
+      box-shadow: 0 0 12px rgba(166, 240, 200, 0.25);
+      white-space: nowrap;
     }
-    .wp-hat-speech::after {
-      top: -9px;
-      right: 46px;
-      border-left: 9px solid transparent;
-      border-right: 9px solid transparent;
-      border-bottom: 9px solid rgba(10, 16, 28, 0.82);
+    .how .wp-2 .wp-hat-quote,
+    .how .wp-3 .wp-hat-quote {
+      margin: 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-style: normal;
+      font-size: 12.5px;
+      line-height: 1.65;
+      letter-spacing: 0.01em;
+      color: #F2F6FB;
+      text-align: left;
+      text-transform: none;
+      text-shadow: none;
+    }
+    .how .wp-2 .wp-hat-continue,
+    .how .wp-3 .wp-hat-continue {
+      position: absolute;
+      right: 10px;
+      bottom: 6px;
+      color: #A6F0C8;
+      font-size: 11px;
+      line-height: 1;
+      text-shadow: 0 0 6px rgba(166, 240, 200, 0.6);
+    }
+    @keyframes wp-hat-blink {
+      0%, 50%   { opacity: 1; transform: translateY(0); }
+      51%, 100% { opacity: 0; transform: translateY(2px); }
+    }
+    .how .wp-2.drawn .wp-hat-continue,
+    .how .wp-3.drawn .wp-hat-continue {
+      animation: wp-hat-blink 1s steps(1, end) infinite;
     }
 
     /* wp-4 art — strip the HUD panel frame and masking tape; the pixel
@@ -3334,6 +3502,162 @@
       transform-box: fill-box;
       animation: wp4-bubble-rise 3.2s ease-in-out infinite;
     }
+
+    /* wp-3 art — strip the HUD frame so the Concept Generator slot
+       machine floats in space as a character, matching the bare
+       treatment used by the Sorting Hat (wp-2) and the beaker (wp-4). */
+    .how .wp-3 .wp-art.wp-art-bare {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      padding: 0;
+      margin: 14px auto 0;
+      max-width: 340px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transform: none;
+    }
+    .how .wp-3 .wp-art.wp-art-bare::before,
+    .how .wp-3 .wp-art.wp-art-bare::after {
+      display: none;
+    }
+
+    /* Pixel-art slot machine — rect-only rendering in the same chunky
+       language as the Sorting Hat and cohort aliens. Mint cabinet,
+       purple jackpot banner, coin-gold spills, sized to sit beside
+       the dialog the same way the hat does. */
+    .how .wp-3 svg.wp-slot-pixel {
+      width: 200px;
+      height: 200px;
+      display: block;
+      overflow: visible;
+      image-rendering: pixelated;
+      shape-rendering: crispEdges;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.5))
+              drop-shadow(0 0 22px rgba(166, 240, 200, 0.45));
+    }
+    /* Cabinet shell — mint outline, dark interior (same palette as
+       the arcade HUD). */
+    .how .wp-3 svg.wp-slot-pixel .slot-body        { fill: #A6F0C8; }
+    .how .wp-3 svg.wp-slot-pixel .slot-inner       { fill: #0B1019; }
+    .how .wp-3 svg.wp-slot-pixel .slot-frame       { fill: #A6F0C8; }
+    .how .wp-3 svg.wp-slot-pixel .reel-bg          { fill: #141822; }
+    /* Jackpot banner — purple echoes the Sorting Hat's glow. */
+    .how .wp-3 svg.wp-slot-pixel .slot-banner       { fill: #9B7ED1; }
+    .how .wp-3 svg.wp-slot-pixel .slot-banner-shadow{ fill: #6B4FA1; }
+    .how .wp-3 svg.wp-slot-pixel .slot-banner-edge  { fill: #6B4FA1; }
+    .how .wp-3 svg.wp-slot-pixel .slot-banner-star  { fill: #FDE68A; }
+    /* Reel symbols — warm gold for the win read. */
+    .how .wp-3 svg.wp-slot-pixel .slot-reel-1 rect  { fill: #FDE68A; }
+    .how .wp-3 svg.wp-slot-pixel .slot-reel-2 rect  { fill: #FDE68A; }
+    .how .wp-3 svg.wp-slot-pixel .slot-reel-3 rect  { fill: #F4B942; }
+    .how .wp-3 svg.wp-slot-pixel .slot-coin-face    { fill: #8B5A10; }
+    /* Lever — red knob sits proud of the mint arm. */
+    .how .wp-3 svg.wp-slot-pixel .slot-lever-arm   { fill: #A6F0C8; }
+    .how .wp-3 svg.wp-slot-pixel .slot-lever-knob  { fill: #E26A6A; }
+    .how .wp-3 svg.wp-slot-pixel .slot-lever-shine { fill: #FCC4C4; }
+    /* Pinlights along the reel base + payout tray. */
+    .how .wp-3 svg.wp-slot-pixel .slot-pinlight    { fill: #A6F0C8; }
+    .how .wp-3 svg.wp-slot-pixel .slot-tray        { fill: #A6F0C8; }
+    .how .wp-3 svg.wp-slot-pixel .slot-tray-slit   { fill: #0B1019; }
+    .how .wp-3 svg.wp-slot-pixel .slot-coin        { fill: #FDE68A; }
+
+    /* Reels spin — each reel has its own cadence so the machine
+       feels alive rather than mechanically synced. Transform-origin
+       is set via transform-box so the y-shift is measured in the
+       reel's own bbox, keeping the symbols inside the reel window. */
+    @keyframes wp3-reel-spin-1 {
+      0%, 70%, 100% { transform: translateY(0); }
+      75%, 80%      { transform: translateY(-1.5px); }
+      85%           { transform: translateY(0.8px); }
+    }
+    @keyframes wp3-reel-spin-2 {
+      0%, 60%, 100% { transform: translateY(0); }
+      65%, 72%      { transform: translateY(1.5px); }
+      78%           { transform: translateY(-0.6px); }
+    }
+    @keyframes wp3-reel-spin-3 {
+      0%, 80%, 100% { transform: translateY(0); }
+      85%, 90%      { transform: translateY(-1.2px); }
+      94%           { transform: translateY(0.5px); }
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-1 {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-reel-spin-1 3.4s steps(6, end) infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-2 {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-reel-spin-2 3.8s steps(6, end) 0.4s infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-3 {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-reel-spin-3 3.2s steps(6, end) 0.8s infinite;
+    }
+
+    /* Banner stars twinkle — staggered like the Sorting Hat sparkles. */
+    @keyframes wp3-banner-twinkle {
+      0%, 100% { opacity: 1; }
+      45%, 55% { opacity: 0.25; }
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-banner-star:nth-of-type(1) {
+      animation: wp3-banner-twinkle 2.4s ease-in-out infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-banner-star:nth-of-type(2) {
+      animation: wp3-banner-twinkle 2.4s ease-in-out 0.8s infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-banner-star:nth-of-type(3) {
+      animation: wp3-banner-twinkle 2.4s ease-in-out 1.6s infinite;
+    }
+
+    /* Coins spilling — bob with staggered phases so the payout feels
+       like an ongoing jackpot rather than a frozen illustration. */
+    @keyframes wp3-coin-bob {
+      0%, 100% { transform: translateY(0); opacity: 1; }
+      50%      { transform: translateY(2px); opacity: 0.7; }
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-coin-a {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-coin-bob 1.8s ease-in-out infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-coin-b {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-coin-bob 1.8s ease-in-out 0.5s infinite;
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-coin-c {
+      transform-origin: center; transform-box: fill-box;
+      animation: wp3-coin-bob 1.8s ease-in-out 1.0s infinite;
+    }
+
+    /* Lever pull — tips down every few seconds to mime a spin start. */
+    @keyframes wp3-lever-pull {
+      0%, 60%, 100% { transform: translateY(0) rotate(0deg); }
+      65%           { transform: translateY(3px) rotate(-4deg); }
+      72%           { transform: translateY(3px) rotate(-6deg); }
+      82%           { transform: translateY(0) rotate(0deg); }
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-lever-knob,
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-lever-shine {
+      transform-origin: center bottom; transform-box: fill-box;
+      animation: wp3-lever-pull 3.2s ease-in-out infinite;
+    }
+
+    /* Cabinet bob — mirrors the Sorting Hat's gentle drift so the two
+       characters feel like they share the same nebula. */
+    @keyframes wp3-slot-bob {
+      0%, 100% { transform: translateY(-2px); }
+      50%      { transform: translateY(3px); }
+    }
+    .how .wp-3.drawn svg.wp-slot-pixel {
+      animation: wp3-slot-bob 4.4s ease-in-out infinite;
+    }
+
+    /* Slot-machine caption panel reuses the Sorting Hat's dialogue
+       chrome (rules extended above) so both characters speak in the
+       same visual grammar. */
 
     /* ------------------------------------------------------------
        wp-5 — celebratory "destination reached" moment
@@ -3548,6 +3872,106 @@
     @keyframes wp5-text-in {
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Five cohort aliens piloting tiny UFOs around the destination text.
+       Each cockpit = alien sandwiched between a glass dome (in front of
+       head/shoulders) and the saucer body (in front of legs/feet), so
+       the alien reads as "inside" the craft, not standing on it.
+       The squadron streaks in from high above as soon as wp-5 is close
+       to entering the viewport, settles into position, then gently bobs. */
+    .how .wp-5 .wp5-ufos {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+    .how .wp-5 .ufo-flyer {
+      position: absolute;
+      width: 96px;
+      opacity: 0;
+      /* Transform is driven by JS scroll progress so the descent stays
+         locked to the user's scroll speed — no "they arrived before I
+         saw them" problem. */
+      will-change: transform, opacity;
+    }
+
+    /* Cockpit composite — alien sandwiched by full space helmet + saucer. */
+    .how .wp-5 .ufo-craft {
+      position: relative;
+      width: 96px;
+      height: 78px;
+      filter: drop-shadow(0 0 10px rgba(166, 240, 200, 0.45));
+    }
+    .how .wp-5 .ufo-alien {
+      position: absolute;
+      left: 50%;
+      top: 4px;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 56px;
+      image-rendering: pixelated;
+      z-index: 1;
+    }
+    /* Full space helmet — a round glass bubble that encloses the head
+       (not a half-dome sitting on top). Populated by JS. */
+    .how .wp-5 .ufo-dome {
+      position: absolute;
+      left: 50%;
+      top: -6px;
+      transform: translateX(-50%);
+      width: 52px;
+      height: auto;
+      image-rendering: pixelated;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .how .wp-5 .ufo-saucer {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 88px;
+      height: auto;
+      display: block;
+      image-rendering: pixelated;
+      z-index: 3;
+    }
+
+    /* All flyer positions (formation along the path + final rest spots
+       around the destination card) are computed by JS and applied via
+       transform, so no per-flyer CSS positioning here. The flyers live
+       at the top-left of .wp-card-final and JS translates them from
+       there. */
+    .how .wp-5 .ufo-flyer { left: 0; top: 0; }
+
+    /* Idle bob — runs only after the flyer has landed, so it doesn't
+       fight the scroll-driven descent transform on the outer element. */
+    .how .wp-5 .ufo-bob { display: block; }
+    @keyframes wp5-ufo-bob-a {
+      0%, 100% { transform: translate(0, 0) rotate(-3deg); }
+      50%      { transform: translate(-6px, -12px) rotate(3deg); }
+    }
+    @keyframes wp5-ufo-bob-b {
+      0%, 100% { transform: translate(0, 0) rotate(2deg); }
+      50%      { transform: translate(5px, -14px) rotate(-3deg); }
+    }
+    @keyframes wp5-ufo-bob-c {
+      0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+      50%      { transform: translate(-8px, -8px) rotate(4deg); }
+    }
+    @keyframes wp5-ufo-bob-d {
+      0%, 100% { transform: translate(0, 0) rotate(3deg); }
+      50%      { transform: translate(7px, -10px) rotate(-2deg); }
+    }
+    @keyframes wp5-ufo-bob-e {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      50%      { transform: translate(0, -12px) rotate(4deg); }
+    }
+    .how .wp-5 .ufo-flyer.f1.landed .ufo-bob { animation: wp5-ufo-bob-a 3.4s ease-in-out 0.15s infinite; }
+    .how .wp-5 .ufo-flyer.f2.landed .ufo-bob { animation: wp5-ufo-bob-b 3.8s ease-in-out 0.35s infinite; }
+    .how .wp-5 .ufo-flyer.f3.landed .ufo-bob { animation: wp5-ufo-bob-c 3.2s ease-in-out 0.25s infinite; }
+    .how .wp-5 .ufo-flyer.f4.landed .ufo-bob { animation: wp5-ufo-bob-d 3.6s ease-in-out 0.45s infinite; }
+    .how .wp-5 .ufo-flyer.f5.landed .ufo-bob { animation: wp5-ufo-bob-e 2.9s ease-in-out 0.55s infinite; }
 
     /* Bright "end cap" dot on the trail itself — sits at the path's
        final point and pulses when the destination is reached, so the
@@ -6894,7 +7318,7 @@
           <div class="hm-legend" aria-hidden="true">scroll to see &darr;</div>
 
           <!-- Winding trail SVG. Flowing S-curve path (5 anchors); feTurbulence filter adds hand-drawn wobble. preserveAspectRatio="none" stretches the 800×2700 viewBox to fill the container. -->
-          <svg class="hm-path-svg" viewBox="0 0 800 2700" preserveAspectRatio="none" aria-hidden="true">
+          <svg class="hm-path-svg" viewBox="0 0 800 3300" preserveAspectRatio="none" aria-hidden="true">
             <defs>
               <!-- Hand-drawn wobble filter — displaces path pixels by fractal noise to break up machine-perfect curves -->
               <filter id="sketchWobble" x="-5%" y="-5%" width="110%" height="110%">
@@ -6905,18 +7329,142 @@
             <!-- Ghost path — the faint planned route visible from the start.
              Final curve now hooks further left to resolve near the left-aligned X. -->
             <path class="hm-trail-ghost" id="hmGhost"
-              d="M 400 90 C 720 260 80 460 440 740 C 780 980 60 1100 360 1420 C 640 1700 100 1760 580 2020 C 700 2140 520 2240 400 2280" />
+              d="M 400 90 C 720 260 80 460 440 740 C 780 1080 60 1520 360 1880 C 640 2240 100 2420 580 2640 C 740 2720 520 2860 400 2900" />
             <!-- Drawn path — ink that fills in as the visitor scrolls -->
             <path class="hm-trail-drawn" id="hmTrail"
-              d="M 400 90 C 720 260 80 460 440 740 C 780 980 60 1100 360 1420 C 640 1700 100 1760 580 2020 C 700 2140 520 2240 400 2280" />
+              d="M 400 90 C 720 260 80 460 440 740 C 780 1080 60 1520 360 1880 C 640 2240 100 2420 580 2640 C 740 2720 520 2860 400 2900" />
           </svg>
+
+          <!-- Decorative space elements — pixel-art planets, supernova,
+               galaxy, and a black hole filling the negative space on
+               alternating sides of each waypoint. Purely decorative;
+               sit behind the pins/path (z-index 1) and have their own
+               slow ambient animations. -->
+          <div class="hm-space-field" aria-hidden="true">
+            <!-- Ringed planet — right of WAYPOINT 01 -->
+            <div class="hm-space hm-planet">
+              <svg viewBox="0 0 40 28" shape-rendering="crispEdges">
+                <!-- rings (back half) -->
+                <rect x="2"  y="13" width="6"  height="1" fill="#A98DCE" opacity="0.85"/>
+                <rect x="32" y="13" width="6"  height="1" fill="#A98DCE" opacity="0.85"/>
+                <rect x="4"  y="14" width="8"  height="1" fill="#8E78B5" opacity="0.8"/>
+                <rect x="28" y="14" width="8"  height="1" fill="#8E78B5" opacity="0.8"/>
+                <!-- planet body -->
+                <rect x="14" y="8"  width="12" height="1" fill="#E3A4A4"/>
+                <rect x="12" y="9"  width="16" height="2" fill="#E3A4A4"/>
+                <rect x="11" y="11" width="18" height="2" fill="#D88D8D"/>
+                <rect x="10" y="13" width="20" height="3" fill="#C47373"/>
+                <rect x="11" y="16" width="18" height="2" fill="#A55B5B"/>
+                <rect x="12" y="18" width="16" height="1" fill="#8E4A4A"/>
+                <rect x="14" y="19" width="12" height="1" fill="#703838"/>
+                <!-- band shading -->
+                <rect x="12" y="13" width="16" height="1" fill="#D88D8D" opacity="0.9"/>
+                <!-- highlight -->
+                <rect x="14" y="9"  width="4"  height="1" fill="#FFD4D4"/>
+                <rect x="13" y="10" width="3"  height="1" fill="#FFD4D4"/>
+                <rect x="12" y="11" width="2"  height="1" fill="#FFD4D4" opacity="0.7"/>
+                <!-- rings (front half, over planet) -->
+                <rect x="8"  y="14" width="24" height="1" fill="#C4A9E3" opacity="0.95"/>
+                <rect x="6"  y="15" width="28" height="1" fill="#A98DCE" opacity="0.9"/>
+              </svg>
+            </div>
+
+            <!-- Supernova / pulsing star — left of WAYPOINT 02 -->
+            <div class="hm-space hm-supernova">
+              <svg viewBox="0 0 30 30" shape-rendering="crispEdges">
+                <!-- outer rays (cardinal) -->
+                <rect x="14" y="3"  width="2"  height="4" fill="#A6F0C8" opacity="0.85"/>
+                <rect x="14" y="23" width="2"  height="4" fill="#A6F0C8" opacity="0.85"/>
+                <rect x="3"  y="14" width="4"  height="2" fill="#A6F0C8" opacity="0.85"/>
+                <rect x="23" y="14" width="4"  height="2" fill="#A6F0C8" opacity="0.85"/>
+                <!-- diagonal rays -->
+                <rect x="7"  y="7"  width="2"  height="2" fill="#A6F0C8" opacity="0.7"/>
+                <rect x="21" y="7"  width="2"  height="2" fill="#A6F0C8" opacity="0.7"/>
+                <rect x="7"  y="21" width="2"  height="2" fill="#A6F0C8" opacity="0.7"/>
+                <rect x="21" y="21" width="2"  height="2" fill="#A6F0C8" opacity="0.7"/>
+                <!-- inner burst -->
+                <rect x="14" y="8"  width="2"  height="3" fill="#FFAFD4"/>
+                <rect x="14" y="19" width="2"  height="3" fill="#FFAFD4"/>
+                <rect x="8"  y="14" width="3"  height="2" fill="#FFAFD4"/>
+                <rect x="19" y="14" width="3"  height="2" fill="#FFAFD4"/>
+                <rect x="10" y="10" width="2"  height="2" fill="#FFAFD4" opacity="0.9"/>
+                <rect x="18" y="10" width="2"  height="2" fill="#FFAFD4" opacity="0.9"/>
+                <rect x="10" y="18" width="2"  height="2" fill="#FFAFD4" opacity="0.9"/>
+                <rect x="18" y="18" width="2"  height="2" fill="#FFAFD4" opacity="0.9"/>
+                <!-- core -->
+                <rect x="12" y="12" width="6"  height="6" fill="#FFE066"/>
+                <rect x="13" y="11" width="4"  height="1" fill="#FFE066"/>
+                <rect x="13" y="18" width="4"  height="1" fill="#FFE066"/>
+                <rect x="11" y="13" width="1"  height="4" fill="#FFE066"/>
+                <rect x="18" y="13" width="1"  height="4" fill="#FFE066"/>
+                <!-- core highlight -->
+                <rect x="13" y="13" width="3"  height="3" fill="#FFF3A3"/>
+              </svg>
+            </div>
+
+            <!-- Spiral galaxy — right of WAYPOINT 03 -->
+            <div class="hm-space hm-galaxy">
+              <svg viewBox="0 0 44 28" shape-rendering="crispEdges">
+                <!-- outer arm (upper-left trailing) -->
+                <rect x="2"  y="13" width="3"  height="1" fill="#8E78B5" opacity="0.5"/>
+                <rect x="5"  y="12" width="4"  height="1" fill="#8E78B5" opacity="0.65"/>
+                <rect x="9"  y="11" width="5"  height="1" fill="#A98DCE" opacity="0.75"/>
+                <rect x="14" y="10" width="6"  height="1" fill="#C4A9E3" opacity="0.85"/>
+                <!-- outer arm (lower-right trailing) -->
+                <rect x="39" y="15" width="3"  height="1" fill="#8E78B5" opacity="0.5"/>
+                <rect x="35" y="16" width="4"  height="1" fill="#8E78B5" opacity="0.65"/>
+                <rect x="30" y="17" width="5"  height="1" fill="#A98DCE" opacity="0.75"/>
+                <rect x="24" y="18" width="6"  height="1" fill="#C4A9E3" opacity="0.85"/>
+                <!-- disc body -->
+                <rect x="8"  y="13" width="28" height="2" fill="#C4A9E3" opacity="0.9"/>
+                <rect x="6"  y="14" width="32" height="1" fill="#A98DCE" opacity="0.85"/>
+                <rect x="10" y="12" width="24" height="1" fill="#A98DCE" opacity="0.75"/>
+                <rect x="10" y="15" width="24" height="1" fill="#A98DCE" opacity="0.75"/>
+                <!-- bright core -->
+                <rect x="18" y="11" width="8"  height="6" fill="#FFE066"/>
+                <rect x="19" y="10" width="6"  height="1" fill="#FFE066"/>
+                <rect x="19" y="17" width="6"  height="1" fill="#FFE066"/>
+                <rect x="17" y="12" width="1"  height="4" fill="#FFE066"/>
+                <rect x="26" y="12" width="1"  height="4" fill="#FFE066"/>
+                <!-- core highlight -->
+                <rect x="20" y="12" width="4"  height="4" fill="#FFF3A3"/>
+                <rect x="21" y="13" width="2"  height="2" fill="#FFFDE7"/>
+              </svg>
+            </div>
+
+            <!-- Black hole with accretion disc — left of WAYPOINT 04 -->
+            <div class="hm-space hm-blackhole">
+              <svg viewBox="0 0 36 22" shape-rendering="crispEdges">
+                <!-- accretion disc (back half, behind the hole) -->
+                <rect x="2"  y="10" width="32" height="1" fill="#FF8A3C" opacity="0.55"/>
+                <rect x="4"  y="9"  width="28" height="1" fill="#FFAFD4" opacity="0.5"/>
+                <rect x="6"  y="8"  width="24" height="1" fill="#E3A4A4" opacity="0.45"/>
+                <!-- hot inner ring -->
+                <rect x="6"  y="10" width="24" height="2" fill="#FFE066" opacity="0.9"/>
+                <rect x="4"  y="11" width="28" height="1" fill="#FF8A3C" opacity="0.95"/>
+                <!-- accretion disc (front half, over the hole edges) -->
+                <rect x="2"  y="12" width="32" height="1" fill="#FF8A3C" opacity="0.7"/>
+                <rect x="4"  y="13" width="28" height="1" fill="#FFAFD4" opacity="0.6"/>
+                <rect x="6"  y="14" width="24" height="1" fill="#E3A4A4" opacity="0.5"/>
+                <!-- event horizon (pure void) -->
+                <rect x="13" y="7"  width="10" height="8" fill="#050810"/>
+                <rect x="14" y="6"  width="8"  height="1" fill="#050810"/>
+                <rect x="14" y="15" width="8"  height="1" fill="#050810"/>
+                <rect x="12" y="8"  width="1"  height="6" fill="#050810"/>
+                <rect x="23" y="8"  width="1"  height="6" fill="#050810"/>
+                <!-- rim glow -->
+                <rect x="11" y="10" width="1"  height="2" fill="#FFE066" opacity="0.5"/>
+                <rect x="24" y="10" width="1"  height="2" fill="#FFE066" opacity="0.5"/>
+              </svg>
+            </div>
+          </div>
 
           <!-- Path-mounted pins (desktop). JS snaps these to percents along the path. -->
           <div class="hm-pins" aria-hidden="true">
             <span class="hm-pin" data-pin="1" data-percent="0.03">01</span>
-            <span class="hm-pin" data-pin="2" data-percent="0.26" data-reveal="0.21">02</span>
-            <span class="hm-pin" data-pin="3" data-percent="0.43">03</span>
-            <span class="hm-pin" data-pin="4" data-percent="0.62">04</span>
+            <span class="hm-pin" data-pin="2" data-percent="0.17" data-reveal="0.13">02</span>
+            <span class="hm-pin" data-pin="3" data-percent="0.42">03</span>
+            <span class="hm-pin" data-pin="4" data-percent="0.60">04</span>
           </div>
 
           <!-- Tether overlay — invisible <path> elements provide the
@@ -6968,15 +7516,23 @@
             <span class="wp-pin wp-pin-inline">02</span>
             <div class="wp-card">
               <span class="wp-label">In-person cohort workshop</span>
-              <h3 class="wp-head">Then, we work with each person to choose and clarify a problem they&rsquo;re already
-                working on as the <em>focus</em> for their experience.</h3>
+              <h3 class="wp-head">Then, each person learns how to <em>define and frame a real problem or
+                project from their own day to day work</em> clearly enough to begin working on it with AI
+                through the experience.</h3>
             </div>
             <div class="wp-art wp-art-bare wp-hat-stage">
-              <div class="wp-hat-speech">The Sorting Hat teaches people how to refine their problem so that it&rsquo;s
-                the right size for this experience &mdash; and won&rsquo;t set off red flags for enterprise Technology,
-                Regulatory, etc.
+              <svg class="wp-hat-pixel" id="wp-hat-pixel" viewBox="0 0 200 200"
+                   shape-rendering="crispEdges" aria-hidden="true"></svg>
+              <div class="wp-art-cap wp-hat-cap">
+                <div class="wp-hat-dialog">
+                  <span class="wp-hat-nameplate">The Sorting Hat</span>
+                  <p class="wp-hat-quote">Tell me what you&rsquo;re wrestling with. I&rsquo;ll teach you
+                    how to right-size it for this experience so that it&rsquo;s focused enough to get
+                    started on, meaningful enough to learn from, and avoids any issues with your Tech,
+                    Legal, and Compliance team.</p>
+                  <span class="wp-hat-continue" aria-hidden="true">&#9660;</span>
+                </div>
               </div>
-              <svg id="wp-sorting-hat" class="wp-hat-svg" viewBox="0 0 200 200" aria-label="The Sorting Hat"></svg>
             </div>
           </div>
 
@@ -6989,10 +7545,100 @@
                 problem into a working prototype in hours.
               </h3>
             </div>
-            <div class="wp-art">
-              <img src="Jackpot.png" alt="The Concept Generator Jackpot">
-              <div class="wp-art-cap">The Counter helps people get beyond the obvious, explore stronger ideas to
-                prototype, and build the mindset of thinking more expansively when needed.</div>
+            <div class="wp-art wp-art-bare wp-slot-stage">
+              <svg class="wp-slot-pixel" viewBox="0 0 80 76" shape-rendering="crispEdges" aria-hidden="true">
+                <!-- Top "JACKPOT" banner -->
+                <rect class="slot-banner-shadow" x="18" y="4" width="44" height="2"/>
+                <rect class="slot-banner"        x="16" y="6" width="48" height="8"/>
+                <rect class="slot-banner-edge"   x="14" y="8" width="2"  height="4"/>
+                <rect class="slot-banner-edge"   x="64" y="8" width="2"  height="4"/>
+                <rect class="slot-banner-star"   x="20" y="8" width="2"  height="2"/>
+                <rect class="slot-banner-star"   x="39" y="8" width="2"  height="2"/>
+                <rect class="slot-banner-star"   x="58" y="8" width="2"  height="2"/>
+
+                <!-- Cabinet shell -->
+                <rect class="slot-body"  x="10" y="14" width="60" height="48"/>
+                <rect class="slot-inner" x="14" y="18" width="52" height="40"/>
+
+                <!-- Reel frames (top + bottom rails) -->
+                <rect class="slot-frame" x="16" y="24" width="48" height="2"/>
+                <rect class="slot-frame" x="16" y="44" width="48" height="2"/>
+                <rect class="slot-frame" x="30" y="26" width="2"  height="18"/>
+                <rect class="slot-frame" x="48" y="26" width="2"  height="18"/>
+
+                <!-- Reel windows -->
+                <rect class="reel-bg" x="16" y="26" width="14" height="18"/>
+                <rect class="reel-bg" x="32" y="26" width="16" height="18"/>
+                <rect class="reel-bg" x="50" y="26" width="14" height="18"/>
+
+                <!-- Reel 1 — pixel star (idea sparkle) -->
+                <g class="slot-reel slot-reel-1">
+                  <rect x="22" y="29" width="2" height="2"/>
+                  <rect x="20" y="31" width="6" height="2"/>
+                  <rect x="18" y="33" width="10" height="2"/>
+                  <rect x="20" y="35" width="6" height="2"/>
+                  <rect x="22" y="37" width="2" height="2"/>
+                  <rect x="18" y="39" width="2" height="2"/>
+                  <rect x="26" y="39" width="2" height="2"/>
+                </g>
+
+                <!-- Reel 2 — lightbulb (concept) -->
+                <g class="slot-reel slot-reel-2">
+                  <rect x="38" y="28" width="4" height="2"/>
+                  <rect x="36" y="30" width="8" height="6"/>
+                  <rect x="34" y="32" width="2" height="2"/>
+                  <rect x="44" y="32" width="2" height="2"/>
+                  <rect x="38" y="36" width="4" height="2"/>
+                  <rect x="38" y="39" width="4" height="2"/>
+                </g>
+
+                <!-- Reel 3 — coin / dollar bolt -->
+                <g class="slot-reel slot-reel-3">
+                  <rect x="55" y="28" width="4" height="2"/>
+                  <rect x="53" y="30" width="8" height="8"/>
+                  <rect x="55" y="38" width="4" height="2"/>
+                  <rect class="slot-coin-face" x="56" y="32" width="2" height="4"/>
+                  <rect class="slot-coin-face" x="55" y="33" width="4" height="2"/>
+                </g>
+
+                <!-- Lever (right side) -->
+                <rect class="slot-lever-arm"  x="70" y="24" width="2"  height="16"/>
+                <rect class="slot-lever-knob" x="68" y="20" width="6"  height="6"/>
+                <rect class="slot-lever-shine" x="69" y="21" width="2" height="2"/>
+
+                <!-- HUD pinstripe under reels -->
+                <rect class="slot-pinlight" x="18" y="48" width="4" height="2"/>
+                <rect class="slot-pinlight" x="26" y="48" width="4" height="2"/>
+                <rect class="slot-pinlight" x="34" y="48" width="4" height="2"/>
+                <rect class="slot-pinlight" x="42" y="48" width="4" height="2"/>
+                <rect class="slot-pinlight" x="50" y="48" width="4" height="2"/>
+                <rect class="slot-pinlight" x="58" y="48" width="4" height="2"/>
+
+                <!-- Payout tray -->
+                <rect class="slot-tray"      x="20" y="54" width="40" height="4"/>
+                <rect class="slot-tray-slit" x="30" y="56" width="20" height="2"/>
+
+                <!-- Feet -->
+                <rect class="slot-body" x="10" y="62" width="10" height="4"/>
+                <rect class="slot-body" x="60" y="62" width="10" height="4"/>
+
+                <!-- Lucky coins spilling out -->
+                <rect class="slot-coin slot-coin-a" x="26" y="64" width="2" height="2"/>
+                <rect class="slot-coin slot-coin-b" x="38" y="68" width="2" height="2"/>
+                <rect class="slot-coin slot-coin-c" x="50" y="66" width="2" height="2"/>
+                <rect class="slot-coin slot-coin-a" x="44" y="72" width="2" height="2"/>
+              </svg>
+              <div class="wp-art-cap wp-slot-cap">
+                <div class="wp-hat-dialog wp-slot-dialog">
+                  <span class="wp-hat-nameplate">The Counter</span>
+                  <p class="wp-hat-quote">Hand me your problem and I&rsquo;ll show you how to climb
+                    out of your rivers of thinking. We&rsquo;ll ask &lsquo;what if,&rsquo; seek out
+                    inspiration, and brainstorm some unexpected ideas before picking the strongest
+                    one.<br><br>Then you&rsquo;ll learn how to think and work with AI to immediately
+                    build a working prototype of your idea!</p>
+                  <span class="wp-hat-continue" aria-hidden="true">&#9660;</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -7052,6 +7698,86 @@
             <div class="wp-card wp-card-final">
               <div class="wp-confetti" aria-hidden="true">
                 <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <!-- Five cohort aliens piloting tiny UFOs. Each cockpit is a
+                   dome (overlay) + alien + saucer body, stacked so the
+                   alien reads as sitting *inside* a glass bubble. -->
+              <div class="wp5-ufos" aria-hidden="true">
+                <div class="ufo-flyer f1"><div class="ufo-bob"><div class="ufo-craft">
+                  <svg class="ufo-alien" id="wp5-alien-1" viewBox="0 0 200 200"></svg>
+                  <svg class="ufo-dome" viewBox="0 0 16 14"></svg>
+                  <svg class="ufo-saucer" viewBox="0 0 36 8">
+                    <rect x="4"  y="0" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="2"  y="1" width="32" height="2" fill="#C9D4E2"/>
+                    <rect x="0"  y="3" width="36" height="2" fill="#C9D4E2"/>
+                    <rect x="8"  y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="14" y="4" width="2" height="1" fill="#FFAFD4"/>
+                    <rect x="20" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="26" y="4" width="2" height="1" fill="#A6F0C8"/>
+                    <rect x="4"  y="5" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="8"  y="6" width="20" height="1" fill="#5C6877"/>
+                  </svg>
+                </div></div></div>
+                <div class="ufo-flyer f2"><div class="ufo-bob"><div class="ufo-craft">
+                  <svg class="ufo-alien" id="wp5-alien-2" viewBox="0 0 200 200"></svg>
+                  <svg class="ufo-dome" viewBox="0 0 16 14"></svg>
+                  <svg class="ufo-saucer" viewBox="0 0 36 8">
+                    <rect x="4"  y="0" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="2"  y="1" width="32" height="2" fill="#C9D4E2"/>
+                    <rect x="0"  y="3" width="36" height="2" fill="#C9D4E2"/>
+                    <rect x="8"  y="4" width="2" height="1" fill="#FFAFD4"/>
+                    <rect x="14" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="20" y="4" width="2" height="1" fill="#A6F0C8"/>
+                    <rect x="26" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="4"  y="5" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="8"  y="6" width="20" height="1" fill="#5C6877"/>
+                  </svg>
+                </div></div></div>
+                <div class="ufo-flyer f3"><div class="ufo-bob"><div class="ufo-craft">
+                  <svg class="ufo-alien" id="wp5-alien-3" viewBox="0 0 200 200"></svg>
+                  <svg class="ufo-dome" viewBox="0 0 16 14"></svg>
+                  <svg class="ufo-saucer" viewBox="0 0 36 8">
+                    <rect x="4"  y="0" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="2"  y="1" width="32" height="2" fill="#C9D4E2"/>
+                    <rect x="0"  y="3" width="36" height="2" fill="#C9D4E2"/>
+                    <rect x="8"  y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="14" y="4" width="2" height="1" fill="#A6F0C8"/>
+                    <rect x="20" y="4" width="2" height="1" fill="#FFAFD4"/>
+                    <rect x="26" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="4"  y="5" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="8"  y="6" width="20" height="1" fill="#5C6877"/>
+                  </svg>
+                </div></div></div>
+                <div class="ufo-flyer f4"><div class="ufo-bob"><div class="ufo-craft">
+                  <svg class="ufo-alien" id="wp5-alien-4" viewBox="0 0 200 200"></svg>
+                  <svg class="ufo-dome" viewBox="0 0 16 14"></svg>
+                  <svg class="ufo-saucer" viewBox="0 0 36 8">
+                    <rect x="4"  y="0" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="2"  y="1" width="32" height="2" fill="#C9D4E2"/>
+                    <rect x="0"  y="3" width="36" height="2" fill="#C9D4E2"/>
+                    <rect x="8"  y="4" width="2" height="1" fill="#A6F0C8"/>
+                    <rect x="14" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="20" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="26" y="4" width="2" height="1" fill="#FFAFD4"/>
+                    <rect x="4"  y="5" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="8"  y="6" width="20" height="1" fill="#5C6877"/>
+                  </svg>
+                </div></div></div>
+                <div class="ufo-flyer f5"><div class="ufo-bob"><div class="ufo-craft">
+                  <svg class="ufo-alien" id="wp5-alien-5" viewBox="0 0 200 200"></svg>
+                  <svg class="ufo-dome" viewBox="0 0 16 14"></svg>
+                  <svg class="ufo-saucer" viewBox="0 0 36 8">
+                    <rect x="4"  y="0" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="2"  y="1" width="32" height="2" fill="#C9D4E2"/>
+                    <rect x="0"  y="3" width="36" height="2" fill="#C9D4E2"/>
+                    <rect x="8"  y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="14" y="4" width="2" height="1" fill="#FFAFD4"/>
+                    <rect x="20" y="4" width="2" height="1" fill="#A6F0C8"/>
+                    <rect x="26" y="4" width="2" height="1" fill="#FFE066"/>
+                    <rect x="4"  y="5" width="28" height="1" fill="#8A99AD"/>
+                    <rect x="8"  y="6" width="20" height="1" fill="#5C6877"/>
+                  </svg>
+                </div></div></div>
               </div>
               <span class="wp-label">&#x2726;&nbsp;&nbsp;Destination&nbsp;&nbsp;&#x2726;</span>
               <h3 class="wp-head">By the end, they have <em>real solutions</em> in hand &mdash; and the confidence to
@@ -7870,7 +8596,7 @@
           const mapRect = map.getBoundingClientRect();
           const offX = svgRect.left - mapRect.left;
           const offY = svgRect.top - mapRect.top;
-          const vbW = 800, vbH = 2700;
+          const vbW = 800, vbH = 3300;
           const sx = svgRect.width / vbW;
           const sy = svgRect.height / vbH;
           const gl = ghost.getTotalLength();
@@ -7898,7 +8624,7 @@
           const mapRect = map.getBoundingClientRect();
           const offX = svgRect.left - mapRect.left;
           const offY = svgRect.top - mapRect.top;
-          const vbW = 800, vbH = 2700;
+          const vbW = 800, vbH = 3300;
           const sx = svgRect.width / vbW;
           const sy = svgRect.height / vbH;
           let pl = 0;
@@ -8358,57 +9084,261 @@
       render('wp-alien-4', BLINK, P_BLINK);
       render('wp-alien-5', SUIT, P_SUIT);
 
-      /* Sorting Hat — a pointed wizard hat as a pixel character in the
-         same language as the cohort aliens: pyramidal body with a left
-         highlight and right shadow, a face in the middle (dot eyes,
-         blush cheeks, smile), a couple of star twinkles, and a wide
-         floppy brim at the base. */
-      const HAT_PURPLE = '#7C67C8';
-      const HAT_PURPLE_LIGHT = '#A79BE0';
-      const HAT_PURPLE_DEEP = '#4E3E8F';
-      const HAT_BRIM_SHADOW = '#2A1F47';
-      const STAR_YELLOW = '#F5C93E';
-      const STAR_WHITE = '#F6F0E1';
+      /* Same five cohort aliens, piloting tiny UFOs around the
+         destination capstone in wp-5. */
+      render('wp5-alien-1', PODLET, P_PODLET);
+      render('wp5-alien-2', SPROUT, P_SPROUT);
+      render('wp5-alien-3', TOWER, P_TOWER);
+      render('wp5-alien-4', BLINK, P_BLINK);
+      render('wp5-alien-5', SUIT, P_SUIT);
 
+      /* Populate each helmet SVG with a full round space-helmet pattern
+         (round glass bubble enclosing the alien's head, not a half-dome
+         sitting on top). Rendered once, shared across all 5 flyers. */
+      const HELMET_RECTS = [
+        // Translucent glass fill — one rect per row spanning the helmet's
+        // interior on that row.
+        ['f', 6, 0, 4], ['f', 4, 1, 8], ['f', 3, 2, 10], ['f', 2, 3, 12],
+        ['f', 1, 4, 14], ['f', 0, 5, 16], ['f', 0, 6, 16], ['f', 0, 7, 16],
+        ['f', 0, 8, 16], ['f', 1, 9, 14], ['f', 2, 10, 12], ['f', 3, 11, 10],
+        ['f', 4, 12, 8], ['f', 6, 13, 4],
+        // Bright rim outline along the perimeter.
+        ['r', 6, 0, 4],
+        ['r', 4, 1, 2], ['r', 10, 1, 2],
+        ['r', 3, 2, 1], ['r', 12, 2, 1],
+        ['r', 2, 3, 1], ['r', 13, 3, 1],
+        ['r', 1, 4, 1], ['r', 14, 4, 1],
+        ['r', 0, 5, 1], ['r', 15, 5, 1],
+        ['r', 0, 6, 1], ['r', 15, 6, 1],
+        ['r', 0, 7, 1], ['r', 15, 7, 1],
+        ['r', 0, 8, 1], ['r', 15, 8, 1],
+        ['r', 1, 9, 1], ['r', 14, 9, 1],
+        ['r', 2, 10, 1], ['r', 13, 10, 1],
+        ['r', 3, 11, 1], ['r', 12, 11, 1],
+        ['r', 4, 12, 2], ['r', 10, 12, 2],
+        ['r', 6, 13, 4],
+        // Top-left glass highlight.
+        ['h', 5, 1, 1], ['h', 4, 2, 1],
+      ];
+      const HELMET_HTML = HELMET_RECTS.map(([kind, x, y, w]) => {
+        const fill = kind === 'h' ? '#F7FEFA' : '#A6F0C8';
+        const op   = kind === 'f' ? 0.22 : kind === 'r' ? 0.95 : 0.7;
+        return `<rect x="${x}" y="${y}" width="${w}" height="1" fill="${fill}" opacity="${op}"/>`;
+      }).join('');
+      document.querySelectorAll('.how .wp-5 .ufo-dome').forEach((svg) => {
+        svg.innerHTML = HELMET_HTML;
+      });
+
+      /* Scroll-linked squadron flight. The UFOs emerge near pin 04
+         (as the user scrolls past "They take the prototype into their
+         real work..."), fly down the journey path in loose formation
+         — roughly along the line, not on it — then split off and
+         settle into their resting spots around the destination card.
+         Everything is driven by live scroll position. */
+      const wp5El  = document.querySelector('.how .wp-5');
+      const wp4El  = document.querySelector('.how .wp-4');
+      const cardEl = wp5El && wp5El.querySelector('.wp-card-final');
+      const pathEl = document.getElementById('hmGhost');
+      const pathSvg = pathEl && pathEl.ownerSVGElement;
+
+      if (wp5El && wp4El && cardEl && pathEl && pathSvg) {
+        const flyers = Array.from(cardEl.querySelectorAll('.ufo-flyer'));
+        const pathLen = pathEl.getTotalLength();
+
+        // Where the squadron enters the path (pin 04 area) and where it
+        // peels off to converge on the destination card.
+        const ENTRY_PCT    = 0.60;  // matches pin 04's data-percent
+        const PRE_REST_PCT = 0.95;  // just before the trail endcap
+        const SPLIT_POINT  = 0.78;  // scroll progress at which formation breaks
+
+        // Per-flyer formation: longitudinal stagger along the path
+        // (pctOffset) + cross-track screen offsets, so they fly as a
+        // loose flock rather than five UFOs stacked on top of each
+        // other. Values chosen to keep them near the line but visibly
+        // spread around it.
+        const FORMATION = [
+          { pct: -0.012, dx: -58, dy: -18 }, // f1 front-left
+          { pct:  0.006, dx:  58, dy: -22 }, // f2 front-right
+          { pct: -0.024, dx: -72, dy:  24 }, // f3 mid-left
+          { pct:  0.020, dx:  72, dy:  20 }, // f4 mid-right
+          { pct:  0.034, dx:   0, dy:  44 }, // f5 trailing center
+        ];
+
+        // Resting spots around the destination card (local coords relative
+        // to .wp-card-final's top-left). Expressed as fractions of the
+        // card's own dimensions so the layout scales with the card.
+        const REST_FRACS = [
+          { fx: 0.05, fy: 0.05  }, // f1 top-left corner
+          { fx: 0.95, fy: 0.05  }, // f2 top-right corner
+          { fx: -0.02, fy: 0.52 }, // f3 mid-left, outside edge
+          { fx: 1.02, fy: 0.52  }, // f4 mid-right, outside edge
+          { fx: 0.5,  fy: 1.12  }, // f5 below the card
+        ];
+
+        const easeIn  = (t) => t * t;
+        const easeOut = (t) => 1 - Math.pow(1 - t, 2.4);
+        const clamp01 = (v) => Math.max(0, Math.min(1, v));
+
+        function pathPagePoint(pct) {
+          const p = Math.max(0, Math.min(1, pct));
+          const pt = pathEl.getPointAtLength(pathLen * p);
+          const r = pathSvg.getBoundingClientRect();
+          return {
+            x: r.left + pt.x * (r.width / 800),
+            y: r.top  + pt.y * (r.height / 3300),
+          };
+        }
+
+        function update() {
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          const wp4Rect  = wp4El.getBoundingClientRect();
+          const cardRect = cardEl.getBoundingClientRect();
+
+          // Progress 0 → 1 as the user scrolls from "waypoint 04 card
+          // centered in viewport" to "destination card centered in
+          // viewport". Locks UFO motion to scroll speed.
+          const wp4Mid = wp4Rect.top + wp4Rect.height / 2;
+          const wp5Mid = cardRect.top + cardRect.height / 2;
+          // Linear scroll progress: p=0 when wp-4 center crosses the
+          // trigger line; p=1 when wp-5 center crosses the same line.
+          // Works out to (scroll - s0) / (s1 - s0), since both midpoints
+          // shift by the same delta per scroll unit.
+          const trigger = vh * 0.55;
+          const raw = (trigger - wp4Mid) / ((trigger - wp4Mid) + (wp5Mid - trigger));
+          const p = clamp01(raw);
+
+          flyers.forEach((el, i) => {
+            const f = FORMATION[i];
+            const restF = REST_FRACS[i];
+            const restX = restF.fx * cardRect.width;
+            const restY = restF.fy * cardRect.height;
+
+            let pageX, pageY, scale;
+
+            if (p < SPLIT_POINT) {
+              // Phase 1 — follow the path in formation.
+              const ph = p / SPLIT_POINT;
+              const pathP = ENTRY_PCT + ph * (PRE_REST_PCT - ENTRY_PCT) + f.pct;
+              const pt = pathPagePoint(pathP);
+              pageX = pt.x + f.dx;
+              pageY = pt.y + f.dy;
+              scale = 0.78 + 0.08 * ph;
+              el.classList.remove('landed');
+            } else {
+              // Phase 2 — peel off and converge on rest spot.
+              const ph = (p - SPLIT_POINT) / (1 - SPLIT_POINT);
+              const e = easeOut(ph);
+              const pt = pathPagePoint(PRE_REST_PCT + f.pct);
+              const fromX = pt.x + f.dx;
+              const fromY = pt.y + f.dy;
+              const toX = cardRect.left + restX;
+              const toY = cardRect.top  + restY;
+              pageX = fromX + (toX - fromX) * e;
+              pageY = fromY + (toY - fromY) * e;
+              scale = 0.86 + 0.14 * e;
+              if (ph >= 1) el.classList.add('landed');
+              else el.classList.remove('landed');
+            }
+
+            // Convert page coords → card-local coords (flyer parent is
+            // .wp-card-final via .wp5-ufos with inset:0), then center the
+            // 96×78 flyer on the computed point.
+            const localX = pageX - cardRect.left - 48;
+            const localY = pageY - cardRect.top  - 39;
+
+            // Fade in over the first sliver of progress so they don't
+            // just pop into existence.
+            const opacity = Math.min(1, p * 8);
+
+            el.style.opacity = opacity.toFixed(3);
+            el.style.transform =
+              `translate(${localX.toFixed(2)}px, ${localY.toFixed(2)}px) ` +
+              `scale(${scale.toFixed(3)})`;
+          });
+        }
+
+        let ticking = false;
+        const onScroll = () => {
+          if (!ticking) {
+            requestAnimationFrame(() => { update(); ticking = false; });
+            ticking = true;
+          }
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', onScroll);
+        update();
+      }
+
+      /* Sorting Hat — pixel-art wizard hat in the same chunky-grid
+         language as the cohort aliens. Purple cone with a slight
+         left-side highlight + right-side shadow, a gold star badge
+         on the front, a happy face, a gold band and a flared brim. */
       const HAT = [
-        '........bbbbbb........',
-        '.......bbbybbbb.......',
-        '......bbbbbbbbbb......',
-        '.....bbbbbbbbbwbb.....',
-        '.....bbbbbbbbbbbb.....',
-        '....bbbbbbbbbbbbyb....',
-        '...bbybbbbbbbbbbbbb...',
-        '...hbbbbbbbbbbbbbbs...',
-        '..hbbbbbbbbbbbbbbbbs..',
-        '..hbbbbbbbbbbbbbbbbs..',
-        '..hbbbkkkbbbbkkkbbbs..',
-        '..hbbbeeebbbbeeebbbs..',
-        '..hbbbeEebbbbeEebbbs..',
-        '..hbbbeeebbbbeeebbbs..',
-        '..hbPPbbbmbbmbbbPPbs..',
-        '..hbbbbbbbmmbbbbbbbs..',
-        '..hhbbbbbbbbbbbbbbss..',
-        'BBBBBBBBBBBBBBBBBBBBBB',
-        'BBBBBBBBBBBBBBBBBBBBBB',
-        '.BBBBBBBBBBBBBBBBBBBB.',
-        '..SSSSSSSSSSSSSSSSSS..',
-        '......................',
+        '.........pp.........',
+        '.........pp.........',
+        '........hppd........',
+        '........hppd........',
+        '.......hpppd........',
+        '.......hpppdd.......',
+        '......hppppdd.......',
+        '......hppppdd.......',
+        '.....hpppppddd......',
+        '.....hppSSSpdd......',
+        '....hhpSSSSSpddd....',
+        '....hpppSSSppddd....',
+        '...hhppppppppppdd...',
+        '...hppeepppppeepdd..',
+        '..hhppeepppppeeppdd.',
+        '..hppppppppppppppdd.',
+        '.hppppmmmmmmmmmppdd.',
+        '.hpppppppppppppppdd.',
+        'hhppppppppppppppppdd',
+        'BBBBBBBBBBBBBBBBBBBB',
+        'bbbbbbbbbbbbbbbbbbbb',
+        'dddddddddddddddddddd',
       ];
       const P_HAT = {
-        'b': HAT_PURPLE,
-        'h': HAT_PURPLE_LIGHT,
-        's': HAT_PURPLE_DEEP,
-        'B': HAT_PURPLE_DEEP,
-        'S': HAT_BRIM_SHADOW,
-        'e': PAPER,
-        'E': INK,
-        'k': INK,
-        'm': INK,
-        'P': BLUSH,
-        'y': STAR_YELLOW,
-        'w': STAR_WHITE,
+        'p': '#6B4E9E', 'h': '#9B7ED1', 'd': '#3E2A6E',
+        'e': PAPER,     'm': INK,
+        'S': '#F3D56B',
+        'B': '#D4B04A', 'b': '#2E1F4D',
       };
-      render('wp-sorting-hat', HAT, P_HAT);
+      render('wp-hat-pixel', HAT, P_HAT);
+
+      /* Pixel sparkles around the Sorting Hat — plus-shaped twinkles
+         in gold (magic) and mint (trail palette) at a few sizes, placed
+         in the blank space around the hat body. Each group carries a
+         .spark-a/b/c class so CSS can stagger their twinkle phase. */
+      (function addHatSparkles() {
+        const svg = document.getElementById('wp-hat-pixel');
+        if (!svg) return;
+        const NS = 'http://www.w3.org/2000/svg';
+        function sparkle(cx, cy, size, color, cls) {
+          const g = document.createElementNS(NS, 'g');
+          g.setAttribute('class', cls);
+          // Plus shape: vertical bar + horizontal bar, 3*size long, size wide.
+          const bars = [
+            [cx - size / 2,       cy - size * 1.5, size,      size * 3],
+            [cx - size * 1.5,     cy - size / 2,   size * 3,  size],
+          ];
+          bars.forEach(([x, y, w, h]) => {
+            const r = document.createElementNS(NS, 'rect');
+            r.setAttribute('x', x); r.setAttribute('y', y);
+            r.setAttribute('width', w); r.setAttribute('height', h);
+            r.setAttribute('fill', color);
+            g.appendChild(r);
+          });
+          svg.appendChild(g);
+        }
+        const GOLD = '#F3D56B', MINT = '#A6F0C8';
+        sparkle(20,  28,  3, GOLD, 'spark-a');  // upper-left, big
+        sparkle(178, 44,  2, GOLD, 'spark-b');  // upper-right, small
+        sparkle(6,   96,  2, MINT, 'spark-c');  // mid-left, mint
+        sparkle(192, 110, 3, MINT, 'spark-a');  // mid-right, mint big
+        sparkle(184, 168, 2, GOLD, 'spark-b');  // bottom-right gold
+        sparkle(12,  160, 2, GOLD, 'spark-c');  // bottom-left gold
+      })();
+
     })();
   </script>
 
