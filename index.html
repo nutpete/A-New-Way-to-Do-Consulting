@@ -542,17 +542,17 @@
     }
 
     .hero-center .pill {
-      margin-bottom: 36px;
+      margin-bottom: 40px;
     }
 
     .hero-head {
       font-family: 'Instrument Serif', serif;
       font-weight: 400;
-      font-size: clamp(30px, 3vw, 44px);
-      line-height: 1.08;
+      font-size: clamp(40px, 4.4vw, 64px);
+      line-height: 1.1;
       letter-spacing: -0.02em;
       color: var(--ink);
-      max-width: 18ch;
+      max-width: 22ch;
       text-wrap: balance;
     }
 
@@ -649,12 +649,12 @@
     }
 
     .hero-sub {
-      margin-top: 32px;
-      max-width: none;
+      margin-top: 36px;
+      max-width: 58ch;
       font-size: clamp(17px, 1.4vw, 20px);
       color: var(--ink-soft);
-      line-height: 1.55;
-      white-space: nowrap;
+      line-height: 1.5;
+      text-wrap: pretty;
     }
 
     .hero-sub.hero-sub-close {
@@ -662,7 +662,7 @@
     }
 
     .hero-sub-close {
-      margin-top: 20px;
+      margin-top: 6px;
     }
 
     .scribble {
@@ -710,7 +710,7 @@
     }
 
     .hero-cta-row {
-      margin-top: 40px;
+      margin-top: 44px;
       display: flex;
       gap: 18px;
       align-items: center;
@@ -932,6 +932,26 @@
       white-space: nowrap;
     }
 
+    .pov-head .hi {
+      position: relative;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    .pov-head .hi::after {
+      content: '';
+      position: absolute;
+      left: -2%;
+      right: -2%;
+      bottom: 0.05em;
+      height: 8px;
+      background: var(--marker);
+      transform: rotate(-1.2deg);
+      opacity: 0.9;
+      border-radius: 2px;
+      z-index: -1;
+    }
+
     .pov-head .crossed {
       position: relative;
       display: inline-block;
@@ -1068,7 +1088,22 @@
       align-items: start;
     }
 
-    .compare>div {
+    .compare-col {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .compare-col-literacy {
+      transform: translateY(6px);
+    }
+
+    .compare-col-fluency {
+      transform: translateY(-4px);
+    }
+
+    .compare .col-literacy,
+    .compare .col-fluency {
       padding: 26px 28px 28px;
       position: relative;
       background: var(--paper-card);
@@ -1078,27 +1113,39 @@
     .compare .col-literacy {
       opacity: 0.62;
       box-shadow: 4px 4px 0 rgba(42, 46, 51, 0.06);
-      transform: translateY(6px);
       filter: saturate(0.4);
     }
 
     .compare .col-fluency {
       box-shadow: 10px 10px 0 var(--fluency-2), 10px 10px 0 1px var(--ink);
-      transform: translateY(-4px);
     }
 
+    .compare .col-literacy::before,
     .compare .col-fluency::before {
-      content: "WHAT WE DO";
       position: absolute;
-      top: -11px;
+      top: -13px;
       left: 20px;
-      background: var(--fluency);
       color: var(--paper);
       font-family: 'Archivo Black', sans-serif;
       font-size: 10px;
-      letter-spacing: 0.22em;
-      padding: 4px 10px;
+      letter-spacing: 0.16em;
+      padding: 5px 12px;
       border: 2px solid var(--ink);
+      white-space: nowrap;
+    }
+
+    .compare .col-literacy::before {
+      content: "WHAT HAPPENS TODAY";
+      background: var(--marker);
+      transform: rotate(-1.5deg);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      padding: 4px 10px;
+    }
+
+    .compare .col-fluency::before {
+      content: "WHAT YOUR TEAMS ACTUALLY NEED";
+      background: var(--fluency);
       transform: rotate(-1.5deg);
     }
 
@@ -1175,15 +1222,20 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 28px;
-      max-width: 1090px;
+      width: 100%;
+      max-width: 880px;
       margin: 0 auto 22px;
-      padding: 0 2px;
       align-items: end;
     }
 
     .compare-headers .compare-head:first-child {
       opacity: 0.82;
       filter: saturate(0.55);
+      transform: translateY(6px);
+    }
+
+    .compare-headers .compare-head:nth-child(2) {
+      transform: translateY(-4px);
     }
 
     .compare-head {
@@ -1191,14 +1243,27 @@
       text-align: center;
     }
 
-    .compare-title {
+    .compare .compare-title {
       font-family: 'Instrument Serif', serif;
       font-weight: 400;
       font-style: normal;
       font-size: clamp(30px, 3.2vw, 44px);
       line-height: 1.08;
       letter-spacing: -0.02em;
-      margin: 0 0 6px;
+      margin: 0 0 18px;
+      text-transform: none;
+      text-align: center;
+      align-self: stretch;
+    }
+
+    .compare-col-literacy .compare-title {
+      color: var(--marker);
+      opacity: 0.82;
+      filter: saturate(0.55);
+    }
+
+    .compare-col-fluency .compare-title {
+      color: var(--fluency);
     }
 
     .compare-head-sub {
@@ -1213,7 +1278,8 @@
 
     .compare-wrap {
       position: relative;
-      max-width: 1090px;
+      width: 100%;
+      max-width: 750px;
       margin: 0 auto;
     }
 
@@ -7801,7 +7867,7 @@
                 <h2 class="pov-head">
                   This gap exists because<br>
                   learning what AI can do<br>
-                  <em>is not the same as</em> knowing<br>
+                  <span class="hi">is not the same as</span> knowing<br>
                   how to work with it.
                 </h2>
                 <div class="pov-lede" style="margin-top: 16px;">
@@ -7836,16 +7902,6 @@
           <!-- Paper Fluency layer — fades in behind -->
           <div class="pf-layer pf-fluency" id="pfFluency">
             <div class="pf-inner fluency-inner" id="fluency">
-              <div class="compare-headers">
-                <div class="compare-head">
-                  <h3 class="compare-title col-accent-literacy">AI Literacy</h3>
-                  <p class="compare-head-sub">What most organizations invest in today.</p>
-                </div>
-                <div class="compare-head">
-                  <h3 class="compare-title col-accent-fluency">AI Fluency</h3>
-                  <p class="compare-head-sub">What this moment actually requires.</p>
-                </div>
-              </div>
               <div class="compare-wrap">
                 <div class="margin-note margin-note-literacy" aria-hidden="true">
                   <span class="mn-text">teaches what<br>AI can do</span>
@@ -7862,27 +7918,31 @@
                   <span class="mn-text">develops the instinct to<br><u>think and work with</u> AI</span>
                 </div>
                 <div class="compare">
-                  <div class="col-literacy">
-                    <ul>
-                      <li><span class="mark">✓</span> Knowledge of AI tools</li>
-                      <li><span class="mark">✓</span> Ability to prompt & use AI</li>
-                      <li><span class="mark">✓</span> Faster on existing tasks</li>
-                      <li class="dim"><span class="mark">—</span> Applied to their actual role</li>
-                      <li class="dim"><span class="mark">—</span> New ways of thinking & working</li>
-                      <li class="dim"><span class="mark">—</span> Solutions that didn't exist before</li>
-                      <li class="dim"><span class="mark">—</span> Capability that sticks & compounds</li>
-                    </ul>
+                  <div class="compare-col compare-col-literacy">
+                    <h3 class="compare-title col-accent-literacy">AI Literacy</h3>
+                    <div class="col-literacy">
+                      <ul>
+                        <li><span class="mark">✓</span> Knows what AI can do</li>
+                        <li><span class="mark">✓</span> Uses AI for simple tasks</li>
+                        <li><span class="mark">✓</span> Accepts what AI gives</li>
+                        <li><span class="mark">✓</span> Applies generic use cases</li>
+                        <li><span class="mark">✓</span> Speeds up existing work</li>
+                        <li><span class="mark">✓</span> Reduces costs</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div class="col-fluency">
-                    <ul>
-                      <li><span class="mark">✓</span> Knowledge of AI tools</li>
-                      <li><span class="mark">✓</span> Ability to prompt & use AI</li>
-                      <li><span class="mark">✓</span> Faster on existing tasks</li>
-                      <li><span class="mark">✓</span> Applied to their actual role</li>
-                      <li><span class="mark">✓</span> New ways of thinking & working</li>
-                      <li><span class="mark">✓</span> Solutions that didn't exist before</li>
-                      <li><span class="mark">✓</span> Capability that sticks & compounds</li>
-                    </ul>
+                  <div class="compare-col compare-col-fluency">
+                    <h3 class="compare-title col-accent-fluency">AI Fluency</h3>
+                    <div class="col-fluency">
+                      <ul>
+                        <li><span class="mark">✓</span> Knows how to work with AI</li>
+                        <li><span class="mark">✓</span> Uses AI on real problems</li>
+                        <li><span class="mark">✓</span> Shapes what AI produces</li>
+                        <li><span class="mark">✓</span> Builds context-specific solutions</li>
+                        <li><span class="mark">✓</span> Expands what teams can take on</li>
+                        <li><span class="mark">✓</span> Reduces costs and unlocks growth</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -8339,7 +8399,7 @@
             <span class="wp-pin wp-pin-inline">02</span>
             <div class="wp-card">
               <span class="wp-label">In-person cohort workshop</span>
-              <h3 class="wp-head">Then, each person learns how to <em>define and frame a real problem or
+              <h3 class="wp-head">To kick off, each person learns how to <em>define and frame a real problem or
                   project from their own day to day work</em> clearly enough to begin working on it with AI
                 through the experience.</h3>
             </div>
@@ -8364,8 +8424,8 @@
             <span class="wp-pin wp-pin-inline">03</span>
             <div class="wp-card">
               <span class="wp-label">Guided 1:1 in-person Counter experience</span>
-              <h3 class="wp-head">One by one, <em>we coach them to think and work with AI</em> to turn that
-                problem into a working prototype in hours.
+              <h3 class="wp-head">One by one, <em>we coach them to think and work with AI</em> to build a working
+                prototype that solves their problem in hours.
               </h3>
             </div>
             <div class="wp-art wp-art-bare wp-slot-stage">
