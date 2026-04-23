@@ -1059,12 +1059,12 @@
     }
 
     .compare {
-      margin: 16px auto 0;
+      margin: 0 auto;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 28px;
       position: relative;
-      max-width: 980px;
+      max-width: 1090px;
       align-items: start;
     }
 
@@ -1175,15 +1175,15 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 28px;
-      max-width: 980px;
-      margin: 0 auto 18px;
+      max-width: 1090px;
+      margin: 0 auto 22px;
       padding: 0 2px;
       align-items: end;
     }
 
     .compare-headers .compare-head:first-child {
-      opacity: 0.62;
-      filter: saturate(0.4);
+      opacity: 0.82;
+      filter: saturate(0.55);
     }
 
     .compare-head {
@@ -1193,28 +1193,27 @@
 
     .compare-title {
       font-family: 'Instrument Serif', serif;
-      font-weight: 700;
-      font-style: italic;
+      font-weight: 400;
+      font-style: normal;
       font-size: clamp(30px, 3.2vw, 44px);
-      line-height: 1;
-      letter-spacing: -0.01em;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
       margin: 0 0 6px;
     }
 
     .compare-head-sub {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(15px, 1.15vw, 17px);
       line-height: 1.5;
-      letter-spacing: 0.02em;
-      color: var(--muted);
-      text-transform: uppercase;
+      letter-spacing: 0;
+      color: var(--ink-soft);
       max-width: 34ch;
-      margin: 0 auto;
+      margin: 4px auto 0;
     }
 
     .compare-wrap {
       position: relative;
-      max-width: 960px;
+      max-width: 1090px;
       margin: 0 auto;
     }
 
@@ -1262,9 +1261,9 @@
     }
 
     .margin-note-fluency {
-      left: 100%;
-      bottom: 90px;
-      margin-left: 10px;
+      left: 105%;
+      bottom: 100px;
+      margin-left: -4px;
       color: var(--fluency);
       transform: rotate(2deg);
       text-align: left;
@@ -1930,7 +1929,7 @@
 
     .hm-map {
       position: relative;
-      min-height: 3400px;
+      min-height: 3680px;
       max-width: 1280px;
       margin: 40px auto 0;
       padding: 48px 56px 160px;
@@ -2217,23 +2216,23 @@
 
     .wp-2 {
       top: 640px;
-      right: 60px;
+      right: 180px;
       text-align: right;
     }
 
     .wp-3 {
-      top: 1380px;
+      top: 1500px;
       left: 60px;
     }
 
     .wp-4 {
-      top: 2120px;
+      top: 2400px;
       right: 60px;
       text-align: right;
     }
 
     .wp-5 {
-      top: 2920px;
+      top: 3200px;
       left: 50%;
       transform: translate(-50%, 18px);
       width: 760px;
@@ -3614,8 +3613,9 @@
       backdrop-filter: none;
       -webkit-backdrop-filter: none;
       padding: 0;
-      margin-top: 14px;
-      text-align: right;
+      display: block;
+      margin: 14px auto 0;
+      text-align: center;
     }
 
     .how .wp-4 .wp-art.wp-art-bare::before,
@@ -3623,72 +3623,150 @@
       display: none;
     }
 
-    /* Pixel-art beaker — sized smaller than the old sketch, rect-only
-       rendering in the cohort-alien pixel language. */
-    .how .wp-4 svg.wp-pixel-beaker {
-      width: 160px;
-      height: 160px;
-      max-width: 100%;
-      display: inline-block;
-      stroke: none;
-      fill: none;
+    /* Two cohort aliens working on a prototype that visibly evolves
+       through three versions — rough → refined → polished + ✓ — to
+       read as "test, learn, iterate until it works in practice." */
+    .how .wp-4 .wp4-scene {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin: 0 auto;
+      width: fit-content;
+      filter: drop-shadow(0 0 6px rgba(166, 240, 200, 0.45));
+    }
+
+    .how .wp-4 .wp4-alien {
+      width: 78px;
+      height: 78px;
       image-rendering: pixelated;
       shape-rendering: crispEdges;
-      filter: drop-shadow(0 0 6px rgba(166, 240, 200, 0.55));
     }
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-outline {
+    /* Right alien mirrored so both read as facing the prototype. */
+    .how .wp-4 .wp4-alien-right {
+      transform: scaleX(-1);
+    }
+
+    .how .wp-4 .wp4-middle {
+      width: 52px;
+      height: 78px;
+      overflow: visible;
+    }
+
+    /* Prototype version fills — progressively more vibrant. */
+    .how .wp-4 .wp4-rough {
+      fill: #5B7A58;
+    }
+
+    .how .wp-4 .wp4-mid {
+      fill: #8AC79E;
+    }
+
+    .how .wp-4 .wp4-final {
       fill: #A6F0C8;
     }
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-liquid {
-      fill: #3E7A5E;
+    .how .wp-4 .wp4-shine {
+      fill: #F6F0E1;
     }
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-liquid-top {
-      fill: #C9F7DE;
+    .how .wp-4 .wp4-check {
+      fill: #F6F0E1;
     }
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-bubble {
-      fill: #A6F0C8;
+    /* All three versions start hidden; the keyframes below bring each
+       in for roughly a third of the 3.6s cycle. */
+    .how .wp-4 .wp4-proto {
+      opacity: 0;
     }
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-bubble-sm {
-      fill: #A6F0C8;
-      opacity: 0.7;
-    }
+    @keyframes wp4-v1-show {
 
-    .how .wp-4 svg.wp-pixel-beaker .pix-notch {
-      fill: #2A3E34;
-    }
-
-    /* Subtle rise animation on the bubbles so the beaker reads as
-       "experiment in progress" rather than a static icon. */
-    @keyframes wp4-bubble-rise {
-      0% {
-        transform: translateY(6px);
-        opacity: 0;
-      }
-
-      20% {
+      0%,
+      28% {
         opacity: 1;
       }
 
-      80% {
-        opacity: 1;
-      }
-
+      33%,
       100% {
-        transform: translateY(-10px);
         opacity: 0;
       }
     }
 
-    .how .wp-4.drawn svg.wp-pixel-beaker .pix-bubble,
-    .how .wp-4.drawn svg.wp-pixel-beaker .pix-bubble-sm {
-      transform-origin: center;
-      transform-box: fill-box;
-      animation: wp4-bubble-rise 3.2s ease-in-out infinite;
+    @keyframes wp4-v2-show {
+
+      0%,
+      28% {
+        opacity: 0;
+      }
+
+      33%,
+      61% {
+        opacity: 1;
+      }
+
+      66%,
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes wp4-v3-show {
+
+      0%,
+      61% {
+        opacity: 0;
+      }
+
+      66%,
+      100% {
+        opacity: 1;
+      }
+    }
+
+    @keyframes wp4-alien-bob-a {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-3px);
+      }
+    }
+
+    @keyframes wp4-alien-bob-b {
+
+      0%,
+      100% {
+        transform: translateY(0) scaleX(-1);
+      }
+
+      50% {
+        transform: translateY(-3px) scaleX(-1);
+      }
+    }
+
+    .how .wp-4.drawn .wp4-v1 {
+      animation: wp4-v1-show 3.6s steps(1, end) infinite;
+    }
+
+    .how .wp-4.drawn .wp4-v2 {
+      animation: wp4-v2-show 3.6s steps(1, end) infinite;
+    }
+
+    .how .wp-4.drawn .wp4-v3 {
+      animation: wp4-v3-show 3.6s steps(1, end) infinite;
+    }
+
+    .how .wp-4.drawn .wp4-alien-left {
+      animation: wp4-alien-bob-a 2.6s ease-in-out infinite;
+    }
+
+    .how .wp-4.drawn .wp4-alien-right {
+      animation: wp4-alien-bob-b 2.6s ease-in-out infinite;
     }
 
     /* wp-3 art — strip the HUD frame so the Concept Generator slot
@@ -3811,80 +3889,92 @@
       fill: #FDE68A;
     }
 
-    /* Reels spin — each reel has its own cadence so the machine
-       feels alive rather than mechanically synced. Transform-origin
-       is set via transform-box so the y-shift is measured in the
-       reel's own bbox, keeping the symbols inside the reel window. */
-    @keyframes wp3-reel-spin-1 {
+    /* Googly eyes — warm off-white sclera with dark pupils. */
+    .how .wp-3 svg.wp-slot-pixel .slot-eye-sclera {
+      fill: #F4FBEF;
+    }
+
+    .how .wp-3 svg.wp-slot-pixel .slot-eye-pupil {
+      fill: #0B1019;
+    }
+
+    /* Reels spin and land — each reel strip starts with its landing
+       symbol visible, jumps to the top of its strip, scrolls the decoys
+       through the window, then eases to a stop on the landing symbol.
+       Each reel has its own duration so they don't all stop at once. */
+    @keyframes wp3-reel-spinland-1 {
 
       0%,
-      70%,
-      100% {
+      18% {
         transform: translateY(0);
       }
 
-      75%,
-      80% {
-        transform: translateY(-1.5px);
+      20% {
+        transform: translateY(-72px);
       }
 
-      85% {
-        transform: translateY(0.8px);
+      60% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(.22, .85, .35, 1);
+      }
+
+      100% {
+        transform: translateY(0);
       }
     }
 
-    @keyframes wp3-reel-spin-2 {
+    @keyframes wp3-reel-spinland-2 {
 
       0%,
-      60%,
-      100% {
+      22% {
         transform: translateY(0);
       }
 
-      65%,
+      24% {
+        transform: translateY(-72px);
+      }
+
       72% {
-        transform: translateY(1.5px);
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(.22, .85, .35, 1);
       }
 
-      78% {
-        transform: translateY(-0.6px);
-      }
-    }
-
-    @keyframes wp3-reel-spin-3 {
-
-      0%,
-      80%,
       100% {
         transform: translateY(0);
       }
+    }
 
-      85%,
-      90% {
-        transform: translateY(-1.2px);
+    @keyframes wp3-reel-spinland-3 {
+
+      0%,
+      26% {
+        transform: translateY(0);
       }
 
-      94% {
-        transform: translateY(0.5px);
+      28% {
+        transform: translateY(-72px);
+      }
+
+      82% {
+        transform: translateY(0);
+        animation-timing-function: cubic-bezier(.22, .85, .35, 1);
+      }
+
+      100% {
+        transform: translateY(0);
       }
     }
 
     .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-1 {
-      transform-origin: center;
-      transform-box: fill-box;
-      animation: wp3-reel-spin-1 3.4s steps(6, end) infinite;
+      animation: wp3-reel-spinland-1 4.2s linear infinite;
     }
 
     .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-2 {
-      transform-origin: center;
-      transform-box: fill-box;
-      animation: wp3-reel-spin-2 3.8s steps(6, end) 0.4s infinite;
+      animation: wp3-reel-spinland-2 4.2s linear 0.2s infinite;
     }
 
     .how .wp-3.drawn svg.wp-slot-pixel .slot-reel-3 {
-      transform-origin: center;
-      transform-box: fill-box;
-      animation: wp3-reel-spin-3 3.2s steps(6, end) 0.8s infinite;
+      animation: wp3-reel-spinland-3 4.2s linear 0.4s infinite;
     }
 
     /* Banner stars twinkle — staggered like the Sorting Hat sparkles. */
@@ -3992,6 +4082,129 @@
 
     .how .wp-3.drawn svg.wp-slot-pixel {
       animation: wp3-slot-bob 4.4s ease-in-out infinite;
+    }
+
+    /* Sparkles around the cabinet — twinkle staggered like the hat. */
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-spark.spark-a {
+      animation: wp-hat-sparkle 2.6s ease-in-out infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-spark.spark-b {
+      animation: wp-hat-sparkle 2.6s ease-in-out 0.9s infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-spark.spark-c {
+      animation: wp-hat-sparkle 2.6s ease-in-out 1.7s infinite;
+    }
+
+    /* Pinlight chase — the row of LEDs beneath the reels cycles so the
+       machine reads as powered on, like a marquee. */
+    @keyframes wp3-pin-chase {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(1) {
+      animation: wp3-pin-chase 1.2s ease-in-out infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(2) {
+      animation: wp3-pin-chase 1.2s ease-in-out 0.2s infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(3) {
+      animation: wp3-pin-chase 1.2s ease-in-out 0.4s infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(4) {
+      animation: wp3-pin-chase 1.2s ease-in-out 0.6s infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(5) {
+      animation: wp3-pin-chase 1.2s ease-in-out 0.8s infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-pinlight:nth-of-type(6) {
+      animation: wp3-pin-chase 1.2s ease-in-out 1s infinite;
+    }
+
+    /* Red "alive" indicator above the jackpot banner — slow blink. */
+    @keyframes wp3-eye-blink {
+
+      0%,
+      92%,
+      100% {
+        opacity: 1;
+      }
+
+      94%,
+      98% {
+        opacity: 0.1;
+      }
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-eye {
+      animation: wp3-eye-blink 3.6s ease-in-out infinite;
+    }
+
+    /* Pupils track toward the reels as they spin, then center when
+       reels land — gives the cabinet a watchful, alive feel. The two
+       pupils shift together and occasionally blink (scale to thin). */
+    @keyframes wp3-pupil-look {
+
+      0%,
+      15% {
+        transform: translate(0, 0);
+      }
+
+      20%,
+      40% {
+        transform: translate(-1px, 1px);
+      }
+
+      50%,
+      70% {
+        transform: translate(1px, 1px);
+      }
+
+      80%,
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
+    @keyframes wp3-pupil-blink {
+
+      0%,
+      46%,
+      54%,
+      100% {
+        transform: scaleY(1);
+      }
+
+      48%,
+      52% {
+        transform: scaleY(0.1);
+      }
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-eye-pupil {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: wp3-pupil-look 4.2s ease-in-out infinite;
+    }
+
+    .how .wp-3.drawn svg.wp-slot-pixel .slot-eye-sclera {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: wp3-pupil-blink 5.6s ease-in-out infinite;
     }
 
     /* Slot-machine caption panel reuses the Sorting Hat's dialogue
@@ -4383,6 +4596,48 @@
       will-change: transform, opacity;
     }
 
+    /* Particle trail emitted behind each UFO during the scroll-driven
+       descent. Dots are absolutely positioned inside .ufo-trails and
+       self-remove when their fade animation ends. */
+    .how .wp-5 .ufo-trails {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .how .wp-5 .ufo-trail-dot {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #A6F0C8;
+      box-shadow: 0 0 6px rgba(166, 240, 200, 0.85);
+      animation: wp5-ufo-trail 780ms ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes wp5-ufo-trail {
+      0% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      60% {
+        opacity: 0.45;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.35);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .how .wp-5 .ufo-trail-dot {
+        display: none;
+      }
+    }
+
     /* Cockpit composite — alien sandwiched by full space helmet + saucer. */
     .how .wp-5 .ufo-craft {
       position: relative;
@@ -4679,6 +4934,10 @@
       .how .wp-4 {
         width: 100%;
         max-width: 100%;
+      }
+
+      .how .wp-3 {
+        margin-top: 40px;
       }
 
       .how .wp-3 .wp-card .wp-label,
@@ -7580,11 +7839,11 @@
               <div class="compare-headers">
                 <div class="compare-head">
                   <h3 class="compare-title col-accent-literacy">AI Literacy</h3>
-                  <p class="compare-head-sub">trainings are what organizations invest in today.</p>
+                  <p class="compare-head-sub">What most organizations invest in today.</p>
                 </div>
                 <div class="compare-head">
                   <h3 class="compare-title col-accent-fluency">AI Fluency</h3>
-                  <p class="compare-head-sub">is what we develop directly with your teams in their real work.</p>
+                  <p class="compare-head-sub">What this moment actually requires.</p>
                 </div>
               </div>
               <div class="compare-wrap">
@@ -7600,7 +7859,7 @@
                     <path d="M76 6 C 56 14, 36 30, 18 52 M 26 50 L 16 54 L 20 42" fill="none" stroke="currentColor"
                       stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <span class="mn-text">builds the instinct to<br><u>think and work with</u> AI</span>
+                  <span class="mn-text">develops the instinct to<br><u>think and work with</u> AI</span>
                 </div>
                 <div class="compare">
                   <div class="col-literacy">
@@ -7839,14 +8098,6 @@
           <rect x="8" y="6" width="2" height="1" class="ast-shade" />
         </svg>
 
-        <!-- Tiny comet streak (lower right) -->
-        <svg class="cs-obj cs-comet" style="left:72%;top:70%" viewBox="0 0 24 8" aria-hidden="true">
-          <rect x="20" y="3" width="2" height="2" class="comet-head" />
-          <rect x="16" y="3" width="3" height="2" class="comet-tail" />
-          <rect x="12" y="3" width="3" height="2" class="comet-tail" opacity="0.7" />
-          <rect x="7" y="3" width="4" height="2" class="comet-tail" opacity="0.4" />
-          <rect x="2" y="3" width="4" height="2" class="comet-tail" opacity="0.2" />
-        </svg>
       </div>
 
       <div class="wrap">
@@ -8034,9 +8285,9 @@
           <!-- Path-mounted pins (desktop). JS snaps these to percents along the path. -->
           <div class="hm-pins" aria-hidden="true">
             <span class="hm-pin" data-pin="1" data-percent="0.03">01</span>
-            <span class="hm-pin" data-pin="2" data-percent="0.17" data-reveal="0.13">02</span>
+            <span class="hm-pin" data-pin="2" data-percent="0.14" data-reveal="0.13">02</span>
             <span class="hm-pin" data-pin="3" data-percent="0.42">03</span>
-            <span class="hm-pin" data-pin="4" data-percent="0.60">04</span>
+            <span class="hm-pin" data-pin="4" data-percent="0.67">04</span>
           </div>
 
           <!-- Tether overlay — invisible <path> elements provide the
@@ -8119,6 +8370,20 @@
             </div>
             <div class="wp-art wp-art-bare wp-slot-stage">
               <svg class="wp-slot-pixel" viewBox="0 0 80 76" shape-rendering="crispEdges" aria-hidden="true">
+                <!-- Clip paths for each reel window so the symbol strips
+                     appear to scroll through a fixed viewing pane. -->
+                <defs>
+                  <clipPath id="reel-window-1">
+                    <rect x="16" y="26" width="14" height="18" />
+                  </clipPath>
+                  <clipPath id="reel-window-2">
+                    <rect x="32" y="26" width="16" height="18" />
+                  </clipPath>
+                  <clipPath id="reel-window-3">
+                    <rect x="50" y="26" width="14" height="18" />
+                  </clipPath>
+                </defs>
+
                 <!-- Top "JACKPOT" banner -->
                 <rect class="slot-banner-shadow" x="18" y="4" width="44" height="2" />
                 <rect class="slot-banner" x="16" y="6" width="48" height="8" />
@@ -8132,6 +8397,13 @@
                 <rect class="slot-body" x="10" y="14" width="60" height="48" />
                 <rect class="slot-inner" x="14" y="18" width="52" height="40" />
 
+                <!-- Eyes — pixel googly eyes in the dark strip above the
+                     reel windows, so the cabinet reads as a character. -->
+                <rect class="slot-eye-sclera" x="22" y="19" width="6" height="4" />
+                <rect class="slot-eye-pupil slot-pupil-l" x="24" y="20" width="2" height="2" />
+                <rect class="slot-eye-sclera" x="52" y="19" width="6" height="4" />
+                <rect class="slot-eye-pupil slot-pupil-r" x="54" y="20" width="2" height="2" />
+
                 <!-- Reel frames (top + bottom rails) -->
                 <rect class="slot-frame" x="16" y="24" width="48" height="2" />
                 <rect class="slot-frame" x="16" y="44" width="48" height="2" />
@@ -8143,34 +8415,98 @@
                 <rect class="reel-bg" x="32" y="26" width="16" height="18" />
                 <rect class="reel-bg" x="50" y="26" width="14" height="18" />
 
-                <!-- Reel 1 — pixel star (idea sparkle) -->
-                <g class="slot-reel slot-reel-1">
-                  <rect x="22" y="29" width="2" height="2" />
-                  <rect x="20" y="31" width="6" height="2" />
-                  <rect x="18" y="33" width="10" height="2" />
-                  <rect x="20" y="35" width="6" height="2" />
-                  <rect x="22" y="37" width="2" height="2" />
-                  <rect x="18" y="39" width="2" height="2" />
-                  <rect x="26" y="39" width="2" height="2" />
+                <!-- Reel 1 — space-themed strip scrolls past the window and
+                     lands on a pixel star. Bands are 18px tall; decoys stack
+                     above the landing symbol. Clipped to reel window. -->
+                <g clip-path="url(#reel-window-1)">
+                  <g class="slot-reel slot-reel-1">
+                    <!-- Decoy 1 (band y=-43..-25): rocket -->
+                    <rect x="22" y="-41" width="2" height="2" />
+                    <rect x="20" y="-39" width="6" height="4" />
+                    <rect x="18" y="-35" width="2" height="2" />
+                    <rect x="26" y="-35" width="2" height="2" />
+                    <rect x="22" y="-33" width="2" height="2" />
+                    <!-- Decoy 2 (band y=-25..-7): ringed planet -->
+                    <rect x="20" y="-23" width="6" height="6" />
+                    <rect x="18" y="-19" width="10" height="2" />
+                    <!-- Decoy 3 (band y=-7..11): UFO -->
+                    <rect x="20" y="-5" width="6" height="2" />
+                    <rect x="18" y="-3" width="10" height="2" />
+                    <rect x="20" y="-1" width="2" height="2" />
+                    <rect x="24" y="-1" width="2" height="2" />
+                    <!-- Decoy 4 (band y=11..29): crescent moon -->
+                    <rect x="20" y="13" width="4" height="2" />
+                    <rect x="18" y="15" width="2" height="6" />
+                    <rect x="20" y="21" width="4" height="2" />
+                    <!-- Landing symbol: pixel star -->
+                    <rect x="22" y="29" width="2" height="2" />
+                    <rect x="20" y="31" width="6" height="2" />
+                    <rect x="18" y="33" width="10" height="2" />
+                    <rect x="20" y="35" width="6" height="2" />
+                    <rect x="22" y="37" width="2" height="2" />
+                    <rect x="18" y="39" width="2" height="2" />
+                    <rect x="26" y="39" width="2" height="2" />
+                  </g>
                 </g>
 
                 <!-- Reel 2 — lightbulb (concept) -->
-                <g class="slot-reel slot-reel-2">
-                  <rect x="38" y="28" width="4" height="2" />
-                  <rect x="36" y="30" width="8" height="6" />
-                  <rect x="34" y="32" width="2" height="2" />
-                  <rect x="44" y="32" width="2" height="2" />
-                  <rect x="38" y="36" width="4" height="2" />
-                  <rect x="38" y="39" width="4" height="2" />
+                <g clip-path="url(#reel-window-2)">
+                  <g class="slot-reel slot-reel-2">
+                    <!-- Decoy 1: astronaut helmet -->
+                    <rect x="37" y="-41" width="6" height="2" />
+                    <rect x="35" y="-39" width="10" height="6" />
+                    <rect x="37" y="-33" width="6" height="2" />
+                    <!-- Decoy 2: satellite -->
+                    <rect x="39" y="-23" width="2" height="6" />
+                    <rect x="34" y="-21" width="12" height="2" />
+                    <rect x="33" y="-19" width="14" height="2" />
+                    <!-- Decoy 3: comet -->
+                    <rect x="34" y="-5" width="2" height="2" />
+                    <rect x="36" y="-3" width="2" height="2" />
+                    <rect x="38" y="-1" width="6" height="4" />
+                    <!-- Decoy 4: saturn -->
+                    <rect x="37" y="13" width="6" height="6" />
+                    <rect x="34" y="17" width="12" height="2" />
+                    <!-- Landing symbol: lightbulb -->
+                    <rect x="38" y="28" width="4" height="2" />
+                    <rect x="36" y="30" width="8" height="6" />
+                    <rect x="34" y="32" width="2" height="2" />
+                    <rect x="44" y="32" width="2" height="2" />
+                    <rect x="38" y="36" width="4" height="2" />
+                    <rect x="38" y="39" width="4" height="2" />
+                  </g>
                 </g>
 
-                <!-- Reel 3 — coin / dollar bolt -->
-                <g class="slot-reel slot-reel-3">
-                  <rect x="55" y="28" width="4" height="2" />
-                  <rect x="53" y="30" width="8" height="8" />
-                  <rect x="55" y="38" width="4" height="2" />
-                  <rect class="slot-coin-face" x="56" y="32" width="2" height="4" />
-                  <rect class="slot-coin-face" x="55" y="33" width="4" height="2" />
+                <!-- Reel 3 — coin / dollar -->
+                <g clip-path="url(#reel-window-3)">
+                  <g class="slot-reel slot-reel-3">
+                    <!-- Decoy 1: tiny UFO -->
+                    <rect x="54" y="-41" width="6" height="2" />
+                    <rect x="52" y="-39" width="10" height="2" />
+                    <rect x="54" y="-37" width="2" height="2" />
+                    <rect x="58" y="-37" width="2" height="2" />
+                    <!-- Decoy 2: star cluster -->
+                    <rect x="54" y="-23" width="2" height="2" />
+                    <rect x="58" y="-21" width="2" height="2" />
+                    <rect x="52" y="-17" width="2" height="2" />
+                    <rect x="56" y="-15" width="2" height="2" />
+                    <!-- Decoy 3: alien head -->
+                    <rect x="54" y="-5" width="6" height="2" />
+                    <rect x="52" y="-3" width="10" height="4" />
+                    <rect x="54" y="1" width="2" height="2" />
+                    <rect x="58" y="1" width="2" height="2" />
+                    <!-- Decoy 4: nebula cloud -->
+                    <rect x="54" y="13" width="6" height="2" />
+                    <rect x="52" y="15" width="10" height="2" />
+                    <rect x="54" y="17" width="6" height="2" />
+                    <rect x="56" y="19" width="2" height="2" />
+                    <!-- Landing symbol: coin -->
+                    <rect x="55" y="28" width="4" height="2" />
+                    <rect x="53" y="30" width="8" height="8" />
+                    <rect x="55" y="38" width="4" height="2" />
+                    <rect class="slot-coin-face" x="56" y="32" width="2" height="4" />
+                    <rect class="slot-coin-face" x="55" y="33" width="4" height="2" />
+                  </g>
                 </g>
 
                 <!-- Lever (right side) -->
@@ -8199,6 +8535,38 @@
                 <rect class="slot-coin slot-coin-b" x="38" y="68" width="2" height="2" />
                 <rect class="slot-coin slot-coin-c" x="50" y="66" width="2" height="2" />
                 <rect class="slot-coin slot-coin-a" x="44" y="72" width="2" height="2" />
+
+                <!-- Pixel sparkles around the cabinet — plus-shaped twinkles
+                     (same language as the Sorting Hat) so the slot reads as
+                     a living character in the same nebula. Groups share
+                     spark-a/b/c classes for staggered twinkle phases. -->
+                <g class="slot-spark spark-a">
+                  <rect x="4" y="10" width="1" height="3" fill="#F3D56B" />
+                  <rect x="3" y="11" width="3" height="1" fill="#F3D56B" />
+                </g>
+                <g class="slot-spark spark-b">
+                  <rect x="74" y="16" width="1" height="3" fill="#F3D56B" />
+                  <rect x="73" y="17" width="3" height="1" fill="#F3D56B" />
+                </g>
+                <g class="slot-spark spark-c">
+                  <rect x="2" y="34" width="1" height="3" fill="#A6F0C8" />
+                  <rect x="1" y="35" width="3" height="1" fill="#A6F0C8" />
+                </g>
+                <g class="slot-spark spark-a">
+                  <rect x="76" y="44" width="2" height="4" fill="#A6F0C8" />
+                  <rect x="75" y="45" width="4" height="2" fill="#A6F0C8" />
+                </g>
+                <g class="slot-spark spark-b">
+                  <rect x="72" y="70" width="1" height="3" fill="#F3D56B" />
+                  <rect x="71" y="71" width="3" height="1" fill="#F3D56B" />
+                </g>
+                <g class="slot-spark spark-c">
+                  <rect x="4" y="66" width="1" height="3" fill="#F3D56B" />
+                  <rect x="3" y="67" width="3" height="1" fill="#F3D56B" />
+                </g>
+
+                <!-- Blinking "alive" indicator above the jackpot banner -->
+                <rect class="slot-eye" x="39" y="1" width="2" height="2" fill="#E26A6A" />
               </svg>
               <div class="wp-art-cap wp-slot-cap">
                 <div class="wp-hat-dialog wp-slot-dialog">
@@ -8223,39 +8591,53 @@
                 until it works in practice.</h3>
             </div>
             <div class="wp-art wp-art-bare">
-              <svg class="wp-pixel wp-pixel-beaker" viewBox="0 0 60 60" shape-rendering="crispEdges" aria-hidden="true">
-                <!-- Pixel-art beaker — chunky pixels in the cohort-alien language.
-                     Pouring spout on the upper-left, graduated marks inside,
-                     mint liquid with rising bubbles above and within. -->
-                <!-- Rising bubbles above the beaker -->
-                <rect class="pix-bubble" x="20" y="0" width="4" height="4" style="animation-delay: 0s" />
-                <rect class="pix-bubble-sm" x="32" y="2" width="3" height="3" style="animation-delay: 0.5s" />
-                <rect class="pix-bubble" x="40" y="4" width="4" height="4" style="animation-delay: 1.0s" />
-                <rect class="pix-bubble-sm" x="26" y="10" width="3" height="3" style="animation-delay: 1.6s" />
-                <!-- Spout (pouring lip, up-and-left from the rim) -->
-                <rect class="pix-outline" x="4" y="8" width="4" height="4" />
-                <rect class="pix-outline" x="8" y="12" width="4" height="4" />
-                <!-- Top rim of the beaker -->
-                <rect class="pix-outline" x="12" y="16" width="40" height="4" />
-                <!-- Left and right walls -->
-                <rect class="pix-outline" x="12" y="20" width="4" height="32" />
-                <rect class="pix-outline" x="48" y="20" width="4" height="32" />
-                <!-- Bottom -->
-                <rect class="pix-outline" x="12" y="52" width="40" height="4" />
-                <!-- Liquid surface (bright mint) -->
-                <rect class="pix-liquid-top" x="16" y="32" width="32" height="2" />
-                <!-- Liquid body -->
-                <rect class="pix-liquid" x="16" y="34" width="32" height="18" />
-                <!-- Internal bubbles -->
-                <rect class="pix-bubble-sm" x="22" y="42" width="3" height="3" style="animation-delay: 0.3s" />
-                <rect class="pix-bubble-sm" x="34" y="38" width="3" height="3" style="animation-delay: 0.9s" />
-                <rect class="pix-bubble-sm" x="28" y="48" width="2" height="2" style="animation-delay: 1.4s" />
-                <!-- Graduation notches on the interior of the left wall -->
-                <rect class="pix-notch" x="16" y="24" width="3" height="2" />
-                <rect class="pix-notch" x="16" y="28" width="5" height="2" />
-                <rect class="pix-notch" x="16" y="40" width="3" height="2" />
-                <rect class="pix-notch" x="16" y="46" width="3" height="2" />
-              </svg>
+              <!-- Two cohort aliens handing a glowing pixel prototype back
+                   and forth — test, learn, iterate. Orbit dots around the
+                   orb reinforce the iteration loop. -->
+              <div class="wp4-scene" aria-hidden="true">
+                <svg class="wp4-alien wp4-alien-left" id="wp4-alien-left" viewBox="0 0 200 200"></svg>
+                <svg class="wp4-middle" viewBox="0 0 40 60" shape-rendering="crispEdges">
+                  <!-- The prototype evolves through three versions —
+                       rough → refined → polished + ✓. Groups cross-fade
+                       in sequence to read as "test, learn, iterate
+                       until it works." -->
+
+                  <!-- v1 — small rough draft -->
+                  <g class="wp4-proto wp4-v1">
+                    <rect class="wp4-rough" x="17" y="25" width="6" height="2" />
+                    <rect class="wp4-rough" x="16" y="27" width="8" height="2" />
+                    <rect class="wp4-rough" x="17" y="29" width="6" height="2" />
+                  </g>
+
+                  <!-- v2 — refined, taller and cleaner -->
+                  <g class="wp4-proto wp4-v2">
+                    <rect class="wp4-mid" x="15" y="23" width="10" height="2" />
+                    <rect class="wp4-mid" x="14" y="25" width="12" height="2" />
+                    <rect class="wp4-mid" x="14" y="27" width="12" height="2" />
+                    <rect class="wp4-mid" x="14" y="29" width="12" height="2" />
+                    <rect class="wp4-mid" x="15" y="31" width="10" height="2" />
+                  </g>
+
+                  <!-- v3 — polished, full-size with highlight + ✓ above -->
+                  <g class="wp4-proto wp4-v3">
+                    <rect class="wp4-final" x="14" y="22" width="12" height="2" />
+                    <rect class="wp4-final" x="12" y="24" width="16" height="2" />
+                    <rect class="wp4-final" x="12" y="26" width="16" height="2" />
+                    <rect class="wp4-final" x="12" y="28" width="16" height="2" />
+                    <rect class="wp4-final" x="12" y="30" width="16" height="2" />
+                    <rect class="wp4-final" x="14" y="32" width="12" height="2" />
+                    <rect class="wp4-shine" x="14" y="24" width="2" height="2" />
+                    <rect class="wp4-shine" x="16" y="24" width="2" height="2" />
+                    <!-- ✓ check mark above -->
+                    <rect class="wp4-check" x="14" y="16" width="2" height="2" />
+                    <rect class="wp4-check" x="16" y="18" width="2" height="2" />
+                    <rect class="wp4-check" x="18" y="16" width="2" height="2" />
+                    <rect class="wp4-check" x="20" y="14" width="2" height="2" />
+                    <rect class="wp4-check" x="22" y="12" width="2" height="2" />
+                  </g>
+                </svg>
+                <svg class="wp4-alien wp4-alien-right" id="wp4-alien-right" viewBox="0 0 200 200"></svg>
+              </div>
             </div>
           </div>
 
@@ -8275,6 +8657,7 @@
                    dome (overlay) + alien + saucer body, stacked so the
                    alien reads as sitting *inside* a glass bubble. -->
               <div class="wp5-ufos" aria-hidden="true">
+                <div class="ufo-trails" aria-hidden="true"></div>
                 <div class="ufo-flyer f1">
                   <div class="ufo-bob">
                     <div class="ufo-craft">
@@ -9247,9 +9630,18 @@
             // pin center, in map coords
             const px = pinRect.left + pinRect.width / 2 - mapRect.left;
             const py = pinRect.top + pinRect.height / 2 - mapRect.top;
-            // card attach: top-right for left-side cards, top-left for right-side
+            // card attach: top-right for left-side cards, top-left for right-side.
+            // wp-3 and wp-4 are special-cased to attach at their far corner so
+            // the comet has a longer visible flight across the card width.
             const isLeftCard = (wpNum === '1' || wpNum === '3');
-            const cx = (isLeftCard ? cardRect.right : cardRect.left) - mapRect.left;
+            let cx;
+            if (wpNum === '3') {
+              cx = cardRect.left - mapRect.left;
+            } else if (wpNum === '4') {
+              cx = cardRect.right - mapRect.left;
+            } else {
+              cx = (isLeftCard ? cardRect.right : cardRect.left) - mapRect.left;
+            }
             const cy = cardRect.top - mapRect.top + 14;
             // Curve control point — bow toward the pin so the line feels
             // like it eases into the streak rather than stabbing at it.
@@ -9675,6 +10067,11 @@
       render('wp-alien-4', BLINK, P_BLINK);
       render('wp-alien-5', SUIT, P_SUIT);
 
+      /* Waypoint 04 "iterate in the wild" — two cohort aliens bouncing
+         the prototype between them. */
+      render('wp4-alien-left', PODLET, P_PODLET);
+      render('wp4-alien-right', SPROUT, P_SPROUT);
+
       /* Same five cohort aliens, piloting tiny UFOs around the
          destination capstone in wp-5. */
       render('wp5-alien-1', PODLET, P_PODLET);
@@ -9734,25 +10131,30 @@
 
       if (wp5El && wp4El && cardEl && pathEl && pathSvg) {
         const flyers = Array.from(cardEl.querySelectorAll('.ufo-flyer'));
+        const trailsHost = cardEl.querySelector('.ufo-trails');
         const pathLen = pathEl.getTotalLength();
+        // Track each flyer's previous local position so we can emit
+        // particles along the travelled delta (one dot per ~18 CSS px).
+        const lastTrail = flyers.map(() => null);
+        const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // Where the squadron enters the path (pin 04 area) and where it
         // peels off to converge on the destination card.
-        const ENTRY_PCT = 0.60;  // matches pin 04's data-percent
+        const ENTRY_PCT = 0.70;  // matches pin 04's data-percent
         const PRE_REST_PCT = 0.95;  // just before the trail endcap
         const SPLIT_POINT = 0.78;  // scroll progress at which formation breaks
 
         // Per-flyer formation: longitudinal stagger along the path
         // (pctOffset) + cross-track screen offsets, so they fly as a
         // loose flock rather than five UFOs stacked on top of each
-        // other. Values chosen to keep them near the line but visibly
-        // spread around it.
+        // other. Spacing is > one UFO footprint (~96×78) on both axes
+        // so the ships never overlap in flight.
         const FORMATION = [
-          { pct: -0.012, dx: -58, dy: -18 }, // f1 front-left
-          { pct: 0.006, dx: 58, dy: -22 }, // f2 front-right
-          { pct: -0.024, dx: -72, dy: 24 }, // f3 mid-left
-          { pct: 0.020, dx: 72, dy: 20 }, // f4 mid-right
-          { pct: 0.034, dx: 0, dy: 44 }, // f5 trailing center
+          { pct: -0.028, dx: -115, dy: -40 }, // f1 front-left
+          { pct: -0.014, dx: 115, dy: -40 }, // f2 front-right
+          { pct: 0.002, dx: -130, dy: 60 }, // f3 mid-left
+          { pct: 0.016, dx: 130, dy: 60 }, // f4 mid-right
+          { pct: 0.034, dx: 0, dy: 150 }, // f5 trailing center
         ];
 
         // Resting spots around the destination card (local coords relative
@@ -9845,6 +10247,40 @@
             el.style.transform =
               `translate(${localX.toFixed(2)}px, ${localY.toFixed(2)}px) ` +
               `scale(${scale.toFixed(3)})`;
+
+            // Emit trail dots along the path the UFO has actually
+            // travelled since the previous frame. Only while visible
+            // and not yet landed, so we don't keep emitting when the
+            // user scrolls back up or sits idle on the destination.
+            if (!prefersReduced && trailsHost && opacity > 0.2 && p < 0.985) {
+              const cx = localX + 48; // UFO center (flyer is 96×78)
+              const cy = localY + 39;
+              const prev = lastTrail[i];
+              if (!prev) {
+                lastTrail[i] = { x: cx, y: cy };
+              } else {
+                const dx = cx - prev.x;
+                const dy = cy - prev.y;
+                const dist = Math.hypot(dx, dy);
+                const step = 18;
+                if (dist >= step) {
+                  const steps = Math.min(6, Math.floor(dist / step));
+                  for (let s = 1; s <= steps; s++) {
+                    const f = s / steps;
+                    const dot = document.createElement('span');
+                    dot.className = 'ufo-trail-dot';
+                    dot.style.left = (prev.x + dx * f).toFixed(1) + 'px';
+                    dot.style.top = (prev.y + dy * f + 8).toFixed(1) + 'px';
+                    dot.style.animationDelay = (s * 20) + 'ms';
+                    dot.addEventListener('animationend', () => dot.remove());
+                    trailsHost.appendChild(dot);
+                  }
+                  lastTrail[i] = { x: cx, y: cy };
+                }
+              }
+            } else {
+              lastTrail[i] = null;
+            }
           });
         }
 
