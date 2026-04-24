@@ -7346,9 +7346,12 @@
 
     .about-wrap {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
+      grid-template-columns: 1fr;
+      gap: 64px;
+    }
+
+    .about-header {
+      max-width: 1100px;
     }
 
     .about h2 {
@@ -7365,12 +7368,40 @@
       color: var(--fluency);
     }
 
-    .about p {
-      margin-top: 28px;
+    .about-lead {
+      margin-top: 32px;
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(22px, 2.2vw, 28px);
+      line-height: 1.4;
+      color: var(--ink);
+      max-width: 880px;
+    }
+
+    .about-body {
+      max-width: 720px;
+    }
+
+    .about-body p {
+      margin: 0 0 22px 0;
       font-size: 18px;
       color: var(--ink-soft);
-      line-height: 1.55;
-      max-width: 520px;
+      line-height: 1.65;
+    }
+
+    .about-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .about p em {
+      font-style: italic;
+    }
+
+    .about p mark {
+      background: linear-gradient(180deg, transparent 55%, rgba(140, 168, 122, 0.38) 55%, rgba(140, 168, 122, 0.38) 92%, transparent 92%);
+      color: inherit;
+      padding: 0 2px;
+      font-weight: 500;
     }
 
     .about .scribble {
@@ -7381,12 +7412,12 @@
     .pin-cards {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 40px;
+      margin-top: 24px;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 860px) {
 
-      .about-wrap,
       .pin-cards {
         grid-template-columns: 1fr;
       }
@@ -7395,9 +7426,9 @@
     .pin {
       background: #FAF6EC;
       border: 1px solid var(--line);
-      padding: 24px;
+      padding: 32px;
       position: relative;
-      min-height: 240px;
+      min-height: 360px;
       box-shadow: 0 14px 28px -22px rgba(42, 46, 51, 0.3);
     }
 
@@ -9487,15 +9518,24 @@
     <section class="about" id="about">
       <div class="wrap">
         <div class="about-wrap">
-          <div class="reveal">
+          <div class="about-header reveal">
             <span class="section-label">05 · Who we are</span>
-            <h2>Two people <em>tired</em> of AI workshops that only teach prompting.</h2>
-            <p>We've spent years watching companies spend millions on AI initiatives that go nowhere. The knowledge and
-              the talking points, what you should teach about AI, has been <em>hammered home</em>. But no one has taken
-              the time to sit with people and show them what's possible with the problems they face every day.</p>
-            <p>That's The Counter. It's founded on the rare belief in corporate life that people are not the problem to
-              be managed through this process &mdash; they're the answer.</p>
-            <span class="scribble">↑ honestly that's the whole thing</span>
+            <h2>Why We Founded The Counter</h2>
+            <p class="about-lead">We founded The Counter because we felt this discomfort ourselves. We spent years at
+              one of the world's largest innovation and technology consultancies <em>(if you're reading, no
+              offense)</em>, and became AI fluent largely on our own by teaching ourselves to think and
+              work with AI on our own work <mark>until it was instinctive</mark>.</p>
+          </div>
+
+          <div class="about-body reveal">
+            <p>Once we got there, we could see what fluency actually makes possible. Not just doing our work faster,
+              but doing new things we couldn't do before. And we could see how far most organizations are from giving
+              their people the chance to get there. <mark>Most are still teaching literacy and leaving fluency to
+              chance</mark>, and the talking points have been hammered home to the point that people are disengaging.</p>
+            <p>The window to change that is open now, but it won't stay open forever. It takes honesty about what
+              people are feeling, patience with a process that moves one person, one problem, one solution at a time.
+              And equally important, <mark>brave leaders</mark> who feel that the current approach isn't enough and
+              are willing to do something about it.</p>
           </div>
 
           <div class="pin-cards reveal">
