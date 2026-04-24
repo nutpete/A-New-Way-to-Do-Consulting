@@ -5867,6 +5867,48 @@
       max-width: 520px;
     }
 
+    .case-narrative h3.case-quote {
+      position: relative;
+      padding-left: 28px;
+      margin-top: 28px;
+      border-left: 3px solid var(--marker);
+    }
+
+    .case-narrative h3.case-quote::before {
+      content: '\201C';
+      position: absolute;
+      left: 14px;
+      top: -0.35em;
+      font-family: 'Instrument Serif', serif;
+      font-style: normal;
+      font-size: 2.2em;
+      line-height: 1;
+      color: var(--marker);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .case-quote-attr {
+      display: block;
+      margin: -6px 0 18px 28px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-style: normal;
+    }
+
+    .case-quote-attr b {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .case-quote-attr .dash {
+      color: var(--marker);
+      margin-right: 4px;
+    }
+
     .case-narrative .case-body {
       font-size: 16px;
       color: var(--ink-soft);
@@ -9116,14 +9158,14 @@
                   <div class="case-eyebrow">
                     <span class="sector">FINANCIAL SERVICES</span>
                   </div>
-                  <h3>A fraud dispute analyst had everything she needed to make the call, just not in one place.</h3>
+                  <h3 class="case-quote">I&rsquo;d spend half my day pulling context together before I could even start reviewing the dispute.</h3>
+                  <cite class="case-quote-attr"><span class="dash">&mdash;</span> <b>Maya</b>, Fraud Dispute Analyst</cite>
                   <div class="case-body">
-                    <p>Maya was spending too much time hunting through different systems to piece together what happened
-                      before she could even begin reviewing the dispute. She created a prototype that pulled the
-                      relevant information into one place, highlighted contradictions, separated confirmed facts from
-                      unsupported claims, and gave her a clearer starting point for making the decision.</p>
+                    <p>Maya tested new ways to bring the relevant information together. Her prototype flags
+                      contradictions, separates confirmed facts from unsupported claims, and gives her a clearer
+                      starting point for each decision. It&rsquo;s working in her day-to-day &mdash; and she now has the
+                      proof points to bring back to the business and partner on what scaling it could look like.</p>
                   </div>
-                  <div class="case-metric">Assembly &rarr; Judgment</div>
                 </div>
                 <div class="case-screen-col">
                   <div class="laptop-frame">
@@ -9270,15 +9312,15 @@
                   <div class="case-eyebrow">
                     <span class="sector">LIFE SCIENCES</span>
                   </div>
-                  <h3>A marketer already had the strategy in her head, but it still took weeks and an outside agency to
-                    turn it into something the business could use.</h3>
+                  <h3 class="case-quote">The direction is usually clear to me pretty fast, getting it into a shape my agency can run with takes more time than I&rsquo;d like it to.</h3>
+                  <cite class="case-quote-attr"><span class="dash">&mdash;</span> <b>Rachel</b>, Brand Marketing Lead</cite>
                   <div class="case-body">
-                    <p>Rachel knew the outcomes data, approved claims, and strategic direction better than anyone. She
-                      created a prototype that pulled those inputs together, shaped them into clear concept territories,
-                      kept each one traceable to sources, and made them ready for review in a fraction of the usual
-                      time.</p>
+                    <p>Rachel tested new ways to shorten the path from data to direction. Working with her team, and
+                      inside the regulatory, compliance, and data standards life sciences marketing requires, she built
+                      a prototype that pulls her brand&rsquo;s efficacy, safety, and outcomes data into one place, shapes
+                      it into concept territories (each traceable back to its source), and lets her mock up early ideas
+                      to bring to her agency with a sharper point of view more quickly.</p>
                   </div>
-                  <div class="case-metric">Outsourced &rarr; Owned</div>
                 </div>
                 <div class="case-screen-col">
                   <div class="laptop-frame">
@@ -9418,16 +9460,15 @@
                   <div class="case-eyebrow">
                     <span class="sector">CONSUMER GOODS</span>
                   </div>
-                  <h3>An R&amp;D scientist had years of formulation data that could have made experimentation much
-                    faster, but it was buried in files she never had time to use.</h3>
+                  <h3 class="case-quote">There&rsquo;s probably twenty years of formulation data sitting across the company &mdash; and honestly, re-running an experiment from scratch is usually faster than trying to find if someone&rsquo;s already done it.</h3>
+                  <cite class="case-quote-attr"><span class="dash">&mdash;</span> <b>Sarah</b>, R&amp;D Scientist</cite>
                   <div class="case-body">
-                    <p>Sarah had a decade of test results across polymer absorption, surfactant levels, and particle
-                      size, along with a hunch about how those variables might be interacting. She created a prototype
-                      that made her past experiments searchable, surfaced patterns across prior test cycles, and let her
-                      run digital scenarios to predict likely performance before moving into physical testing. Instead
-                      of relying only on slower lab cycles, she had a faster way to focus where to experiment next.</p>
+                    <p>Sarah tested new ways to unlock the formulation work already sitting in the company&rsquo;s files.
+                      Working with her team, she built a prototype that indexes historical test data across lab
+                      notebooks, ELNs, and project archives, and lets her run digital scenarios against that body of
+                      work before committing to a lab cycle. Now she walks into each cycle testing the most promising
+                      hypotheses, not just the ones she had time to get to.</p>
                   </div>
-                  <div class="case-metric">5 &rarr; 50 hypotheses / cycle</div>
                 </div>
                 <div class="case-screen-col">
                   <div class="laptop-frame">
