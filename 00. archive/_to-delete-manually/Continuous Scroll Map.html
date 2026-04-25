@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Continuous Scroll Map — design language flowing down</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--space:#050810;
+    --line:rgba(42,46,51,0.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.035) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.035) 1px,transparent 1px);
+    background-size:36px 36px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:15px;
+    padding:48px;
+  }
+  .doc-head{margin-bottom:32px;max-width:780px}
+  .eyebrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:.08em;
+    color:var(--fluency);background:var(--ink);padding:6px 10px;
+    box-shadow:3px 3px 0 var(--fluency-2);display:inline-block;margin-bottom:14px;
+  }
+  h1{font-family:'Instrument Serif',serif;font-size:48px;line-height:1.02;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--fluency)}
+  .doc-head p{font-size:15px;line-height:1.55;color:var(--ink-soft);margin-top:10px;max-width:62ch}
+
+  /* === The map ============================================== */
+  .map{
+    display:grid;grid-template-columns:200px 1fr 200px;gap:0 24px;
+    align-items:stretch;margin-top:24px;
+  }
+
+  /* Left rail — section labels */
+  .rail-l{
+    display:flex;flex-direction:column;
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.04em;
+  }
+  .rail-l .lbl{
+    flex:1;padding:14px 10px;display:flex;align-items:center;
+    border-top:1px solid var(--line);
+    color:var(--ink-soft);
+  }
+  .rail-l .lbl .num{color:var(--fluency);margin-right:8px}
+  .rail-l .lbl:first-child{border-top:none}
+
+  /* Center — the gradient ribbon */
+  .ribbon{
+    position:relative;display:flex;flex-direction:column;
+    border-left:2px solid var(--ink);border-right:2px solid var(--ink);
+    overflow:hidden;
+  }
+  .seg{
+    flex:1;position:relative;padding:18px 24px;
+    border-top:1px solid rgba(42,46,51,.2);
+    display:flex;flex-direction:column;justify-content:center;gap:6px;
+  }
+  .seg:first-child{border-top:none}
+  .seg .seg-title{
+    font-family:'Instrument Serif',serif;font-size:22px;line-height:1.1;
+  }
+  .seg .seg-title em{font-style:italic;color:var(--fluency)}
+  .seg .seg-meta{
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-soft);
+    letter-spacing:.02em;
+  }
+
+  /* per-segment backgrounds — paper → space, with bridges */
+  .s-hero{background:var(--paper)}
+  .s-gap{background:var(--paper)}
+  .s-wait{background:var(--paper);position:relative}
+  .s-wait::after{
+    content:'';position:absolute;left:0;right:0;top:0;height:6px;
+    background:repeating-linear-gradient(90deg,var(--marker) 0 6px,transparent 6px 12px);
+  }
+  .s-counter{
+    background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 30%,var(--paper-2) 70%,#403F45 100%);
+    color:var(--paper);
+  }
+  .s-counter .seg-title{color:var(--ink)}
+  .s-bridge{
+    background:linear-gradient(180deg,#403F45 0%,#1A1C20 50%,var(--space) 100%);
+    color:var(--paper);position:relative;
+  }
+  .s-bridge::before{
+    /* dither dots */
+    content:'';position:absolute;inset:0;
+    background-image:
+      radial-gradient(1px 1px at 10% 30%,#fff 50%,transparent 50%),
+      radial-gradient(1px 1px at 30% 70%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(1px 1px at 60% 20%,#fff 50%,transparent 50%),
+      radial-gradient(1px 1px at 80% 80%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(1px 1px at 50% 50%,#fff 50%,transparent 50%);
+    opacity:.7;
+  }
+  .s-bridge .seg-title,.s-bridge .seg-meta{position:relative;z-index:1}
+  .s-bridge .seg-title{color:var(--paper)}
+  .s-bridge .seg-meta{color:var(--fluency-2)}
+  .s-journey{background:var(--space);color:var(--paper);position:relative}
+  .s-journey::before{
+    content:'';position:absolute;inset:0;
+    background-image:
+      radial-gradient(1.5px 1.5px at 8% 22%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(1px 1px at 24% 60%,#fff 50%,transparent 50%),
+      radial-gradient(2px 2px at 50% 30%,var(--fluency-3) 50%,transparent 50%),
+      radial-gradient(1px 1px at 72% 78%,#fff 50%,transparent 50%),
+      radial-gradient(1.5px 1.5px at 88% 18%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(1px 1px at 14% 86%,#fff 50%,transparent 50%);
+  }
+  .s-journey .seg-title{color:var(--paper)}
+  .s-journey .seg-title em{color:var(--fluency-3)}
+  .s-journey .seg-meta{color:var(--fluency-2);position:relative;z-index:1}
+  .s-journey .seg-title{position:relative;z-index:1}
+
+  /* Right rail — element pills (what's "on" in each section) */
+  .rail-r{
+    display:flex;flex-direction:column;
+  }
+  .pills{
+    flex:1;padding:14px 0 14px 16px;display:flex;flex-direction:column;gap:5px;
+    border-top:1px solid var(--line);justify-content:center;
+  }
+  .pills:first-child{border-top:none}
+  .pill{
+    font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.02em;
+    padding:3px 8px;display:inline-flex;align-items:center;gap:6px;
+    background:var(--paper-card);border:1px solid var(--ink);
+    align-self:flex-start;
+  }
+  .pill .dot{width:8px;height:8px;background:var(--ink-soft)}
+  .pill.on{background:var(--ink);color:var(--paper)}
+  .pill.on .dot{background:var(--fluency-3)}
+  .pill.fade{opacity:.4}
+
+  /* Density meter on the side */
+  .meter{
+    margin-top:36px;display:grid;grid-template-columns:200px 1fr 200px;gap:0 24px;
+  }
+  .meter-bars{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:2px;
+    border:1.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+    background:var(--paper-card);padding:14px;height:160px;
+  }
+  .meter-bar{
+    position:relative;background:var(--paper-2);
+    display:flex;flex-direction:column;justify-content:flex-end;
+  }
+  .meter-bar .fill{
+    background:repeating-linear-gradient(0deg,var(--fluency) 0 4px,var(--fluency-2) 4px 8px);
+    border-top:2px solid var(--ink);
+  }
+  .meter-bar .pct{
+    position:absolute;top:6px;left:50%;transform:translateX(-50%);
+    font-family:'Press Start 2P',monospace;font-size:8px;color:var(--ink);
+  }
+  .meter-bar .lbl{
+    position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .meter-side{display:flex;flex-direction:column;justify-content:center;gap:6px}
+  .meter-side h4{
+    font-family:'Press Start 2P',monospace;font-size:9px;color:var(--fluency);
+    letter-spacing:.04em;
+  }
+  .meter-side p{font-size:12px;color:var(--ink-soft);line-height:1.5}
+
+  /* === Principles row ====================================== */
+  .principles{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+  }
+  .princ{
+    background:var(--paper-card);border:1.5px solid var(--ink);box-shadow:5px 5px 0 var(--ink);
+    padding:20px 24px;position:relative;
+  }
+  .princ .num{
+    position:absolute;top:-14px;left:18px;
+    font-family:'Press Start 2P',monospace;font-size:10px;color:var(--paper);
+    background:var(--ink);padding:5px 10px;letter-spacing:.06em;
+  }
+  .princ h3{
+    font-family:'Instrument Serif',serif;font-weight:400;font-size:24px;line-height:1.15;
+    margin:8px 0 8px;
+  }
+  .princ h3 em{color:var(--fluency);font-style:italic}
+  .princ p{font-size:13px;line-height:1.55;color:var(--ink)}
+  .princ .demo{
+    margin-top:14px;height:64px;border:1px dashed var(--line);
+    display:flex;align-items:center;justify-content:center;background:var(--paper);
+  }
+  /* demo 1 — paper holds */
+  .demo-paper{
+    background:var(--paper);position:relative;
+  }
+  .demo-paper::before{
+    content:'fluency';font-family:'Press Start 2P',monospace;font-size:10px;color:var(--fluency);
+    background:var(--ink);padding:4px 8px;
+  }
+  /* demo 2 — bleed */
+  .demo-bleed{
+    background:linear-gradient(180deg,var(--paper) 0%,var(--paper) 50%,#1A1C20 100%);
+    color:var(--paper);
+  }
+  .demo-bleed::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:6px;
+    background:repeating-linear-gradient(90deg,var(--space) 0 4px,transparent 4px 8px);
+  }
+  /* demo 3 — sprite */
+  .demo-sprite{position:relative}
+  .demo-sprite svg{width:32px;height:32px;image-rendering:pixelated}
+
+  /* === Inheritance table ================================== */
+  .inherit{
+    margin-top:36px;background:var(--ink);color:var(--paper);
+    padding:28px 32px;box-shadow:6px 6px 0 var(--fluency);
+  }
+  .inherit h2{
+    font-family:'Press Start 2P',monospace;font-size:14px;color:var(--fluency-2);
+    margin-bottom:18px;letter-spacing:.06em;
+  }
+  .inherit table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .inherit th{
+    text-align:left;padding:8px 10px;border-bottom:1.5px solid var(--fluency);
+    color:var(--fluency-2);font-weight:500;letter-spacing:.04em;
+    text-transform:uppercase;font-size:10px;
+  }
+  .inherit td{
+    padding:10px;border-bottom:1px solid #3A3F47;vertical-align:top;
+  }
+  .inherit td:first-child{
+    color:var(--fluency-3);font-weight:700;width:18%;
+  }
+  .inherit .arrow{color:var(--fluency-2)}
+  .inherit .none{color:#7d8590;font-style:italic}
+
+</style>
+</head>
+<body>
+
+<div class="doc-head">
+  <span class="eyebrow">▶ FOLLOW-UP / 04 · CONTINUOUS SCROLL</span>
+  <h1>The page is <em>one descent.</em></h1>
+  <p>Right now each section reads as its own block — fresh background, fresh tone, fresh break. The fix isn't more design, it's <strong>inheritance</strong>: each section borrows three things from the one above and hands three things to the one below. Paper is fluency's negative space. Space is its destination. The pixel motifs are how we travel between them.</p>
+</div>
+
+<!-- The map -->
+<div class="map">
+
+  <!-- Left rail labels -->
+  <div class="rail-l">
+    <div class="lbl"><span class="num">00</span>HERO</div>
+    <div class="lbl"><span class="num">01</span>THE GAP</div>
+    <div class="lbl"><span class="num">02</span>WAIT.</div>
+    <div class="lbl"><span class="num">03</span>WHAT IT IS</div>
+    <div class="lbl"><span class="num">04</span>BRIDGE</div>
+    <div class="lbl"><span class="num">05</span>JOURNEY</div>
+  </div>
+
+  <!-- The ribbon -->
+  <div class="ribbon">
+    <div class="seg s-hero">
+      <div class="seg-title">Hero</div>
+      <div class="seg-meta">paper · 5% pixel · 1 sprite top-right</div>
+    </div>
+    <div class="seg s-gap">
+      <div class="seg-title">The <em>Gap</em></div>
+      <div class="seg-meta">paper · 35% pixel · windows-2000 vs fluency split</div>
+    </div>
+    <div class="seg s-wait">
+      <div class="seg-title">"<em>wait.</em>"</div>
+      <div class="seg-meta">paper · 25% pixel · debris drifting · marker red enters</div>
+    </div>
+    <div class="seg s-counter">
+      <div class="seg-title">What it <em>is</em></div>
+      <div class="seg-meta">paper-to-dusk · 55% pixel · receipt + sprites · space bleeds in BR corner</div>
+    </div>
+    <div class="seg s-bridge">
+      <div class="seg-title">Dither bridge</div>
+      <div class="seg-meta">2×2 checker · 6 stops · 200px tall · the only "section" with no copy</div>
+    </div>
+    <div class="seg s-journey">
+      <div class="seg-title">The <em>Journey</em></div>
+      <div class="seg-meta">space · 100% pixel · constellation · polaroids float in</div>
+    </div>
+  </div>
+
+  <!-- Right rail pills (what's "on" per section) -->
+  <div class="rail-r">
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>paper bg</span>
+      <span class="pill"><span class="dot"></span>1 sprite</span>
+      <span class="pill fade"><span class="dot"></span>pixel kit</span>
+    </div>
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>paper bg</span>
+      <span class="pill on"><span class="dot"></span>pixel kit</span>
+      <span class="pill on"><span class="dot"></span>win-2k chrome</span>
+    </div>
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>paper bg</span>
+      <span class="pill on"><span class="dot"></span>pixel debris</span>
+      <span class="pill on"><span class="dot"></span>marker red</span>
+    </div>
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>paper → dusk</span>
+      <span class="pill on"><span class="dot"></span>pixel receipt</span>
+      <span class="pill on"><span class="dot"></span>space sprites</span>
+    </div>
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>dither</span>
+      <span class="pill on"><span class="dot"></span>star-dots</span>
+      <span class="pill fade"><span class="dot"></span>copy</span>
+    </div>
+    <div class="pills">
+      <span class="pill on"><span class="dot"></span>space bg</span>
+      <span class="pill on"><span class="dot"></span>full pixel</span>
+      <span class="pill on"><span class="dot"></span>constellation</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- Density meter -->
+<div class="meter">
+  <div class="meter-side">
+    <h4>▶ PIXEL DENSITY</h4>
+    <p>How "pixelated" each section feels. The curve climbs because pixel = fluency. The page never goes <em>fully</em> pixel until the journey — that's where fluency arrives.</p>
+  </div>
+  <div class="meter-bars">
+    <div class="meter-bar"><span class="pct">5%</span><div class="fill" style="height:5%"></div><span class="lbl">hero</span></div>
+    <div class="meter-bar"><span class="pct">35%</span><div class="fill" style="height:35%"></div><span class="lbl">gap</span></div>
+    <div class="meter-bar"><span class="pct">25%</span><div class="fill" style="height:25%"></div><span class="lbl">wait.</span></div>
+    <div class="meter-bar"><span class="pct">55%</span><div class="fill" style="height:55%"></div><span class="lbl">what is</span></div>
+    <div class="meter-bar"><span class="pct">80%</span><div class="fill" style="height:80%"></div><span class="lbl">bridge</span></div>
+    <div class="meter-bar"><span class="pct">100%</span><div class="fill" style="height:100%"></div><span class="lbl">journey</span></div>
+  </div>
+  <div class="meter-side">
+    <h4>▶ READ THIS AS</h4>
+    <p>Tweak knob, not law. If a section feels too cold, dial pixel down. If it feels disconnected, increase what it inherits from above.</p>
+  </div>
+</div>
+
+<!-- Principles -->
+<div class="principles">
+  <div class="princ">
+    <span class="num">01</span>
+    <h3>Paper holds <em>until you earn space.</em></h3>
+    <p>Don't switch backgrounds for a tonal beat. The Wait. moment, the Counter Approved stamp, even the receipt — they all sit on paper. Space arrives only when fluency arrives.</p>
+    <div class="demo demo-paper"></div>
+  </div>
+  <div class="princ">
+    <span class="num">02</span>
+    <h3>Bleed, don't <em>cut.</em></h3>
+    <p>When backgrounds change, do it as a 200–400px dither bridge with the previous color, then a chunk that's half-and-half, then full new. Never a hard horizontal line.</p>
+    <div class="demo demo-bleed"></div>
+  </div>
+  <div class="princ">
+    <span class="num">03</span>
+    <h3>One motif <em>migrates.</em></h3>
+    <p>Each section sends a sprite ahead — a debris dot, a planet ring, a star. By the time you see it again two sections later, your eye recognizes it: same world, deeper into it.</p>
+    <div class="demo demo-sprite">
+      <svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="6" y="6" width="4" height="4" fill="#73956F"/>
+        <rect x="2" y="7" width="3" height="2" fill="#95D7AE"/>
+        <rect x="11" y="7" width="3" height="2" fill="#95D7AE"/>
+        <rect x="7" y="2" width="2" height="3" fill="#9D5A5A"/>
+        <rect x="0" y="0" width="2" height="2" fill="#52E08D"/>
+        <rect x="14" y="13" width="2" height="2" fill="#52E08D"/>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<!-- Inheritance table — for the dev agent -->
+<div class="inherit">
+  <h2>▶ SECTION INHERITANCE — what each one borrows + hands off</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Section</th>
+        <th>Borrows from above</th>
+        <th>Adds new</th>
+        <th>Hands to next</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>HERO</td>
+        <td class="none">— first beat</td>
+        <td>paper bg, ink type, 1 cohort sprite</td>
+        <td><span class="arrow">↳</span> paper bg, fluency green</td>
+      </tr>
+      <tr>
+        <td>GAP</td>
+        <td>paper bg, fluency green</td>
+        <td>win-2k chrome (literacy), pixel kit (fluency), marker underline</td>
+        <td><span class="arrow">↳</span> paper bg, pixel debris drift, marker red</td>
+      </tr>
+      <tr>
+        <td>WAIT.</td>
+        <td>paper bg, pixel debris, marker red</td>
+        <td>"!" + "wait." interrupt, handwritten bark, Counter Approved stamp</td>
+        <td><span class="arrow">↳</span> paper bg, fluency green, pixel sprites</td>
+      </tr>
+      <tr>
+        <td>WHAT IT IS</td>
+        <td>paper bg, fluency green, pixel sprites</td>
+        <td>pixel receipt, comet, orbit ring, BR-corner space gradient bleed</td>
+        <td><span class="arrow">↳</span> dusk gradient, dither, star-dots</td>
+      </tr>
+      <tr>
+        <td>BRIDGE</td>
+        <td>dusk gradient, dither, star-dots</td>
+        <td>2×2 checker bands, 6 color stops paper→space</td>
+        <td><span class="arrow">↳</span> full space, full pixel</td>
+      </tr>
+      <tr>
+        <td>JOURNEY</td>
+        <td>full space, full pixel</td>
+        <td>constellation, polaroids, pixel UI mockups in the case studies</td>
+        <td class="none">— last beat</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+</body>
+</html>

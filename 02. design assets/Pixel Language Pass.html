@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Counter — Pixel Language Pass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif}
+  iframe{border:none;display:block;background:#F6F0E1}
+  .dc-cover{
+    width:100%;height:100%;background:#F6F0E1;
+    display:flex;flex-direction:column;justify-content:flex-end;
+    padding:48px;color:#2A2E33;position:relative;overflow:hidden;
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.05) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.05) 1px,transparent 1px);
+    background-size:32px 32px;
+  }
+  .dc-cover .eyebrow{
+    font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:.08em;
+    color:#95D7AE;background:#2A2E33;padding:8px 12px;
+    box-shadow:4px 4px 0 #73956F;display:inline-block;align-self:flex-start;margin-bottom:24px;
+  }
+  .dc-cover h1{
+    font-family:'Instrument Serif',serif;font-weight:400;font-size:96px;line-height:.95;
+    letter-spacing:-.02em;margin:0 0 18px;max-width:14ch;
+  }
+  .dc-cover h1 em{font-style:italic;color:#73956F}
+  .dc-cover p{font-size:18px;line-height:1.5;color:#454851;max-width:60ch}
+  .dc-cover .meta{
+    position:absolute;top:48px;right:48px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;color:#454851;
+    text-align:right;letter-spacing:.04em;
+  }
+  .dc-cover .pixel-deco{
+    position:absolute;left:48px;top:48px;display:grid;
+    grid-template-columns:repeat(4,12px);grid-template-rows:repeat(4,12px);
+  }
+  .dc-cover .pixel-deco span{background:#2A2E33}
+  .dc-cover .pixel-deco span.g{background:#73956F}
+  .dc-cover .pixel-deco span.m{background:#95D7AE}
+  .dc-cover .pixel-deco span.x{background:transparent}
+</style>
+</head>
+<body>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+const Cover = () => (
+  <div className="dc-cover">
+    <div className="pixel-deco">
+      <span></span><span className="g"></span><span className="m"></span><span className="x"></span>
+      <span className="g"></span><span></span><span className="x"></span><span className="m"></span>
+      <span className="m"></span><span className="x"></span><span></span><span className="g"></span>
+      <span className="x"></span><span className="m"></span><span className="g"></span><span></span>
+    </div>
+    <div className="meta">
+      THE COUNTER<br/>
+      Design Brief · Pixel Language Pass<br/>
+      v1.1 · 6 sections
+    </div>
+    <span className="eyebrow">▶ DESIGN BRIEF</span>
+    <h1>Pixel <em>language</em> pass.</h1>
+    <p>The site argues that fluency feels different from literacy. The design language should make that argument before a buyer reads a word. Pixels seep in slowly through the paper sections so by the time the journey appears, it's an arrival — not a collision.</p>
+  </div>
+);
+
+const App = () => (
+  <DesignCanvas>
+    <DCSection id="cover" title="The brief" subtitle="What this document is — and how to read it.">
+      <DCArtboard id="cover" label="cover" width={1200} height={760}>
+        <Cover/>
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="gap" title="01 · The Gap section redesign" subtitle="Highest priority. Two visual worlds, one page break — Windows 2000 vs the Counter pixel arcade.">
+      <DCArtboard id="gap-v1" label="v1 · paste-ready" width={1200} height={1620}>
+        <iframe src="Gap Section.html" width="1200" height="1620" />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="kit" title="02 · Pixel Accent Kit" subtitle="Eight elements + three motifs. Stepped shadows, square corners, Press Start 2P labels — applied to existing components.">
+      <DCArtboard id="kit-v1" label="kit v1" width={1200} height={1980}>
+        <iframe src="Pixel Accent Kit.html" width="1200" height="1980" />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="map" title="03 · Transition map" subtitle="Where pixel energy first appears, how it builds, and why the journey reads as arrival.">
+      <DCArtboard id="map-v1" label="density map" width={1200} height={1700}>
+        <iframe src="Transition Map.html" width="1200" height="1700" />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="wait" title="04 · The 'wait.' moment" subtitle="Objection redesign — kill the redundant label, scroll-trigger an interruption, drop the background break. This is the conversion moment.">
+      <DCArtboard id="wait-v1" label="storyboard + final + specs" width={1200} height={1900}>
+        <iframe src="Wait Moment.html" width="1200" height="1900" />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="counter-is" title="05 · What 'The Counter' Is — reimagined" subtitle="Cut the lede to one italic line. Redesigned receipt. Space gradient bleeds in early so the journey isn't a hard cut.">
+      <DCArtboard id="counter-is-v1" label="layout + copy diff + specs" width={1200} height={1500}>
+        <iframe src="Counter Is Reimagined.html" width="1200" height="1500" />
+      </DCArtboard>
+    </DCSection>
+
+    <DCSection id="flow" title="06 · Continuous scroll map" subtitle="Section inheritance — what each beat borrows from above and hands to below. This is what makes it feel like one descent instead of six sections.">
+      <DCArtboard id="flow-v1" label="ribbon + density + principles" width={1200} height={1700}>
+        <iframe src="Continuous Scroll Map.html" width="1200" height="1700" />
+      </DCArtboard>
+    </DCSection>
+
+  </DesignCanvas>
+);
+
+ReactDOM.createRoot(document.getElementById('root') || (() => {
+  const r = document.createElement('div'); r.id='root'; document.body.appendChild(r); return r;
+})()).render(<App/>);
+</script>
+</body>
+</html>

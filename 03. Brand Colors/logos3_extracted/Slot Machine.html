@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Counter — Slot Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F0E1;
+    --ink:   #2A2E33;
+    --sage:  #73956F;
+    --sage-deep: #5B7A58;
+    --sage-dark: #3F5B3D;
+    --mint:  #95D7AE;
+    --marker:#9D5A5A;
+    --cabinet: #8C2A2A;
+    --cabinet-dark: #5E1A1A;
+    --cabinet-light: #B04242;
+    --gold: #E8B94A;
+    --gold-deep: #A87B1A;
+    --bulb-on: #FFE45C;
+    --bulb-off: #6B4A10;
+  }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--paper);
+    background-image:
+      linear-gradient(to right,  rgba(42,46,51,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px);
+    background-size: 36px 36px;
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 48px 24px 80px;
+    color: var(--ink);
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif; font-weight: 400; font-style: italic;
+    font-size: 40px; margin: 0 0 6px; letter-spacing: -0.01em;
+  }
+  .sub {
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #8A8F94; margin-bottom: 32px;
+  }
+
+  /* ---- SLOT MACHINE CABINET ---- */
+  .stage {
+    position: relative; width: 520px; max-width: 92vw;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .cabinet {
+    position: relative; width: 100%; aspect-ratio: 0.95 / 1;
+    filter: drop-shadow(0 30px 30px rgba(42,46,51,0.28));
+  }
+  .cabinet svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+  /* ---- CONTROLS ---- */
+  .controls {
+    margin-top: 28px; display: flex; gap: 12px; align-items: center;
+    font-family: 'Press Start 2P', monospace; font-size: 10px; letter-spacing: 0.1em;
+  }
+  .btn {
+    background: var(--ink); color: var(--paper);
+    border: 2px solid var(--ink); padding: 12px 18px;
+    cursor: pointer; font-family: inherit; font-size: 10px;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    box-shadow: 3px 3px 0 var(--sage-dark);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .btn:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0 var(--sage-dark); }
+  .btn:active { transform: translate(2px,2px); box-shadow: 1px 1px 0 var(--sage-dark); }
+  .btn.sage { background: var(--sage); border-color: var(--sage-dark); box-shadow: 3px 3px 0 var(--ink); }
+  .status {
+    font-family: 'Press Start 2P', monospace; font-size: 11px; color: var(--marker);
+    min-height: 18px;
+  }
+  .status.win { color: var(--sage-dark); }
+
+  /* reels */
+  .reel-strip { will-change: transform; }
+  .reel-strip.spinning { animation: blur 0.08s steps(2) infinite; }
+  @keyframes blur { from { filter: blur(0px); } to { filter: blur(1.3px); } }
+
+  /* marquee light pulse */
+  @keyframes bulbpulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+  }
+  .bulb.lit { animation: bulbpulse 1.1s ease-in-out infinite; }
+  .bulb.lit.delay-1 { animation-delay: 0.15s; }
+  .bulb.lit.delay-2 { animation-delay: 0.30s; }
+  .bulb.lit.delay-3 { animation-delay: 0.45s; }
+
+  /* win flash */
+  @keyframes winflash {
+    0%, 100% { fill: var(--sage); }
+    50%      { fill: var(--mint); }
+  }
+  .win-flash { animation: winflash 0.35s ease-in-out 6; }
+
+  .footer {
+    margin-top: 40px; max-width: 600px; text-align: center;
+    font-size: 12px; color: #454851; line-height: 1.6;
+  }
+  .footer em { color: var(--marker); font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="cabinet">
+    <svg viewBox="0 0 520 520" id="cab">
+      <defs>
+        <!-- Reuse the pixel TC monogram as a <symbol> so each reel cell
+             can render it at the right size. Grid from logo.jsx:
+             T=9w x 11h, C=9w x 7h placed at (0,3). Values:
+             1 = ink (T body), 2 = sage (C body), 3 = ink (overlap) -->
+        <symbol id="tc-mark" viewBox="0 0 90 110" overflow="visible">
+          <!-- T (ink) -->
+          <g fill="#2A2E33" shape-rendering="crispEdges">
+            <!-- crossbar rows 0-1, cols 0-8 -->
+            <rect x="0"  y="0"  width="90" height="20"/>
+            <!-- stem rows 2-10, cols 4-5 -->
+            <rect x="40" y="20" width="20" height="90"/>
+          </g>
+          <!-- C (sage), with ink overlap at arms -->
+          <g shape-rendering="crispEdges">
+            <!-- C row 0 (canvas row 3): cols 1-7 -->
+            <rect x="10" y="30" width="70" height="10" fill="#73956F"/>
+            <!-- C row 1 (canvas row 4): cols 0-8 -->
+            <rect x="0"  y="40" width="90" height="10" fill="#73956F"/>
+            <!-- C rows 2-4: cols 0-1 -->
+            <rect x="0"  y="50" width="20" height="30" fill="#73956F"/>
+            <!-- C row 5 (canvas row 8): cols 0-8 -->
+            <rect x="0"  y="80" width="90" height="10" fill="#73956F"/>
+            <!-- C row 6 (canvas row 9): cols 1-7 -->
+            <rect x="10" y="90" width="70" height="10" fill="#73956F"/>
+            <!-- Ink overlap where C crosses the T stem (cols 4-5 at rows 3,4,8,9) -->
+            <rect x="40" y="30" width="20" height="20" fill="#2A2E33"/>
+            <rect x="40" y="80" width="20" height="20" fill="#2A2E33"/>
+          </g>
+        </symbol>
+
+        <!-- Alternate reel symbols so the spin looks varied -->
+        <symbol id="sym-star" viewBox="0 0 90 110">
+          <g fill="#E8B94A" shape-rendering="crispEdges">
+            <rect x="40" y="20" width="10" height="70"/>
+            <rect x="15" y="50" width="60" height="10"/>
+            <rect x="25" y="35" width="40" height="40" opacity="0.0"/>
+            <rect x="30" y="40" width="30" height="30"/>
+          </g>
+        </symbol>
+        <symbol id="sym-heart" viewBox="0 0 90 110">
+          <g fill="#9D5A5A" shape-rendering="crispEdges">
+            <rect x="15" y="30" width="20" height="10"/>
+            <rect x="55" y="30" width="20" height="10"/>
+            <rect x="5"  y="40" width="80" height="20"/>
+            <rect x="15" y="60" width="60" height="10"/>
+            <rect x="25" y="70" width="40" height="10"/>
+            <rect x="35" y="80" width="20" height="10"/>
+          </g>
+        </symbol>
+        <symbol id="sym-bar" viewBox="0 0 90 110">
+          <g shape-rendering="crispEdges">
+            <rect x="5"  y="35" width="80" height="40" fill="#95D7AE"/>
+            <rect x="5"  y="35" width="80" height="6"  fill="#3F5B3D"/>
+            <rect x="5"  y="69" width="80" height="6"  fill="#3F5B3D"/>
+          </g>
+        </symbol>
+        <symbol id="sym-seven" viewBox="0 0 90 110">
+          <g fill="#8C2A2A" shape-rendering="crispEdges">
+            <rect x="10" y="15" width="70" height="15"/>
+            <rect x="55" y="30" width="15" height="15"/>
+            <rect x="45" y="45" width="15" height="15"/>
+            <rect x="35" y="60" width="15" height="20"/>
+            <rect x="30" y="80" width="15" height="15"/>
+          </g>
+        </symbol>
+
+        <!-- cabinet inner-panel gradient (subtle) -->
+        <linearGradient id="cabGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#B04242"/>
+          <stop offset="0.5" stop-color="#8C2A2A"/>
+          <stop offset="1" stop-color="#5E1A1A"/>
+        </linearGradient>
+        <!-- reel window inset -->
+        <linearGradient id="reelGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#F6F0E1"/>
+          <stop offset="1" stop-color="#E2D8BE"/>
+        </linearGradient>
+
+        <!-- reel clip -->
+        <clipPath id="reelClip-0"><rect x="110" y="245" width="80" height="100"/></clipPath>
+        <clipPath id="reelClip-1"><rect x="220" y="245" width="80" height="100"/></clipPath>
+        <clipPath id="reelClip-2"><rect x="330" y="245" width="80" height="100"/></clipPath>
+      </defs>
+
+      <!-- =================== CABINET BODY =================== -->
+      <!-- base shadow -->
+      <ellipse cx="260" cy="500" rx="200" ry="14" fill="#2A2E33" opacity="0.25"/>
+
+      <!-- outer cabinet silhouette (rounded red body) -->
+      <rect x="60" y="110" width="400" height="380" rx="20" fill="url(#cabGrad)"/>
+      <!-- cabinet outer frame/trim -->
+      <rect x="60" y="110" width="400" height="380" rx="20" fill="none" stroke="#3F1212" stroke-width="4"/>
+
+      <!-- Top marquee header (black banner) -->
+      <!-- arch behind -->
+      <path d="M70 140 Q260 60 450 140 L450 180 L70 180 Z" fill="#1A1C20"/>
+      <path d="M70 140 Q260 60 450 140" fill="none" stroke="#E8B94A" stroke-width="3"/>
+
+      <!-- marquee bulbs along the arc -->
+      <g id="bulbs"></g>
+
+      <!-- marquee title -->
+      <text x="260" y="132" text-anchor="middle"
+            font-family="'Press Start 2P', monospace" font-size="18"
+            fill="#F6F0E1" letter-spacing="1">THE COUNTER</text>
+
+      <!-- Inner panel (lighter red, inset) -->
+      <rect x="88" y="200" width="344" height="220" rx="12" fill="#6B1E1E"/>
+      <rect x="88" y="200" width="344" height="220" rx="12" fill="none" stroke="#3F1212" stroke-width="2"/>
+
+      <!-- Gold trim around reel window -->
+      <rect x="100" y="235" width="320" height="120" rx="10" fill="#E8B94A"/>
+      <rect x="104" y="239" width="312" height="112" rx="8" fill="#A87B1A"/>
+
+      <!-- Reel window (paper background) -->
+      <rect x="108" y="243" width="304" height="104" rx="6" fill="url(#reelGrad)"/>
+
+      <!-- reel separators -->
+      <rect x="216" y="243" width="2" height="104" fill="#A87B1A" opacity="0.5"/>
+      <rect x="302" y="243" width="2" height="104" fill="#A87B1A" opacity="0.5"/>
+
+      <!-- Reel 1 (strip rendered by JS into #reel-0) -->
+      <g clip-path="url(#reelClip-0)"><g id="reel-0" class="reel-strip"></g></g>
+      <g clip-path="url(#reelClip-1)"><g id="reel-1" class="reel-strip"></g></g>
+      <g clip-path="url(#reelClip-2)"><g id="reel-2" class="reel-strip"></g></g>
+
+      <!-- Payout slot / coin tray at bottom -->
+      <rect x="140" y="430" width="240" height="40" rx="6" fill="#3F1212"/>
+      <rect x="150" y="440" width="220" height="16" rx="3" fill="#1A1C20"/>
+      <text x="260" y="452" text-anchor="middle"
+            font-family="'Press Start 2P', monospace" font-size="7"
+            fill="#E8B94A" letter-spacing="1">INSERT · CURIOSITY</text>
+
+      <!-- Left coin dish (small round knob) -->
+      <circle cx="110" cy="450" r="12" fill="#E8B94A"/>
+      <circle cx="110" cy="450" r="8"  fill="#A87B1A"/>
+
+      <!-- =================== SIDE HANDLE =================== -->
+      <!-- handle mount -->
+      <rect x="460" y="210" width="20" height="18" fill="#3F1212"/>
+      <circle cx="470" cy="219" r="6" fill="#1A1C20"/>
+      <!-- handle arm, rotated from pivot (470,219) -->
+      <g id="handle">
+        <rect x="466" y="216" width="8" height="100" fill="#C0C4CC"/>
+        <rect x="466" y="216" width="3" height="100" fill="#8A8F94"/>
+        <circle cx="470" cy="322" r="14" fill="#9D5A5A"/>
+        <circle cx="466" cy="318" r="4"  fill="#C9A87A" opacity="0.7"/>
+      </g>
+    </svg>
+  </div>
+
+</div>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+
+/* ---- Build marquee bulbs along the top arc ---- */
+const bulbsG = document.getElementById('bulbs');
+const arcPoints = [];
+// Approximate the arch path as a parabola for bulb placement
+const N = 13;
+for (let i = 0; i < N; i++) {
+  const t = i / (N - 1); // 0..1
+  const x = 80 + t * (440 - 80);
+  // parabola: y = 140 - 60 * 4t(1-t)
+  const y = 140 - 60 * 4 * t * (1 - t);
+  arcPoints.push([x, y]);
+}
+arcPoints.forEach(([x, y], i) => {
+  const c = document.createElementNS(NS, 'circle');
+  c.setAttribute('cx', x);
+  c.setAttribute('cy', y);
+  c.setAttribute('r', 4);
+  c.setAttribute('fill', 'var(--bulb-on)');
+  c.setAttribute('class', 'bulb lit delay-' + (i % 4));
+  bulbsG.appendChild(c);
+});
+
+/* ---- Reels ----
+   Each reel is a vertical strip of symbols. We render 8 symbols per strip,
+   height = 80 each. The window shows one symbol at a time (the middle row).
+   Reel window y = 245..345. So the middle symbol sits around y=260..340.
+   Actually we render symbols at size 80x80 and translate the strip to
+   center a given index in the window.
+*/
+const SYMBOL_IDS = ['tc-mark', 'sym-seven', 'sym-star', 'sym-bar', 'sym-heart'];
+const SYMBOL_H = 100;   // visual height each cell
+const WINDOW_TOP = 245;
+const WINDOW_H   = 100;
+
+// Reel X positions (match clipPaths)
+const REEL_X = [110, 220, 330];
+const REEL_W = 80;
+
+// Build a long strip per reel: many symbols stacked vertically.
+// We put TC at the BOTTOM so landing index = last.
+function buildStrip(reelIdx) {
+  const g = document.getElementById('reel-' + reelIdx);
+  g.innerHTML = '';
+  // random-ish sequence of 30 symbols, last 3 are TC so we land on TC.
+  const seq = [];
+  for (let i = 0; i < 27; i++) {
+    seq.push(SYMBOL_IDS[1 + (Math.floor(Math.random() * (SYMBOL_IDS.length - 1)))]);
+  }
+  seq.push('tc-mark'); // padding
+  seq.push('tc-mark'); // padding
+  seq.push('tc-mark'); // the landing one (final)
+  seq.forEach((id, i) => {
+    const u = document.createElementNS(NS, 'use');
+    u.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', '#' + id);
+    u.setAttribute('href', '#' + id);
+    u.setAttribute('x', REEL_X[reelIdx] + 2);
+    u.setAttribute('y', i * SYMBOL_H);
+    u.setAttribute('width', REEL_W - 4);
+    u.setAttribute('height', SYMBOL_H);
+    g.appendChild(u);
+  });
+  g._seqLen = seq.length;
+  return g;
+}
+
+// Position strip so that symbol at index `idx` is in the window.
+// The window top is y=245. Each symbol is SYMBOL_H tall.
+// strip translates so that y(symbol) + transY = WINDOW_TOP
+function setReel(g, idx) {
+  const y = idx * SYMBOL_H;
+  const transY = WINDOW_TOP - y;
+  g.setAttribute('transform', `translate(0 ${transY})`);
+}
+
+// Initial state: show first symbol
+const reels = [0,1,2].map(i => {
+  const g = buildStrip(i);
+  setReel(g, 0);
+  return g;
+});
+
+/* ---- Animation: click the handle (or the cabinet) → spin → land on TC/TC/TC ---- */
+const handle = document.getElementById('handle');
+const cabinet = document.querySelector('.cabinet');
+
+let spinning = false;
+
+function animateHandle() {
+  const start = performance.now();
+  const dur = 600;
+  function tick(now) {
+    const t = Math.min(1, (now - start) / dur);
+    // pull down then return: sine half-wave
+    const pull = Math.sin(t * Math.PI); // 0..1..0
+    const deg = pull * 55; // rotate up to 55 degrees
+    handle.setAttribute('transform', `rotate(${deg} 470 219)`);
+    if (t < 1) requestAnimationFrame(tick);
+    else handle.removeAttribute('transform');
+  }
+  requestAnimationFrame(tick);
+}
+
+function spinReel(g, landIdx, duration) {
+  return new Promise(resolve => {
+    g.classList.add('spinning');
+    const startT = performance.now();
+    const startIdx = 0;
+    const endIdx = landIdx;
+    function tick(now) {
+      const t = Math.min(1, (now - startT) / duration);
+      // easeOutCubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      const idx = startIdx + eased * (endIdx - startIdx);
+      setReel(g, idx);
+      if (t < 1) requestAnimationFrame(tick);
+      else {
+        g.classList.remove('spinning');
+        setReel(g, endIdx);
+        resolve();
+      }
+    }
+    requestAnimationFrame(tick);
+  });
+}
+
+async function pull() {
+  if (spinning) return;
+  spinning = true;
+
+  animateHandle();
+
+  // Rebuild strips (fresh random sequences each pull) — still end in TC
+  reels.forEach((_, i) => { reels[i] = buildStrip(i); });
+  const landIdx = reels.map(r => r._seqLen - 1); // all land on TC (last)
+
+  // staggered durations — leftmost stops first for classic slot feel
+  await Promise.all([
+    spinReel(reels[0], landIdx[0], 1800),
+    spinReel(reels[1], landIdx[1], 2300),
+    spinReel(reels[2], landIdx[2], 2900),
+  ]);
+
+  // flash the reel window background
+  flashWin();
+  spinning = false;
+}
+
+function flashWin() {
+  const bg = document.querySelector('#cab rect[fill="url(#reelGrad)"]');
+  if (!bg) return;
+  let on = false;
+  let ticks = 0;
+  const id = setInterval(() => {
+    on = !on;
+    bg.setAttribute('fill', on ? '#D9EDCB' : 'url(#reelGrad)');
+    ticks++;
+    if (ticks > 8) { clearInterval(id); bg.setAttribute('fill', 'url(#reelGrad)'); }
+  }, 120);
+}
+
+/* Clicking the handle — or anywhere on the cabinet — pulls the lever.
+   Cursor changes to a pointer on hover over the handle so it reads as
+   interactive. */
+handle.style.cursor = 'pointer';
+cabinet.style.cursor = 'pointer';
+handle.addEventListener('click', pull);
+cabinet.addEventListener('click', pull);
+</script>
+</body>
+</html>

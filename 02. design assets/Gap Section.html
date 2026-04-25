@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Gap — Section v9 (comparison table)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;--ink-deep:#1C2024;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--marker-2:#B86B6B;
+    --line:rgba(42,46,51,0.16);
+    --w2k-face:#C0C0C0;--w2k-face-2:#D4D0C8;
+    --w2k-shadow:#808080;--w2k-shadow-2:#404040;--w2k-light:#FFFFFF;
+    --w2k-title-a:#0A246A;--w2k-title-b:#A6CAF0;--w2k-blue:#000080;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.035) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.035) 1px,transparent 1px);
+    background-size:36px 36px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1.55;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;mix-blend-mode:multiply;z-index:1;
+  }
+  .wrap{max-width:1240px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+
+  /* ============================================================
+     GAP SECTION v9
+     A deliberately-designed comparison table.
+     - Thesis line ("AI literacy is what you're doing…") sits below
+       the existing headline as the lede that sets up the table.
+     - Comparison area gets sticky-feeling column headers, generous
+       row spacing (60–80px), and a small descriptor under each row
+       title that names the question being answered.
+     - Each artifact gets a single-sentence caption (italic serif)
+       directly beneath it so picture + caption = one beat.
+     - Two contrast spines run down the inside seam: rigid red on
+       the literacy edge, fluid green squiggle on the fluency edge.
+       Subtle, hand-drawn feel — they whisper the gap.
+     - Footer punchlines sit in their own table-row, bordered top.
+     ============================================================ */
+  .gap-section{padding:88px 0 96px;position:relative;background:var(--paper)}
+
+  .gap-header{text-align:center;max-width:980px;margin:0 auto 28px}
+  .section-label{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:14px;
+  }
+  .section-label::before{content:'';display:inline-block;width:42px;height:3px;background:var(--ink)}
+
+  .gap-headline{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(32px,3.6vw,50px);line-height:1.08;letter-spacing:-.018em;
+    margin-top:14px;
+  }
+  .gap-headline em{font-style:italic;color:var(--fluency)}
+  .gap-headline .hi{
+    background-image:linear-gradient(var(--marker),var(--marker));
+    background-repeat:no-repeat;background-position:0 88%;background-size:100% 9px;
+    padding:0 2px;
+  }
+
+  /* THESIS — the v9 line. Italic serif, weighty, rules above + below. */
+  .gap-thesis{
+    margin:38px auto 0;max-width:1000px;
+    padding:30px 8px 32px;
+    border-top:1.5px solid var(--ink);
+    border-bottom:1.5px solid var(--ink);
+    position:relative;
+  }
+  .gap-thesis::before,
+  .gap-thesis::after{
+    content:'';position:absolute;left:50%;width:8px;height:8px;
+    background:var(--paper);border:1.5px solid var(--ink);
+    transform:translate(-50%,-50%) rotate(45deg);
+  }
+  .gap-thesis::before{top:0}
+  .gap-thesis::after{bottom:-8px}
+  .gap-thesis .t-eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:14px;
+  }
+  .gap-thesis-line{
+    font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+    font-size:clamp(28px,3.2vw,44px);line-height:1.15;letter-spacing:-.012em;
+    color:var(--ink);
+  }
+  .gap-thesis-line .lit-word{
+    color:var(--ink-soft);
+    text-decoration:underline;text-decoration-thickness:1.5px;
+    text-decoration-color:var(--marker);text-underline-offset:6px;
+  }
+  .gap-thesis-line .flu-word{color:var(--fluency);font-weight:500}
+  .gap-thesis-line .neg{
+    background:var(--ink);color:var(--fluency-2);
+    padding:0 6px;font-style:normal;font-family:'Instrument Serif',serif;
+  }
+
+  .gap-intro{
+    margin:32px auto 0;font-family:'Instrument Serif',serif;font-style:italic;
+    font-size:18px;color:var(--ink-soft);text-align:center;
+  }
+
+  /* ===========================================================
+     The TABLE
+     A grid: 1fr ≠-glyph 1fr. The middle column is a narrow gutter
+     that holds the centerpiece NOT-EQUAL glyph + a hand-drawn
+     vertical gap that runs the full table height.
+  =========================================================== */
+  .gap-table{
+    margin:44px auto 0;max-width:1240px;position:relative;
+    padding:0 18px;
+  }
+
+  /* ───────── The big ≠ centerpiece ─────────
+     Lives absolutely-positioned over the column gap, anchored to
+     the row of column headers so it reads as the operator between
+     them. Hand-drawn slash through it in fluency green.
+  */
+  .neq-center{
+    position:absolute;left:50%;top:14px;
+    transform:translateX(-50%);
+    width:138px;height:138px;
+    z-index:5;pointer-events:none;
+  }
+  .neq-center svg{width:100%;height:100%;display:block;overflow:visible}
+  .neq-center .neq-label{
+    position:absolute;left:50%;bottom:-22px;transform:translateX(-50%);
+    font-family:'Press Start 2P',monospace;font-size:8px;
+    color:var(--paper);background:var(--ink);
+    letter-spacing:.08em;padding:5px 9px;
+    box-shadow:3px 3px 0 var(--fluency);
+    white-space:nowrap;
+  }
+
+  /* ───────── Per-row mini ≠ on each row divider ─────────
+     Sits absolutely on the row-head's bottom border, dead-center.
+     A small reinforcement of the centerpiece — no more than 36px.
+  */
+  .neq-mini{
+    position:absolute;left:50%;top:100%;
+    transform:translate(-50%,-50%);
+    width:48px;height:48px;
+    background:var(--paper);
+    display:flex;align-items:center;justify-content:center;
+    z-index:3;pointer-events:none;
+  }
+  .neq-mini svg{width:34px;height:34px;display:block;overflow:visible}
+
+  /* Contrast spines — left = rigid red, right = fluid green squiggle.
+     Sit OUTSIDE each column. SVGs scale to full table height. */
+  .spine{
+    position:absolute;top:96px;bottom:96px;width:18px;pointer-events:none;
+    z-index:1;
+  }
+  .spine svg{width:100%;height:100%;display:block;overflow:visible}
+  .spine.lit{left:-2px}
+  .spine.flu{right:-2px}
+
+  /* THE GAP GUTTER — a single hand-drawn vertical line that runs
+     the full height of the table down the column seam. The big ≠
+     punches through it at the top; the line subtly squiggles to
+     echo the fluency spine and visually announce "two different
+     things on either side". */
+  .gap-gutter{
+    position:absolute;left:50%;top:96px;bottom:96px;
+    width:60px;transform:translateX(-50%);
+    pointer-events:none;z-index:2;
+  }
+  .gap-gutter svg{width:100%;height:100%;display:block;overflow:visible}
+
+  /* Column headers row — the centerpiece ≠ sits ABOVE this row
+     anchored to the table. Generous gutter (140px) so the glyph
+     has visual room and so each column gets clear identity. */
+  .gap-col-headers{
+    display:grid;grid-template-columns:1fr 1fr;gap:160px;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:22px;
+    position:relative;z-index:4;
+    background:var(--paper);
+    padding-top:140px;
+  }
+  .gap-col-header{
+    font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+    font-size:clamp(34px,3.4vw,46px);line-height:1;letter-spacing:-.018em;
+    display:flex;align-items:flex-end;gap:14px;
+  }
+  .gap-col-header .num{
+    font-family:'JetBrains Mono',monospace;font-style:normal;
+    font-size:11px;letter-spacing:.18em;
+    color:var(--ink-soft);padding-bottom:8px;
+    text-transform:uppercase;
+  }
+  .gap-col-header.lit{
+    color:var(--ink-soft);opacity:.62;filter:saturate(.4);
+  }
+  .gap-col-header.lit .num{color:var(--w2k-blue);opacity:.7}
+  .gap-col-header.flu{color:var(--ink)}
+  .gap-col-header.flu em{font-style:italic;color:var(--fluency);font-weight:500}
+  .gap-col-header.flu .num{color:var(--fluency)}
+
+  /* The rows */
+  .gap-rows{
+    display:flex;flex-direction:column;gap:64px;
+    padding-top:48px;position:relative;z-index:2;
+  }
+  .gap-row{position:relative}
+
+  /* Row title — full-width, italic serif, line beneath, tiny mono
+     descriptor on the left that names the question. */
+  .gap-row-head{
+    display:flex;align-items:baseline;gap:18px;
+    border-bottom:1.5px solid var(--ink);
+    padding-bottom:14px;margin-bottom:32px;
+    position:relative;
+  }
+  .gap-row-num{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;
+    color:var(--ink-soft);text-transform:uppercase;
+    flex-shrink:0;padding-bottom:4px;
+  }
+  .gap-row-title{
+    font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+    font-size:clamp(28px,2.6vw,36px);line-height:1;letter-spacing:-.018em;
+    color:var(--ink);
+  }
+  .gap-row-q{
+    margin-left:auto;font-family:'Instrument Serif',serif;font-style:italic;
+    font-size:16px;color:var(--ink-soft);padding-bottom:6px;
+  }
+  .gap-row-q::before{content:'· '}
+
+  /* Pair grid inside each row — same generous gutter as the headers
+     so columns line up cleanly with the centerpiece. */
+  .gap-pair{
+    display:grid;grid-template-columns:1fr 1fr;gap:160px;
+    align-items:flex-start;
+    position:relative;
+  }
+  .gap-cell{
+    display:flex;flex-direction:column;align-items:center;gap:18px;
+    min-width:0;
+  }
+  .gap-art-wrap{
+    display:flex;align-items:center;justify-content:center;
+    min-height:240px;width:100%;
+  }
+
+  /* Caption beneath each artifact — italic serif, single sentence */
+  .gap-cap{
+    font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+    font-size:17px;line-height:1.35;text-align:center;
+    max-width:34ch;
+  }
+  .gap-cap.lit{color:var(--ink-soft);opacity:.78}
+  .gap-cap.flu{color:var(--ink)}
+  .gap-cap.flu em{color:var(--fluency);font-style:italic}
+  .gap-cap .quote{font-style:italic}
+
+  /* ───────── Footer punchline row ───────── */
+  .gap-footer{
+    margin-top:64px;padding-top:28px;
+    border-top:2px solid var(--ink);
+    display:grid;grid-template-columns:1fr 1fr;gap:160px;
+    align-items:center;
+    position:relative;z-index:2;
+  }
+  .col-tag{
+    align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:11px;
+    letter-spacing:.04em;padding:6px 10px;color:var(--ink-soft);
+    background:rgba(42,46,51,.06);
+  }
+  .col-tag.flu{
+    font-family:'Press Start 2P',monospace;font-size:9px;
+    background:var(--ink);color:var(--fluency);letter-spacing:.06em;
+    box-shadow:3px 3px 0 var(--fluency-2);padding:8px 12px;
+    justify-self:end;position:relative;
+  }
+  .flu-peeker{
+    position:absolute;left:-2px;bottom:calc(100% - 8px);width:58px;height:58px;
+    pointer-events:none;transform:rotate(-6deg);z-index:3;
+  }
+  .flu-peeker svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+
+  /* ===========================================================
+     LITERACY ARTIFACTS — paper world
+  =========================================================== */
+  /* Mindset · printed training handout */
+  .lit-handout{
+    width:300px;max-width:100%;
+    background:#fff;border:1px solid #999;
+    padding:22px 24px 18px;
+    font-family:'Tahoma','MS Sans Serif',sans-serif;color:#000;
+    box-shadow:5px 6px 0 rgba(0,0,0,.18);
+    filter:saturate(.55);transform:rotate(-1.6deg);
+    position:relative;
+  }
+  .lit-handout-header{
+    text-align:center;border-bottom:2px solid var(--w2k-blue);
+    padding-bottom:10px;margin-bottom:14px;
+  }
+  .lit-handout-title{
+    font-family:'Times New Roman',serif;font-size:22px;font-weight:700;
+    color:var(--w2k-blue);letter-spacing:-.01em;line-height:1.05;
+  }
+  .lit-handout-sub{
+    font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+    color:#666;margin-top:5px;
+  }
+  .lit-handout-list{list-style:none;font-size:12px;line-height:1.95;color:#000;padding:0}
+  .lit-handout-list li{padding-left:18px;position:relative}
+  .lit-handout-list li::before{
+    content:'';position:absolute;left:4px;top:8px;width:7px;height:7px;
+    background:var(--w2k-blue);transform:rotate(45deg);
+  }
+  .lit-handout-foot{
+    margin-top:14px;padding-top:10px;border-top:1px dashed #aaa;
+    display:flex;justify-content:space-between;
+    font-size:9px;color:#666;letter-spacing:.04em;text-transform:uppercase;
+  }
+  .lit-handout-stamp{
+    position:absolute;bottom:18px;right:14px;
+    font-family:'Times New Roman',serif;font-weight:700;font-size:10px;
+    letter-spacing:.18em;text-transform:uppercase;
+    color:var(--marker);border:1.5px solid var(--marker);
+    padding:3px 8px;transform:rotate(-10deg);opacity:.72;
+  }
+
+  /* Interaction · Win2K one-shot */
+  .lit-oneshot{
+    width:280px;max-width:100%;
+    background:var(--w2k-face);
+    box-shadow:
+      inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2),
+      inset 2px 2px 0 var(--w2k-face-2),inset -2px -2px 0 var(--w2k-shadow),
+      4px 4px 0 rgba(0,0,0,.18);
+    padding:2px;filter:saturate(.55);transform:rotate(-1.2deg);
+  }
+  .lit-oneshot-bar{
+    background:linear-gradient(90deg,var(--w2k-title-a) 0%,#1A41A8 60%,var(--w2k-title-b) 100%);
+    color:#fff;font-weight:700;font-size:10px;padding:3px 6px;
+    display:flex;justify-content:space-between;font-family:'Tahoma',sans-serif;
+  }
+  .lit-oneshot-body{background:#fff;padding:9px 11px;font-family:'Tahoma',sans-serif}
+  .lit-oneshot-row{
+    border:1px solid #999;background:#fff;padding:6px 8px;
+    font-size:10.5px;margin-bottom:5px;line-height:1.35;color:#000;
+  }
+  .lit-oneshot-row .who{font-weight:700;color:var(--w2k-blue);font-size:9px;display:block;margin-bottom:2px}
+  .lit-oneshot-row.ai .who{color:#5d4d8a}
+  .lit-oneshot-input{display:flex;gap:4px;margin-top:5px}
+  .lit-oneshot-input .field{
+    flex:1;background:#fff;border:1px solid #666;
+    box-shadow:inset 1px 1px 0 #808080,inset -1px -1px 0 #fff;
+    padding:3px 5px;font-size:9.5px;color:#888;
+  }
+  .lit-oneshot-input .btn{
+    background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2);
+    padding:1px 10px;font-size:9.5px;color:#000;
+  }
+
+  /* Outcome · corporate productivity memo */
+  .lit-memo{
+    width:300px;max-width:100%;
+    background:#fff;border:1px solid #999;padding:18px 20px 30px;
+    font-family:'Tahoma',sans-serif;color:#000;
+    box-shadow:5px 5px 0 rgba(0,0,0,.18);
+    filter:saturate(.55);transform:rotate(.9deg);
+    position:relative;
+  }
+  .lit-memo-h{
+    font-family:'Times New Roman',serif;font-size:17px;font-weight:700;
+    color:var(--w2k-blue);margin-bottom:4px;
+  }
+  .lit-memo-sub{
+    font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#666;
+    padding-bottom:8px;border-bottom:1px solid #999;margin-bottom:10px;
+  }
+  .lit-memo-row{
+    display:flex;justify-content:space-between;font-size:11px;
+    padding:5px 0;border-bottom:1px dotted #ccc;
+  }
+  .lit-memo-row:last-child{border-bottom:none}
+  .lit-memo-row .lbl{color:#333}
+  .lit-memo-row .val{color:#000;font-weight:700}
+  .lit-memo-row .val .down{color:var(--marker)}
+  .lit-memo-stamp{
+    position:absolute;bottom:14px;right:12px;
+    font-family:'Times New Roman',serif;font-weight:700;font-size:10.5px;
+    letter-spacing:.16em;text-transform:uppercase;
+    color:var(--marker);border:2px solid var(--marker);
+    padding:4px 9px;transform:rotate(-12deg);opacity:.78;
+    line-height:1.1;text-align:center;
+  }
+
+  /* ===========================================================
+     FLUENCY ARTIFACTS — pixel world
+  =========================================================== */
+  /* Generic pixel-card chassis used by all 3 fluency artifacts */
+  .flu-card{
+    width:300px;max-width:100%;
+    background:var(--paper-card);border:2px solid var(--ink);
+    box-shadow:
+      3px 0 0 0 var(--ink),0 3px 0 0 var(--ink),3px 3px 0 0 var(--ink),
+      6px 3px 0 0 var(--fluency),3px 6px 0 0 var(--fluency),6px 6px 0 0 var(--fluency);
+    position:relative;
+  }
+
+  /* Mindset · the v9 rethink — a desk moment.
+     A notebook page on a wood-grain-ish desktop with a sticky note
+     ("I wonder how I can solve this."), a real work fragment in the
+     background, and the cohort alien peeking in from the corner.
+     Reads as: a person at their work, hitting a problem, AI nearby. */
+  .flu-mindset{transform:rotate(-.4deg);overflow:hidden}
+  .flu-mindset-bar{
+    background:var(--ink);color:var(--paper);padding:5px 8px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+  }
+  .flu-mindset-bar .t{
+    font-family:'Press Start 2P',monospace;font-size:7px;
+    color:var(--fluency-2);letter-spacing:.06em;
+  }
+  .flu-mindset-bar .meta{color:var(--fluency-3)}
+  .flu-mindset-scene{
+    position:relative;height:218px;
+    background:var(--paper-card);
+    background-image:
+      repeating-linear-gradient(0deg,transparent 0 22px,rgba(0,128,128,.08) 22px 23px),
+      repeating-linear-gradient(90deg,transparent 0 80px,rgba(157,90,90,.18) 80px 81px,transparent 81px 82px);
+    overflow:hidden;
+  }
+  /* a real work fragment — a slack-ish thread, tilted, in background */
+  .flu-mindset-bg{
+    position:absolute;left:14px;top:14px;width:140px;
+    background:rgba(255,255,255,.7);border:1px solid var(--line);
+    padding:6px 7px;font-family:'Space Grotesk',sans-serif;font-size:8.5px;
+    line-height:1.35;color:var(--ink-soft);
+    transform:rotate(-3deg);
+    box-shadow:2px 2px 0 rgba(42,46,51,.08);
+  }
+  .flu-mindset-bg .who{font-weight:700;color:var(--ink);font-size:8px}
+  .flu-mindset-bg .when{font-size:7px;color:var(--ink-soft);opacity:.65;margin-left:4px}
+  .flu-mindset-bg .msg{margin-top:2px}
+  .flu-mindset-bg .msg em{background:#FFF59D;font-style:normal;padding:0 1px}
+
+  /* the sticky note — the moment of "I wonder…" */
+  .flu-mindset-sticky{
+    position:absolute;right:18px;top:30px;width:142px;
+    background:#FFF59D;
+    padding:14px 12px 12px;
+    font-family:'Caveat',cursive;font-size:18px;line-height:1.15;
+    color:var(--ink);
+    transform:rotate(3deg);
+    box-shadow:3px 4px 0 rgba(42,46,51,.18);
+  }
+  .flu-mindset-sticky::before{
+    /* tape across the top */
+    content:'';position:absolute;left:50%;top:-7px;width:50px;height:14px;
+    background:rgba(149,215,174,.55);
+    transform:translateX(-50%) rotate(-2deg);
+    box-shadow:0 1px 1px rgba(0,0,0,.06);
+  }
+  .flu-mindset-sticky .q{
+    color:var(--marker);font-weight:700;font-size:22px;
+    display:block;margin-bottom:2px;line-height:1;
+  }
+
+  /* alien peeker in the bottom corner — AI nearby, available */
+  .flu-mindset-alien{
+    position:absolute;left:14px;bottom:6px;width:70px;height:70px;
+    pointer-events:none;
+  }
+  .flu-mindset-alien svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+
+  /* small reach-arrow from desk to alien */
+  .flu-mindset-arrow{
+    position:absolute;left:96px;bottom:32px;
+    font-family:'Press Start 2P',monospace;font-size:7px;
+    color:var(--fluency);letter-spacing:.06em;
+    background:var(--paper-card);padding:2px 4px;
+    transform:rotate(-4deg);
+    box-shadow:2px 2px 0 var(--ink);
+  }
+
+  /* Interaction · keep — mess→reshape→built (existing good one) */
+  .flu-transform{padding:0;transform:rotate(-.4deg);overflow:hidden;width:300px}
+  .flu-mess{
+    background:var(--paper-card);
+    padding:14px 16px 12px;font-family:'Caveat',cursive;
+    border-bottom:1px dashed var(--line);
+  }
+  .flu-mess-h{
+    font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);margin-bottom:8px;
+  }
+  .flu-mess-line{font-size:18px;line-height:1.25;color:var(--marker);display:block;margin-bottom:2px}
+  .flu-mess-line.strike{
+    text-decoration:line-through;text-decoration-color:rgba(157,90,90,.65);
+    text-decoration-thickness:2px;opacity:.6;
+  }
+  .flu-mess-line.kept{color:var(--ink);font-weight:700}
+  .flu-arrow-pill{
+    background:var(--ink);color:var(--paper);
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.12em;
+    padding:6px 0;text-align:center;
+    position:relative;
+  }
+  .flu-arrow-pill .g{color:var(--fluency-2)}
+  .flu-built{
+    background:var(--paper-card);
+    overflow:hidden;
+  }
+  .flu-built-bar{
+    background:var(--ink);color:var(--paper);padding:5px 8px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+  }
+  .flu-built-bar .url{color:var(--fluency-2)}
+  .flu-built-bar .url .slash{color:var(--ink-soft)}
+  .flu-built-body{padding:10px 12px;background:var(--paper-card)}
+  .flu-built-h{
+    font-family:'Instrument Serif',serif;font-size:17px;line-height:1.05;
+    color:var(--ink);margin-bottom:8px;
+  }
+  .flu-built-h em{color:var(--marker);font-style:italic}
+  .flu-built-row{
+    display:grid;grid-template-columns:1fr auto;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;
+    padding:4px 0;border-bottom:1px dashed var(--line);
+  }
+  .flu-built-row:last-child{border-bottom:none}
+  .flu-built-row .name{color:var(--ink);font-weight:600}
+  .flu-built-row .val{color:var(--marker);font-size:10px;letter-spacing:.04em}
+  .flu-built-row .val.ok{color:var(--fluency)}
+  .flu-built-foot{
+    margin-top:8px;padding-top:6px;border-top:1px dashed var(--line);
+    font-family:'Press Start 2P',monospace;font-size:6.5px;letter-spacing:.06em;
+    color:var(--fluency);display:flex;justify-content:space-between;
+  }
+  .flu-built-foot .ver{color:var(--ink-soft)}
+
+  /* Outcome · keep — capability log */
+  .flu-log{transform:rotate(.5deg);padding:14px 14px 12px;width:300px}
+  .flu-log-h{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:8px;border-bottom:1px dashed var(--line);margin-bottom:10px;
+    font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.06em;color:var(--ink);
+  }
+  .flu-log-h .new{color:var(--fluency)}
+  .flu-log-row{
+    display:grid;grid-template-columns:14px 1fr auto;gap:8px;align-items:center;
+    padding:7px 0;border-bottom:1px dotted var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:11px;
+  }
+  .flu-log-row:last-child{border-bottom:none}
+  .flu-log-row .dot{
+    width:10px;height:10px;background:var(--fluency-3);
+    box-shadow:1px 1px 0 var(--ink);
+  }
+  .flu-log-row .dot.mint{background:var(--fluency-2)}
+  .flu-log-row .dot.marker{background:var(--marker)}
+  .flu-log-row .name{color:var(--ink);font-weight:600}
+  .flu-log-row .when{color:var(--fluency);font-size:9.5px;letter-spacing:.04em}
+  .flu-log-foot{
+    margin-top:10px;padding-top:6px;border-top:1px dashed var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    color:var(--fluency);text-align:left;font-style:italic;
+  }
+
+  /* ===========================================================
+     RESPONSIVE
+  =========================================================== */
+  @media (max-width:920px){
+    .gap-col-headers,.gap-pair,.gap-footer{grid-template-columns:1fr;gap:36px}
+    .gap-col-headers{padding-top:30px}
+    .gap-row-q{margin-left:0}
+    .col-tag.flu{justify-self:flex-start}
+    .spine,.gap-gutter,.neq-center,.neq-mini{display:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="gap-section" id="pov">
+  <div class="wrap">
+
+    <!-- ───── Header: eyebrow + headline + thesis + lede ───── -->
+    <div class="gap-header">
+      <span class="section-label">01 · The Gap</span>
+      <h2 class="gap-headline">
+        <em>Literacy</em> teaches what AI does.<br>
+        <em>Fluency</em> builds <span class="hi">how to&nbsp;work with&nbsp;it.</span>
+      </h2>
+    </div>
+
+    <!-- THESIS — the v9 line. The sharpest articulation. -->
+    <div class="gap-thesis">
+      <div class="t-eyebrow">— the gap, in one line —</div>
+      <p class="gap-thesis-line">
+        AI <span class="lit-word">literacy</span> is what you&rsquo;re doing.<br>
+        AI <span class="flu-word">fluency</span> is what <span class="neg">no&nbsp;one</span> is teaching.
+      </p>
+    </div>
+
+    <p class="gap-intro">Here&rsquo;s the difference between the two.</p>
+
+    <!-- ───── The comparison table ───── -->
+    <div class="gap-table">
+
+      <!-- ───── The big ≠ centerpiece — sits over the column gap ───── -->
+      <div class="neq-center" aria-hidden="true">
+        <svg viewBox="0 0 138 138">
+          <!-- two ink bars of the equals sign -->
+          <rect x="14" y="48" width="110" height="10" fill="#2A2E33"/>
+          <rect x="14" y="80" width="110" height="10" fill="#2A2E33"/>
+          <!-- hand-drawn slash through, in fluency green, slight wobble -->
+          <path d="M 116 14 C 100 38, 78 70, 56 100 C 44 116, 32 126, 22 132"
+            fill="none" stroke="#73956F" stroke-width="9" stroke-linecap="round"/>
+          <!-- highlight stripe on the slash for hand-drawn feel -->
+          <path d="M 110 22 C 94 44, 74 74, 52 102"
+            fill="none" stroke="#95D7AE" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+          <!-- tiny mint dots at slash endpoints -->
+          <circle cx="116" cy="14" r="4" fill="#52E08D" stroke="#2A2E33" stroke-width="1.5"/>
+          <circle cx="22" cy="132" r="4" fill="#52E08D" stroke="#2A2E33" stroke-width="1.5"/>
+        </svg>
+        <span class="neq-label">▶ NOT THE SAME</span>
+      </div>
+
+      <!-- ───── The gap gutter — vertical seam down the column divide ───── -->
+      <div class="gap-gutter" aria-hidden="true">
+        <svg viewBox="0 0 60 800" preserveAspectRatio="none">
+          <!-- subtle wobbling vertical seam -->
+          <path d="
+            M 30 0
+            C 26 100, 34 200, 30 300
+            C 26 400, 34 500, 30 600
+            C 26 700, 34 750, 30 800
+          " fill="none" stroke="#2A2E33" stroke-width="1.2" opacity=".35" stroke-dasharray="3 5"/>
+        </svg>
+      </div>
+
+      <!-- Contrast spines — rigid red on lit edge, fluid green on flu edge -->
+      <div class="spine lit" aria-hidden="true">
+        <svg viewBox="0 0 18 800" preserveAspectRatio="none">
+          <line x1="9" y1="0" x2="9" y2="800" stroke="#9D5A5A" stroke-width="1.5"
+            stroke-dasharray="0" opacity=".55"/>
+          <!-- tick marks every ~80px to feel like a ruler -->
+          <g stroke="#9D5A5A" stroke-width="1.2" opacity=".4">
+            <line x1="4" y1="80"  x2="14" y2="80"/>
+            <line x1="4" y1="160" x2="14" y2="160"/>
+            <line x1="4" y1="240" x2="14" y2="240"/>
+            <line x1="4" y1="320" x2="14" y2="320"/>
+            <line x1="4" y1="400" x2="14" y2="400"/>
+            <line x1="4" y1="480" x2="14" y2="480"/>
+            <line x1="4" y1="560" x2="14" y2="560"/>
+            <line x1="4" y1="640" x2="14" y2="640"/>
+            <line x1="4" y1="720" x2="14" y2="720"/>
+          </g>
+        </svg>
+      </div>
+      <div class="spine flu" aria-hidden="true">
+        <svg viewBox="0 0 18 800" preserveAspectRatio="none">
+          <!-- hand-drawn squiggle: stitched together cubic curves with subtle imperfections -->
+          <path d="
+            M 9 0
+            C 4 30, 14 60, 9 90
+            C 4 120, 14 150, 9 180
+            C 5 210, 13 240, 9 270
+            C 4 300, 14 330, 9 360
+            C 5 390, 13 420, 9 450
+            C 4 480, 14 510, 9 540
+            C 5 570, 13 600, 9 630
+            C 4 660, 14 690, 9 720
+            C 5 750, 13 780, 9 800
+          " fill="none" stroke="#73956F" stroke-width="2" stroke-linecap="round"
+            opacity=".75"/>
+          <!-- tiny mint dots at each loop apex -->
+          <g fill="#52E08D">
+            <circle cx="9" cy="90"  r="2.2"/>
+            <circle cx="9" cy="270" r="2.2"/>
+            <circle cx="9" cy="450" r="2.2"/>
+            <circle cx="9" cy="630" r="2.2"/>
+          </g>
+        </svg>
+      </div>
+
+      <!-- Column headers -->
+      <div class="gap-col-headers">
+        <div class="gap-col-header lit"><span class="num">// COL · A</span> AI Literacy.</div>
+        <div class="gap-col-header flu"><span class="num">▶ COL · B</span> AI&nbsp;<em>Fluency.</em></div>
+      </div>
+
+      <!-- Rows -->
+      <div class="gap-rows">
+
+        <!-- ROW 1 — THE MINDSET -->
+        <div class="gap-row">
+          <div class="gap-row-head">
+            <span class="gap-row-num">01</span>
+            <h3 class="gap-row-title">The Mindset</h3>
+            <span class="gap-row-q">what AI is to you</span>
+          </div>
+          <div class="gap-pair">
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- LIT: AI@Work training handout -->
+                <div class="lit-handout">
+                  <div class="lit-handout-header">
+                    <div class="lit-handout-title">AI&nbsp;@&nbsp;Work</div>
+                    <div class="lit-handout-sub">Module 2 · 5 Ways to Use AI</div>
+                  </div>
+                  <ul class="lit-handout-list">
+                    <li>Summarize long documents</li>
+                    <li>Draft routine emails</li>
+                    <li>Brainstorm ideas faster</li>
+                    <li>Answer FAQs</li>
+                    <li>Edit copy &amp; grammar</li>
+                  </ul>
+                  <div class="lit-handout-foot">
+                    <span>Q3 rollout</span>
+                    <span>480 trained · v2.1</span>
+                  </div>
+                  <span class="lit-handout-stamp">Certified</span>
+                </div>
+              </div>
+              <p class="gap-cap lit">&ldquo;AI runs predefined tasks for you.&rdquo;</p>
+            </div>
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- FLU v9: a desk moment — sticky note + work fragment + alien nearby -->
+                <div class="flu-card flu-mindset">
+                  <div class="flu-mindset-bar">
+                    <span class="t">▶ TUE 10:42 · WORK STUCK</span>
+                    <span class="meta">at desk · alone</span>
+                  </div>
+                  <div class="flu-mindset-scene">
+                    <!-- background: a real work fragment -->
+                    <div class="flu-mindset-bg">
+                      <span class="who">CFO</span><span class="when">9:14am</span>
+                      <div class="msg">need a view of <em>which renewals are at risk</em> by friday — the dashboard isn&rsquo;t cutting it</div>
+                    </div>
+                    <!-- the sticky note: the moment of "I wonder…" -->
+                    <div class="flu-mindset-sticky">
+                      <span class="q">?</span>
+                      i wonder how i can<br>solve this&hellip;
+                    </div>
+                    <!-- small arrow pointing from desk toward the alien -->
+                    <span class="flu-mindset-arrow">▶ REACH</span>
+                    <!-- the alien — AI nearby, available -->
+                    <div class="flu-mindset-alien" aria-hidden="true">
+                      <svg id="mindsetAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="gap-cap flu">&ldquo;AI helps you solve <em>the problems you&rsquo;re stuck on</em>.&rdquo;</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ROW 2 — THE INTERACTION -->
+        <div class="gap-row">
+          <div class="gap-row-head">
+            <span class="gap-row-num">02</span>
+            <h3 class="gap-row-title">The Interaction</h3>
+            <span class="gap-row-q">how AI shows up in your work</span>
+            <span class="neq-mini" aria-hidden="true">
+              <svg viewBox="0 0 34 34">
+                <rect x="4" y="13" width="26" height="3" fill="#2A2E33"/>
+                <rect x="4" y="20" width="26" height="3" fill="#2A2E33"/>
+                <path d="M 28 4 L 6 30" stroke="#73956F" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </svg>
+            </span>
+          </div>
+          <div class="gap-pair">
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- LIT: Win2K one-shot prompt -->
+                <div class="lit-oneshot">
+                  <div class="lit-oneshot-bar">
+                    <span>Ask AI &mdash; v1.0.4</span>
+                    <span>_ ×</span>
+                  </div>
+                  <div class="lit-oneshot-body">
+                    <div class="lit-oneshot-row"><span class="who">You</span>Write me a status update.</div>
+                    <div class="lit-oneshot-row ai"><span class="who">Assistant</span>Here is a status update for your project: this week the team made progress on key deliverables&hellip;</div>
+                    <div class="lit-oneshot-input">
+                      <span class="field">Type a message&hellip;</span>
+                      <span class="btn">Send</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="gap-cap lit">&ldquo;Pick a prompt. Take what comes back.&rdquo;</p>
+            </div>
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- FLU: mess → reshape → built tool (kept) -->
+                <div class="flu-card flu-transform">
+                  <div class="flu-mess">
+                    <div class="flu-mess-h">// what i actually have</div>
+                    <span class="flu-mess-line strike">renewals dashboard?</span>
+                    <span class="flu-mess-line strike">just list everyone</span>
+                    <span class="flu-mess-line kept">which accounts will churn this Q?</span>
+                  </div>
+                  <div class="flu-arrow-pill">▼ <span class="g">RESHAPE</span> ▼</div>
+                  <div class="flu-built">
+                    <div class="flu-built-bar">
+                      <span>● ● ●</span>
+                      <span class="url">counter.app<span class="slash">/</span>renewals</span>
+                      <span>wk 3</span>
+                    </div>
+                    <div class="flu-built-body">
+                      <div class="flu-built-h">Renewals <em>at risk</em></div>
+                      <div class="flu-built-row"><span class="name">Acme Co.</span><span class="val">±$94k</span></div>
+                      <div class="flu-built-row"><span class="name">Northwind</span><span class="val">±$22k</span></div>
+                      <div class="flu-built-row"><span class="name">Globex</span><span class="val ok">on track</span></div>
+                      <div class="flu-built-foot"><span>▶ BUILT BY MAYA</span><span class="ver">v0.4</span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="gap-cap flu">&ldquo;Bring your mess. <em>Shape it together.</em> Build something.&rdquo;</p>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ROW 3 — THE OUTCOME -->
+        <div class="gap-row">
+          <div class="gap-row-head">
+            <span class="gap-row-num">03</span>
+            <h3 class="gap-row-title">The Outcome</h3>
+            <span class="gap-row-q">what changes for the team</span>
+            <span class="neq-mini" aria-hidden="true">
+              <svg viewBox="0 0 34 34">
+                <rect x="4" y="13" width="26" height="3" fill="#2A2E33"/>
+                <rect x="4" y="20" width="26" height="3" fill="#2A2E33"/>
+                <path d="M 28 4 L 6 30" stroke="#73956F" stroke-width="3" stroke-linecap="round" fill="none"/>
+              </svg>
+            </span>
+          </div>
+          <div class="gap-pair">
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- LIT: corporate productivity memo with -30% stamp -->
+                <div class="lit-memo">
+                  <div class="lit-memo-h">Q3 Productivity Update</div>
+                  <div class="lit-memo-sub">Memo · 14 Oct · CFO office</div>
+                  <div class="lit-memo-row"><span class="lbl">Avg task time</span><span class="val"><span class="down">&minus;30%</span></span></div>
+                  <div class="lit-memo-row"><span class="lbl">Email drafting</span><span class="val"><span class="down">&minus;42%</span></span></div>
+                  <div class="lit-memo-row"><span class="lbl">Meeting recap</span><span class="val"><span class="down">&minus;55%</span></span></div>
+                  <div class="lit-memo-row"><span class="lbl">Roles eliminated</span><span class="val">0</span></div>
+                  <div class="lit-memo-row"><span class="lbl">New work delivered</span><span class="val">&mdash;</span></div>
+                  <span class="lit-memo-stamp">&minus;30%<br>time spent</span>
+                </div>
+              </div>
+              <p class="gap-cap lit">&ldquo;Same work, less time.&rdquo;</p>
+            </div>
+
+            <div class="gap-cell">
+              <div class="gap-art-wrap">
+                <!-- FLU: team capability log (kept) -->
+                <div class="flu-card flu-log">
+                  <div class="flu-log-h">
+                    <span>▶ SHIPPED · WK 3 → 6</span>
+                    <span class="new">+4 new</span>
+                  </div>
+                  <div class="flu-log-row"><span class="dot"></span><span class="name">Renewal copilot</span><span class="when">wk 3</span></div>
+                  <div class="flu-log-row"><span class="dot mint"></span><span class="name">House-style PR review</span><span class="when">wk 4</span></div>
+                  <div class="flu-log-row"><span class="dot marker"></span><span class="name">Onboarding bot</span><span class="when">wk 5</span></div>
+                  <div class="flu-log-row"><span class="dot"></span><span class="name">Weekly team digest</span><span class="when">wk 6</span></div>
+                  <div class="flu-log-foot">// none of these existed before</div>
+                </div>
+              </div>
+              <p class="gap-cap flu">&ldquo;<em>New work</em> that wasn&rsquo;t possible before.&rdquo;</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer punchlines — own table-row, bordered top -->
+      <div class="gap-footer">
+        <span class="col-tag">// already have this. it isn&rsquo;t enough.</span>
+        <span class="col-tag flu">
+          <span class="flu-peeker" aria-hidden="true">
+            <svg id="peekerAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
+          </span>
+          ▶ THE COUNTER BUILDS THIS
+        </span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  // Pixel cohort alien — used in both the mindset scene + the footer peeker.
+  // Same grammar as the existing peeker on v8.
+  const NS='http://www.w3.org/2000/svg',CELL=10;
+  const SAGE='#73956F',SAGE_DEEP='#5B7A58',MINT='#95D7AE',
+        INK='#2A2E33',PAPER='#F6F0E1',BLUSH='#E3A4A4';
+  const GRID=[
+    '......aa....','.....bbbb...','....bbbbbb..','...hbbbbbbs.','..hwbbbbwbs.',
+    '..hbeebbeebs','..hbepbbpebs','..hbeebbeebs','..hbbbmmmbbs','..hbBbmmmbBs',
+    '...sbbbbbss.','....bbbbbb..','.....JJJJ...','.....JJJJ...','....JJ..JJ..',
+  ];
+  const PAL={'b':SAGE,'h':MINT,'s':SAGE_DEEP,'e':PAPER,'p':INK,'m':INK,
+             'B':BLUSH,'w':INK,'a':SAGE_DEEP,'J':INK};
+  function paintAlien(svg){
+    if(!svg) return;
+    const rows=GRID.length,cols=GRID[0].length;
+    const offX=(200-cols*CELL)/2,offY=(200-rows*CELL)/2;
+    for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+      const ch=GRID[y][x]; if(ch==='.'||ch===' ') continue;
+      const f=PAL[ch]; if(!f) continue;
+      const r=document.createElementNS(NS,'rect');
+      r.setAttribute('x',offX+x*CELL);r.setAttribute('y',offY+y*CELL);
+      r.setAttribute('width',CELL);r.setAttribute('height',CELL);
+      r.setAttribute('fill',f);
+      svg.appendChild(r);
+    }
+  }
+  paintAlien(document.getElementById('peekerAlien'));
+  paintAlien(document.getElementById('mindsetAlien'));
+})();
+</script>
+
+</body>
+</html>

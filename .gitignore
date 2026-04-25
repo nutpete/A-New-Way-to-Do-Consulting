@@ -1,0 +1,17 @@
+# Mac OS detritus
+.DS_Store
+__MACOSX/
+._*
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Backups + recovery files
+*.bak
+*-broken-*
+*-restored.html
+
+# Node modules (in case)
+node_modules/

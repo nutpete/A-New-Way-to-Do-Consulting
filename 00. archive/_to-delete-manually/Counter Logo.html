@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Counter — TC Logo Explorations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Press+Start+2P&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; font-family: 'JetBrains Mono', monospace; }
+  .board {
+    height: 100%; width: 100%;
+    background: #F6F0E1;
+    background-image:
+      linear-gradient(to right,  rgba(42,46,51,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px);
+    background-size: 36px 36px, 36px 36px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    padding: 40px;
+    box-sizing: border-box;
+  }
+  .board.dark {
+    background: #1C2024;
+    background-image:
+      linear-gradient(to right,  rgba(246,240,225,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(246,240,225,0.04) 1px, transparent 1px);
+    background-size: 36px 36px, 36px 36px;
+  }
+  .board.sage { background: #73956F; background-image: none; }
+  .corner-tag {
+    position: absolute; top: 10px; left: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: rgba(42,46,51,0.45);
+    text-transform: uppercase;
+  }
+  .board.dark .corner-tag, .board.sage .corner-tag { color: rgba(246,240,225,0.45); }
+  .nav-mock {
+    background: #F6F0E1;
+    border-bottom: 1px solid rgba(42,46,51,0.16);
+    padding: 14px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .nav-mock a {
+    color: #2A2E33; text-decoration: none; margin-left: 24px;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel" src="logo.jsx"></script>
+
+<script type="text/babel">
+const { useState } = React;
+
+function Board({ bg = 'paper', tag, children, style = {} }) {
+  const cls = 'board' + (bg === 'dark' ? ' dark' : bg === 'sage' ? ' sage' : '');
+  return (
+    <div className={cls} style={style}>
+      {tag && <div className="corner-tag">{tag}</div>}
+      {children}
+    </div>
+  );
+}
+
+// Nav mock using V10 inline lockup
+function NavMock() {
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#F6F0E1', display: 'flex', flexDirection: 'column' }}>
+      <div className="nav-mock">
+        <LogoV10 cell={7} />
+        <div>
+          <a>FLUENCY</a><a>APPROACH</a><a>WORK</a><a>CONTACT</a>
+        </div>
+      </div>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontSize: 42, color: '#2A2E33',
+        textAlign: 'center', padding: 40, lineHeight: 1.1 }}>
+        <div>
+          <div style={{ fontSize: 11, fontFamily: '"JetBrains Mono", monospace', letterSpacing: '0.25em',
+            color: '#8A8F94', textTransform: 'uppercase', marginBottom: 16 }}>IN-SITU · NAVBAR</div>
+          an AI fluency studio
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Favicon strip — shows the mark at browser-tab size
+function FaviconStrip() {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28 }}>
+      <div style={{ display: 'flex', gap: 20, alignItems: 'flex-end' }}>
+        {[96, 64, 32, 16].map(size => (
+          <div key={size} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+            <div style={{
+              width: size, height: size,
+              background: '#73956F',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <PixelGrid
+                grid={[
+                  [1,1,1,1,1,1,1,1,1,1,1,1],
+                  [1,1,1,1,1,1,1,1,1,1,1,1],
+                  [0,0,0,1,1,2,2,2,2,2,2,0],
+                  [0,0,0,1,1,2,2,2,2,2,2,2],
+                  [0,0,0,1,1,3,3,0,0,0,0,0],
+                  [0,0,0,1,1,3,3,0,0,0,0,0],
+                  [0,0,0,1,1,3,3,0,0,0,0,0],
+                  [0,0,0,1,1,2,2,2,2,2,2,2],
+                  [0,0,0,1,1,2,2,2,2,2,2,0],
+                ]}
+                cell={Math.floor(size * 0.055)}
+                palette={{ 1: PAPER, 2: INK, 3: '#5B7A58' }}
+              />
+            </div>
+            <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8A8F94' }}>{size}px</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <DesignCanvas>
+      <DCSection id="hero" title="TC — final direction" subtitle="Black T · sage C piercing the center. Based on 03 + 08 blend.">
+        <DCArtboard id="hero-big" label="★ Hero · large" width={560} height={540}>
+          <Board tag="★ black T · green C through center">
+            <LogoHero cell={22} />
+          </Board>
+        </DCArtboard>
+        <DCArtboard id="hero-mark" label="Mark only" width={420} height={440}>
+          <Board tag="mark only · no wordmark">
+            <LogoHero cell={22} showWordmark={false} />
+          </Board>
+        </DCArtboard>
+        <DCArtboard id="hero-dark" label="Reversed · dark surface" width={420} height={440}>
+          <Board bg="dark" tag="on ink — C lifts">
+            <LogoHero cell={22} showWordmark={true} wordmarkColor="#F6F0E1" />
+          </Board>
+        </DCArtboard>
+        <DCArtboard id="hero-favicon" label="Favicon strip" width={560} height={360}>
+          <Board tag="scale test">
+            <div style={{ display: 'flex', gap: 24, alignItems: 'flex-end' }}>
+              {[96, 64, 32, 20].map(size => (
+                <div key={size} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: size, height: size, background: PAPER, display: 'flex',
+                    alignItems: 'center', justifyContent: 'center' }}>
+                    <PixelGrid grid={buildPierced()} cell={Math.max(1, Math.floor(size * 0.07))}
+                      palette={{ 1: INK, 2: SAGE, 3: INK }} />
+                  </div>
+                  <div style={{ fontSize: 10, letterSpacing: '0.15em', color: '#8A8F94' }}>{size}px</div>
+                </div>
+              ))}
+            </div>
+          </Board>
+        </DCArtboard>
+        <DCArtboard id="hero-nav" label="In navbar" width={880} height={220}>
+          <div style={{ width: '100%', height: '100%', background: '#F6F0E1', display: 'flex', flexDirection: 'column' }}>
+            <div className="nav-mock">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <PixelGrid grid={buildPierced()} cell={5} palette={{ 1: INK, 2: SAGE, 3: INK }} />
+                <div>
+                  <div style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic',
+                    fontSize: 22, color: '#2A2E33', lineHeight: 1 }}>the counter</div>
+                  <div style={{ fontFamily: '"JetBrains Mono", monospace', fontSize: 9,
+                    letterSpacing: '0.2em', color: '#8A8F94', marginTop: 3 }}>AI FLUENCY STUDIO</div>
+                </div>
+              </div>
+              <div>
+                <a>FLUENCY</a><a>APPROACH</a><a>WORK</a><a>CONTACT</a>
+              </div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: '"Instrument Serif", serif', fontStyle: 'italic', fontSize: 28, color: '#2A2E33' }}>
+              in-situ preview
+            </div>
+          </div>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="primary" title="Earlier explorations" subtitle="Kept for reference — overlap variations">
+        <DCArtboard id="v1" label="01 · Classic overlap (5×7)" width={420} height={440}>
+          <Board tag="01 — 5×7 grid · sage + ink">
+            <LogoV1 cell={18} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v2" label="02 · Chunky overlap (7×9)" width={420} height={440}>
+          <Board tag="02 — 7×9 · sage tones">
+            <LogoV2 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v3" label="03 · Ink T · sage C" width={420} height={440}>
+          <Board tag="03 — high contrast">
+            <LogoV3 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v5" label="04 · Tight overlap" width={420} height={440}>
+          <Board tag="04 — C bites into T">
+            <LogoV5 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v4" label="05 · Punched (carved)" width={420} height={440}>
+          <Board tag="05 — C carves through T">
+            <LogoV4 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v6" label="06 · Monochrome sage" width={420} height={440}>
+          <Board tag="06 — single-color mark">
+            <LogoV6 cell={14} />
+          </Board>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="alt-lockups" title="Alternate lockups & surfaces" subtitle="Same mark, different containers">
+        <DCArtboard id="v7" label="07 · Arcade chip" width={420} height={440}>
+          <Board bg="dark" tag="07 — arcade-panel lockup">
+            <LogoV7 cell={13} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v8" label="08 · Stacked (square)" width={420} height={440}>
+          <Board tag="08 — vertical stack for avatar">
+            <LogoV8 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="v9" label="09 · Reversed on sage" width={420} height={440}>
+          <Board bg="sage" tag="09 — paper-on-sage">
+            <LogoV9 cell={14} />
+          </Board>
+        </DCArtboard>
+
+        <DCArtboard id="favicon" label="10 · Favicon / app icon" width={520} height={440}>
+          <Board tag="10 — scaled down to tab size">
+            <FaviconStrip />
+          </Board>
+        </DCArtboard>
+      </DCSection>
+
+      <DCSection id="in-situ" title="In situ" subtitle="Drop-in preview with the site's existing chrome">
+        <DCArtboard id="nav" label="11 · Navbar" width={880} height={360}>
+          <NavMock />
+        </DCArtboard>
+
+        <DCArtboard id="biz-card" label="12 · Card / avatar" width={520} height={360}>
+          <Board tag="12 — business-card scale">
+            <div style={{
+              background: '#FAF6EC', padding: '36px 40px',
+              boxShadow: '0 20px 40px -22px rgba(42,46,51,0.3), 0 2px 0 rgba(42,46,51,0.08)',
+              display: 'flex', flexDirection: 'column', gap: 22,
+            }}>
+              <LogoV2 cell={10} showWordmark={false} />
+              <div style={{ borderTop: '1px dashed rgba(42,46,51,0.18)', paddingTop: 18 }}>
+                <div style={{ fontFamily: '"Instrument Serif", serif', fontStyle: 'italic',
+                  fontSize: 22, color: '#2A2E33', lineHeight: 1.1 }}>the counter</div>
+                <div style={{ fontSize: 10, letterSpacing: '0.22em', color: '#8A8F94',
+                  marginTop: 4, textTransform: 'uppercase' }}>an AI fluency studio</div>
+              </div>
+            </div>
+          </Board>
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
