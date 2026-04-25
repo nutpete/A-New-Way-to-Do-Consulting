@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Gap — Section v3 (interleaved screens)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--line:rgba(42,46,51,0.16);
+    --w2k-face:#C0C0C0;--w2k-face-2:#D4D0C8;--w2k-shadow:#808080;--w2k-shadow-2:#404040;
+    --w2k-light:#FFFFFF;--w2k-title-a:#0A246A;--w2k-title-b:#A6CAF0;--w2k-blue:#000080;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,.035) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,.035) 1px,transparent 1px);
+    background-size:36px 36px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:17px;line-height:1.55;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;mix-blend-mode:multiply;z-index:1;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+
+  .gap-section{padding:80px 0;position:relative;background:var(--paper)}
+  .gap-header{text-align:center;max-width:920px;margin:0 auto 44px}
+  .section-label{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:14px;
+  }
+  .section-label::before{content:'';display:inline-block;width:42px;height:3px;background:var(--ink)}
+  .gap-headline{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(34px,4vw,54px);line-height:1.08;letter-spacing:-.018em;margin-top:18px;
+  }
+  .gap-headline em{font-style:italic;color:var(--fluency)}
+  .gap-headline .hi{
+    background-image:linear-gradient(var(--marker),var(--marker));
+    background-repeat:no-repeat;background-position:0 88%;background-size:100% 9px;padding:0 2px;
+  }
+
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:56px;max-width:1180px;margin:0 auto;align-items:start}
+  .compare-col{display:flex;flex-direction:column;gap:14px;min-width:0;position:relative}
+
+  .compare-eyebrow{
+    font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;
+    align-self:flex-start;padding:6px 12px;color:#fff;
+  }
+  .lit-eyebrow{background:var(--w2k-shadow-2);transform:rotate(-1.2deg)}
+  .flu-eyebrow{
+    background:var(--ink);color:var(--fluency-2);
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.08em;
+    transform:rotate(-1.2deg);box-shadow:3px 3px 0 var(--fluency);
+  }
+  .compare-title{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(36px,3.6vw,52px);line-height:1.02;letter-spacing:-.02em;margin-bottom:2px;
+  }
+  .lit-title{color:var(--ink-soft);opacity:.7;filter:saturate(.4)}
+  .flu-title{color:var(--ink)}
+  .flu-title em{font-style:italic;color:var(--fluency)}
+  .compare-sub{font-size:15px;line-height:1.5;color:var(--ink-soft);max-width:42ch;margin-bottom:10px}
+  .lit-sub{opacity:.7}
+
+  /* ---- the interleaved flow: bullets + screens, alternating ---- */
+  .flow{display:flex;flex-direction:column;gap:0;margin-top:4px}
+  .bullets{list-style:none;padding:0;display:flex;flex-direction:column}
+  .bullets li{
+    display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;
+    padding:9px 0;border-bottom:1px dotted var(--line);font-size:15.5px;line-height:1.4;color:var(--ink);
+  }
+  .bullets li:last-child{border-bottom:none}
+  .bullets .mark{font-family:'Caveat',cursive;font-size:26px;line-height:1;color:var(--ink-soft)}
+  .lit-bullets li{color:var(--ink-soft);opacity:.78}
+  .lit-bullets .mark{color:var(--ink-soft);opacity:.6}
+  .flu-bullets li{color:var(--ink);font-weight:500;padding:10px 0}
+  .flu-bullets .mark{
+    font-family:'Press Start 2P',monospace;font-size:10px;
+    color:var(--paper);background:var(--fluency);
+    width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:2px 2px 0 var(--ink);transform:translateY(-1px);
+  }
+
+  /* the inline screen sits between bullet groups */
+  .inline-screen{margin:14px 0 14px}
+
+  /* footnote tag at column foot */
+  .col-tag{
+    align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.04em;padding:4px 8px;color:var(--ink-soft);background:rgba(42,46,51,.06);
+    margin-top:8px;
+  }
+  .col-tag.flu{
+    font-family:'Press Start 2P',monospace;font-size:8px;
+    background:var(--ink);color:var(--fluency);letter-spacing:.06em;
+    box-shadow:3px 3px 0 var(--fluency-2);padding:6px 10px;
+  }
+
+  /* =========================================================
+     LITERACY mini screens — Win2K, one-shot
+  ========================================================= */
+  .w2k-mini{
+    background:var(--w2k-face);
+    box-shadow:
+      inset  1px  1px 0 var(--w2k-light),
+      inset -1px -1px 0 var(--w2k-shadow-2),
+      inset  2px  2px 0 var(--w2k-face-2),
+      inset -2px -2px 0 var(--w2k-shadow),
+      3px 3px 0 rgba(0,0,0,.16);
+    padding:2px;font-family:'Tahoma',sans-serif;font-size:9.5px;color:#000;
+    filter:saturate(.55);opacity:.94;
+  }
+  .w2k-mini.tilt-l{transform:rotate(-1deg)}
+  .w2k-mini.tilt-r{transform:rotate(.9deg)}
+  .w2k-bar{
+    background:linear-gradient(90deg,var(--w2k-title-a) 0%,#1A41A8 60%,var(--w2k-title-b) 100%);
+    color:#fff;font-weight:700;font-size:9.5px;
+    padding:2px 5px;display:flex;align-items:center;justify-content:space-between;
+  }
+  .w2k-bar .ctls{display:flex;gap:1px}
+  .w2k-bar .ctl{
+    width:11px;height:9px;background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2);
+    font-size:8px;line-height:9px;text-align:center;color:#000;
+  }
+  .w2k-body{background:#fff;padding:8px 10px;color:#000}
+
+  /* one-shot chat */
+  .lit-chat .row{
+    border:1px solid #999;background:#fff;padding:5px 7px;font-size:10px;
+    margin-bottom:4px;line-height:1.35;
+  }
+  .lit-chat .row .who{font-weight:700;color:var(--w2k-blue);font-size:8.5px;display:block;margin-bottom:1px}
+  .lit-chat .row.ai .who{color:#5d4d8a}
+  .lit-chat .input-row{display:flex;gap:4px;margin-top:4px}
+  .lit-chat .input{
+    flex:1;background:#fff;border:1px solid #666;
+    box-shadow:inset 1px 1px 0 #808080,inset -1px -1px 0 #fff;
+    padding:2px 4px;font-size:8.5px;color:#666;
+  }
+  .lit-chat .btn{
+    background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2),inset 2px 2px 0 var(--w2k-face-2),inset -2px -2px 0 var(--w2k-shadow);
+    padding:1px 8px;font-size:8.5px;
+  }
+
+  /* slide deck */
+  .lit-slide-h{
+    font-family:'Times New Roman',serif;font-size:14px;font-weight:700;
+    color:var(--w2k-blue);letter-spacing:-.01em;
+  }
+  .lit-slide-rule{height:1.5px;background:var(--w2k-blue);margin:4px 0 6px;width:55%}
+  .lit-slide-bullets{list-style:none;font-size:10px;line-height:1.55;color:#000}
+  .lit-slide-bullets li{padding-left:11px;position:relative;margin-bottom:1px}
+  .lit-slide-bullets li::before{
+    content:'';position:absolute;left:1px;top:5px;width:5px;height:5px;
+    background:var(--w2k-blue);transform:rotate(45deg);
+  }
+  .lit-slide-foot{
+    margin-top:6px;display:flex;justify-content:space-between;
+    font-size:8px;color:#666;border-top:1px dotted #aaa;padding-top:4px;
+  }
+  .lit-slide-foot .pg{background:#eee;padding:0 4px;border:1px solid #aaa;font-weight:700;color:#000}
+
+  /* status update one-shot */
+  .lit-status .prompt{
+    background:#eee;border:1px solid #999;padding:5px 7px;font-size:10px;color:#000;
+    margin-bottom:5px;
+  }
+  .lit-status .prompt strong{color:var(--w2k-blue)}
+  .lit-status .out{
+    border:1px solid #999;background:#fff;padding:6px 7px;font-size:9.5px;line-height:1.4;
+    color:#333;
+  }
+  .lit-status .out .lbl{color:#5d4d8a;font-weight:700;font-size:8.5px;display:block;margin-bottom:2px}
+
+  /* =========================================================
+     FLUENCY mini screens — pixel arcade, iterative
+  ========================================================= */
+  .pix-mini{
+    background:var(--paper-card);border:2px solid var(--ink);position:relative;
+    box-shadow:
+      3px 0 0 0 var(--ink),0 3px 0 0 var(--ink),3px 3px 0 0 var(--ink),
+      6px 3px 0 0 var(--fluency),3px 6px 0 0 var(--fluency),6px 6px 0 0 var(--fluency);
+    transform:rotate(-.4deg);overflow:hidden;
+  }
+  .pix-mini.tilt-r{transform:rotate(.6deg)}
+
+  /* iterative chat (multi-turn) */
+  .flu-chat{padding:10px 12px}
+  .flu-chat-h{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:5px;border-bottom:1px dashed var(--line);margin-bottom:8px;
+  }
+  .flu-chat-h .t{font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:.06em}
+  .flu-chat-h .meta{
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--fluency);
+    display:flex;align-items:center;gap:5px;
+  }
+  .flu-chat-h .meta .dot{
+    width:6px;height:6px;background:var(--fluency-3);
+    box-shadow:0 0 0 1.5px var(--paper-card),0 0 0 2.5px var(--fluency-2);
+  }
+  .flu-msg{display:grid;grid-template-columns:34px 1fr;gap:6px;margin-bottom:5px;font-size:10px;line-height:1.4}
+  .flu-msg .who{
+    font-family:'Press Start 2P',monospace;font-size:6px;color:var(--ink-soft);
+    letter-spacing:.04em;padding-top:2px;line-height:1.6;
+  }
+  .flu-msg.you .who{color:var(--marker)}
+  .flu-msg.ai .who{color:var(--fluency)}
+  .flu-msg .text{background:var(--paper);padding:4px 7px;border-left:2px solid var(--fluency-2)}
+  .flu-msg.you .text{border-left-color:var(--marker)}
+  .flu-msg.ai .text{border-left-color:var(--fluency)}
+  .flu-msg .text em{background:var(--fluency-2);font-style:normal;padding:0 2px}
+
+  /* prototype tool — partial view */
+  .flu-tool{padding:0}
+  .flu-bar{
+    background:var(--ink);color:var(--paper);padding:4px 7px;
+    display:flex;align-items:center;gap:5px;font-family:'JetBrains Mono',monospace;font-size:8px;
+  }
+  .flu-bar .tl{display:flex;gap:2px}
+  .flu-bar .tl span{width:5px;height:5px;background:var(--fluency-3);display:inline-block}
+  .flu-bar .tl span:nth-child(2){background:var(--fluency-2)}
+  .flu-bar .tl span:nth-child(3){background:var(--fluency)}
+  .flu-bar .url{flex:1;background:#1a1d22;padding:1.5px 5px;color:var(--fluency-2);font-size:8px}
+  .flu-bar .url .slash{color:var(--ink-soft)}
+  .flu-tool-body{padding:9px 11px;background:var(--paper-card)}
+  .flu-tool-h{
+    font-family:'Instrument Serif',serif;font-size:14px;line-height:1.05;color:var(--ink);
+    margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;
+  }
+  .flu-tool-h em{color:var(--marker);font-style:italic}
+  .flu-tool-h .built-by{
+    font-family:'Press Start 2P',monospace;font-size:6px;color:var(--fluency);letter-spacing:.06em;
+  }
+  .flu-tool-row{
+    display:grid;grid-template-columns:1fr auto auto;gap:6px;
+    font-family:'JetBrains Mono',monospace;font-size:9px;
+    padding:3px 5px;background:var(--paper);border-left:2px solid var(--fluency);margin-bottom:3px;
+  }
+  .flu-tool-row .name{color:var(--ink);font-weight:600}
+  .flu-tool-row .risk{color:var(--marker);font-size:8px;letter-spacing:.06em}
+  .flu-tool-row .arr{
+    width:14px;height:14px;background:var(--fluency);color:var(--paper);
+    font-family:'Press Start 2P',monospace;font-size:7px;
+    display:flex;align-items:center;justify-content:center;
+  }
+
+  /* before/after */
+  .flu-baf{padding:9px 11px;display:grid;grid-template-columns:1fr 18px 1fr;gap:6px;align-items:stretch}
+  .flu-baf .side{display:flex;flex-direction:column;gap:3px}
+  .flu-baf .k{
+    font-family:'Press Start 2P',monospace;font-size:5.5px;letter-spacing:.06em;
+    color:var(--ink-soft);
+  }
+  .flu-baf .v{font-size:9.5px;line-height:1.35;color:var(--ink);background:var(--paper);padding:5px 6px}
+  .flu-baf .before .v{color:var(--ink-soft);opacity:.85;border-left:2px solid var(--ink-soft)}
+  .flu-baf .after .v{color:var(--ink);font-weight:500;border-left:2px solid var(--fluency)}
+  .flu-baf .after .k{color:var(--fluency)}
+  .flu-baf .arrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;color:var(--fluency);
+    text-align:center;align-self:center;
+  }
+
+  /* peeker alien on the fluency column */
+  .flu-peeker{
+    position:absolute;right:-14px;top:-30px;width:56px;height:56px;
+    pointer-events:none;transform:rotate(6deg);z-index:3;
+  }
+  .flu-peeker svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+
+  @media (max-width:900px){
+    .compare{grid-template-columns:1fr;gap:48px}
+    .flu-peeker{right:-6px;top:-34px}
+  }
+</style>
+</head>
+<body>
+
+<section class="gap-section" id="pov">
+  <div class="wrap">
+
+    <div class="gap-header">
+      <span class="section-label">01 · The Gap</span>
+      <h2 class="gap-headline">
+        <em>Literacy</em> teaches what AI does.<br>
+        <em>Fluency</em> builds <span class="hi">how to&nbsp;work with&nbsp;it.</span>
+      </h2>
+    </div>
+
+    <div class="compare">
+
+      <!-- ───────── LITERACY ───────── -->
+      <div class="compare-col">
+        <span class="compare-eyebrow lit-eyebrow">What happens today</span>
+        <h3 class="compare-title lit-title">AI&nbsp;Literacy.</h3>
+        <p class="compare-sub lit-sub">Programs that teach what AI can do — the deck, the workshop, the one-shot prompt.</p>
+
+        <div class="flow">
+          <ul class="bullets lit-bullets">
+            <li><span class="mark">✓</span>Knows what AI can do</li>
+            <li><span class="mark">✓</span>Uses AI for simple tasks</li>
+          </ul>
+
+          <!-- Screen 1 · one-shot prompt → boilerplate -->
+          <div class="inline-screen">
+            <div class="w2k-mini tilt-l">
+              <div class="w2k-bar">
+                <span>Ask AI — v1.0.4</span>
+                <span class="ctls"><span class="ctl">_</span><span class="ctl">×</span></span>
+              </div>
+              <div class="w2k-body lit-chat">
+                <div class="row"><span class="who">You</span>Write me a status update.</div>
+                <div class="row ai"><span class="who">Assistant</span>This week the team made progress on key deliverables and identified several risks that will be addressed next sprint…</div>
+                <div class="input-row"><span class="input">Type a message…</span><span class="btn">Send</span></div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="bullets lit-bullets">
+            <li><span class="mark">✓</span>Accepts what AI gives back</li>
+            <li><span class="mark">✓</span>Applies generic use cases</li>
+          </ul>
+
+          <!-- Screen 2 · slide deck "5 Ways to Use AI" -->
+          <div class="inline-screen">
+            <div class="w2k-mini tilt-r">
+              <div class="w2k-bar">
+                <span>AI_at_Work_Module2.ppt</span>
+                <span class="ctls"><span class="ctl">_</span><span class="ctl">×</span></span>
+              </div>
+              <div class="w2k-body">
+                <div class="lit-slide-h">5 Ways to Use AI</div>
+                <div class="lit-slide-rule"></div>
+                <ul class="lit-slide-bullets">
+                  <li>Summarize long documents</li>
+                  <li>Draft routine emails</li>
+                  <li>Brainstorm ideas faster</li>
+                  <li>Answer FAQs</li>
+                  <li>Edit copy &amp; grammar</li>
+                </ul>
+                <div class="lit-slide-foot">
+                  <span>Module 2 of 6</span>
+                  <span class="pg">11 / 24</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="bullets lit-bullets">
+            <li><span class="mark">✓</span>Speeds up existing work</li>
+            <li><span class="mark">✓</span>Reduces costs</li>
+          </ul>
+
+          <!-- Screen 3 · status update one-shot summary -->
+          <div class="inline-screen">
+            <div class="w2k-mini tilt-l">
+              <div class="w2k-bar">
+                <span>Email Summary — AI Assist</span>
+                <span class="ctls"><span class="ctl">_</span><span class="ctl">×</span></span>
+              </div>
+              <div class="w2k-body lit-status">
+                <div class="prompt"><strong>Prompt:</strong> Summarize this email thread.</div>
+                <div class="out">
+                  <span class="lbl">Summary</span>
+                  The team is reviewing the proposal. Several stakeholders raised concerns about timing. A follow-up meeting is scheduled for next week.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="col-tag">// already have this. it isn&rsquo;t enough.</span>
+      </div>
+
+      <!-- ───────── FLUENCY ───────── -->
+      <div class="compare-col">
+        <div class="flu-peeker" aria-hidden="true">
+          <svg id="peekerAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
+        </div>
+
+        <span class="compare-eyebrow flu-eyebrow">▶ WHAT YOUR TEAMS NEED</span>
+        <h3 class="compare-title flu-title">AI&nbsp;<em>Fluency.</em></h3>
+        <p class="compare-sub">A way of working with AI — instinctual, iterative, shaped to the problems your team actually has.</p>
+
+        <div class="flow">
+          <ul class="bullets flu-bullets">
+            <li><span class="mark">✓</span>Knows how to work with AI</li>
+            <li><span class="mark">✓</span>Uses AI on real problems</li>
+          </ul>
+
+          <!-- Screen 1 · iterative chat — multi-turn shaping -->
+          <div class="inline-screen">
+            <div class="pix-mini">
+              <div class="flu-chat">
+                <div class="flu-chat-h">
+                  <span class="t">▶ ITERATING</span>
+                  <span class="meta"><span class="dot"></span>turn 04</span>
+                </div>
+                <div class="flu-msg ai"><span class="who">AI</span><span class="text">Draft of the renewal note ready.</span></div>
+                <div class="flu-msg you"><span class="who">YOU</span><span class="text">make it sharper. lead with <em>the ask</em>, skip the intro.</span></div>
+                <div class="flu-msg ai"><span class="who">AI</span><span class="text">Reordered. Opens on the renewal decision.</span></div>
+                <div class="flu-msg you"><span class="who">YOU</span><span class="text">closer — but cite the <em>Q3 deck</em>, not the wiki.</span></div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="bullets flu-bullets">
+            <li><span class="mark">✓</span>Shapes what AI produces</li>
+            <li><span class="mark">✓</span>Builds context-specific solutions</li>
+          </ul>
+
+          <!-- Screen 2 · custom prototype "renewals at risk" -->
+          <div class="inline-screen">
+            <div class="pix-mini tilt-r flu-tool">
+              <div class="flu-bar">
+                <span class="tl"><span></span><span></span><span></span></span>
+                <span class="url">renewals<span class="slash">/</span>at-risk</span>
+              </div>
+              <div class="flu-tool-body">
+                <div class="flu-tool-h">
+                  Renewals <em>at risk</em>
+                  <span class="built-by">▶ BUILT BY MAYA · WK 3</span>
+                </div>
+                <div class="flu-tool-row"><span class="name">Acme Co.</span><span class="risk">HIGH</span><span class="arr">▶</span></div>
+                <div class="flu-tool-row"><span class="name">Northwind</span><span class="risk">HIGH</span><span class="arr">▶</span></div>
+                <div class="flu-tool-row"><span class="name">Globex</span><span class="risk" style="color:var(--ink-soft)">MED</span><span class="arr">▶</span></div>
+              </div>
+            </div>
+          </div>
+
+          <ul class="bullets flu-bullets">
+            <li><span class="mark">✓</span>Expands what teams can take on</li>
+            <li><span class="mark">✓</span>Reduces costs &amp; unlocks growth</li>
+          </ul>
+
+          <!-- Screen 3 · before/after — raw vs shaped output -->
+          <div class="inline-screen">
+            <div class="pix-mini">
+              <div class="flu-baf">
+                <div class="side before">
+                  <span class="k">RAW OUTPUT</span>
+                  <span class="v">"Hi team, I wanted to provide a quick status update on the project this week…"</span>
+                </div>
+                <div class="arrow">▶</div>
+                <div class="side after">
+                  <span class="k">▶ SHAPED · TURN 04</span>
+                  <span class="v">"Renewal decision needed by Friday. Q3 deck p.14 has the numbers."</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="col-tag flu">▶ THE COUNTER BUILDS THIS</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  const svg=document.getElementById('peekerAlien'); if(!svg) return;
+  const NS='http://www.w3.org/2000/svg',CELL=10;
+  const SAGE='#73956F',DEEP='#5B7A58',MINT='#95D7AE',INK='#2A2E33',PAPER='#F6F0E1',BLUSH='#E3A4A4';
+  const G=[
+    '......aa....','.....bbbb...','....bbbbbb..','...hbbbbbbs.','..hwbbbbwbs.',
+    '..hbeebbeebs','..hbepbbpebs','..hbeebbeebs','..hbbbmmmbbs','..hbBbmmmbBs',
+    '...sbbbbbss.','....bbbbbb..','.....JJJJ...','.....JJJJ...','....JJ..JJ..',
+  ];
+  const P={'b':SAGE,'h':MINT,'s':DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'w':INK,'a':DEEP,'J':INK};
+  const r=G.length,c=G[0].length,oX=(200-c*CELL)/2,oY=(200-r*CELL)/2;
+  for(let y=0;y<r;y++)for(let x=0;x<c;x++){
+    const ch=G[y][x]; if(ch==='.') continue;
+    const f=P[ch]; if(!f) continue;
+    const e=document.createElementNS(NS,'rect');
+    e.setAttribute('x',oX+x*CELL);e.setAttribute('y',oY+y*CELL);
+    e.setAttribute('width',CELL);e.setAttribute('height',CELL);e.setAttribute('fill',f);
+    svg.appendChild(e);
+  }
+})();
+</script>
+</body>
+</html>

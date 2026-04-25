@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>The "Wait." Moment — Objection redesign</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--marker-2:#B86B6B;--line:rgba(42,46,51,0.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.035) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.035) 1px,transparent 1px);
+    background-size:36px 36px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:15px;
+    padding:48px;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;mix-blend-mode:multiply;z-index:1;
+  }
+
+  .doc-head{margin-bottom:28px;max-width:760px;position:relative;z-index:2}
+  .eyebrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:.08em;
+    color:var(--fluency);background:var(--ink);padding:6px 10px;
+    box-shadow:3px 3px 0 var(--fluency-2);display:inline-block;margin-bottom:14px;
+  }
+  h1{font-family:'Instrument Serif',serif;font-size:48px;line-height:1.02;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--fluency)}
+  .doc-head p{font-size:15px;line-height:1.55;color:var(--ink-soft);margin-top:10px;max-width:60ch}
+
+  /* === STORYBOARD strip ====================================== */
+  .frames{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:28px 0 36px;
+    position:relative;z-index:2;
+  }
+  .frame{
+    background:var(--paper-card);border:1.5px solid var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+    aspect-ratio:1/1.05;position:relative;overflow:hidden;
+  }
+  .frame .fr-num{
+    position:absolute;top:8px;left:10px;
+    font-family:'Press Start 2P',monospace;font-size:8px;color:var(--fluency);
+    letter-spacing:.06em;z-index:5;
+  }
+  .frame .fr-cap{
+    position:absolute;left:10px;right:10px;bottom:10px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);
+    line-height:1.45;z-index:5;letter-spacing:.02em;
+    background:rgba(246,240,225,.75);padding:6px 8px;backdrop-filter:blur(4px);
+  }
+  .frame .stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+
+  /* Frame 1 — calm before */
+  .f1 .stage{flex-direction:column;gap:8px;color:var(--ink-soft);text-align:center;padding:20px}
+  .f1 .ghost-line{width:80%;height:6px;background:rgba(42,46,51,.08)}
+  .f1 .ghost-line.short{width:50%}
+
+  /* Frame 2 — the "!" */
+  .f2{background:var(--paper-card)}
+  .f2 .bang{
+    font-family:'Press Start 2P',monospace;color:var(--marker);
+    font-size:120px;line-height:1;
+    text-shadow:6px 6px 0 var(--ink);
+    transform:rotate(-8deg);
+  }
+  .f2 .speed{
+    position:absolute;width:24px;height:3px;background:var(--marker);
+  }
+  .f2 .speed.s1{top:30%;left:8%;transform:rotate(-15deg)}
+  .f2 .speed.s2{top:60%;left:6%;width:36px;transform:rotate(-12deg)}
+  .f2 .speed.s3{top:78%;left:14%;width:18px;transform:rotate(-18deg)}
+
+  /* Frame 3 — wait. handwritten */
+  .f3{background:var(--paper-card)}
+  .f3 .wait{
+    font-family:'Caveat',cursive;font-size:96px;line-height:1;color:var(--ink);
+    transform:rotate(-3deg);position:relative;
+  }
+  .f3 .wait::after{
+    content:'';position:absolute;left:-4%;right:-2%;bottom:8px;height:6px;
+    background:var(--marker);transform:rotate(-1deg);opacity:.85;z-index:-1;
+  }
+  .f3 .scratch{
+    position:absolute;font-family:'Caveat',cursive;font-size:18px;color:var(--marker);
+    transform:rotate(-8deg);
+  }
+  .f3 .scratch.s1{top:18%;right:12%}
+  .f3 .scratch.s2{bottom:30%;left:10%;transform:rotate(4deg)}
+
+  /* Frame 4 — the bark lands */
+  .f4 .stage{align-items:flex-end;justify-content:flex-start;padding:14px;gap:0}
+  .f4 .suit-mini{
+    width:62px;height:62px;flex-shrink:0;
+    background:
+      radial-gradient(circle at 50% 36%,#73956F 16%,transparent 17%),
+      radial-gradient(circle at 50% 36%,#5B7A58 22%,transparent 23%),
+      linear-gradient(180deg,transparent 60%,#2A2E33 60%);
+    background-color:transparent;
+    image-rendering:pixelated;position:relative;
+  }
+  .f4 .suit-mini::after{
+    content:'';position:absolute;left:0;right:0;bottom:-2px;height:6px;
+    background:radial-gradient(ellipse,rgba(0,0,0,.25),transparent 65%);
+  }
+  .f4 .bark{
+    background:#fff;border:2px solid var(--ink);padding:10px 12px;
+    box-shadow:3px 3px 0 var(--marker);
+    font-family:'Caveat',cursive;font-size:18px;line-height:1.2;color:var(--ink);
+    transform:rotate(-1.2deg) translateY(-12px);position:relative;margin-left:8px;
+    max-width:62%;
+  }
+  .f4 .bark::before{
+    content:'';position:absolute;left:-9px;bottom:14px;
+    width:0;height:0;border-top:8px solid transparent;border-bottom:8px solid transparent;
+    border-right:10px solid #fff;
+    filter:drop-shadow(-2px 0 0 var(--ink));
+  }
+  .f4 .bark .attr{
+    display:block;margin-top:4px;font-family:'JetBrains Mono',monospace;font-size:9px;
+    color:var(--ink-soft);letter-spacing:.04em;
+  }
+
+  /* === FULL LAYOUT MOCK ====================================== */
+  .mock-head{
+    font-family:'Instrument Serif',serif;font-size:24px;margin:24px 0 14px;
+    position:relative;z-index:2;
+  }
+  .mock-head em{color:var(--fluency);font-style:italic}
+
+  .mock{
+    position:relative;z-index:2;
+    background:var(--paper);
+    border:1.5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+    padding:60px 56px 56px;min-height:560px;overflow:hidden;
+  }
+  /* drifting pixel debris that signals momentum from the gap section */
+  .mock::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:
+      radial-gradient(2px 2px at 8% 10%,var(--fluency) 50%,transparent 50%),
+      radial-gradient(2px 2px at 14% 30%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(2px 2px at 22% 8%,var(--ink) 50%,transparent 50%),
+      radial-gradient(3px 3px at 88% 14%,var(--fluency) 50%,transparent 50%),
+      radial-gradient(2px 2px at 92% 38%,var(--ink) 50%,transparent 50%),
+      radial-gradient(2px 2px at 95% 70%,var(--fluency-2) 50%,transparent 50%),
+      radial-gradient(2px 2px at 5% 80%,var(--marker) 50%,transparent 50%);
+    opacity:.7;
+  }
+
+  .interrupt{
+    display:grid;grid-template-columns:auto 1fr auto;
+    align-items:flex-start;gap:14px;margin-bottom:32px;position:relative;z-index:2;
+  }
+  .bang-big{
+    font-family:'Press Start 2P',monospace;font-size:64px;line-height:1;color:var(--marker);
+    text-shadow:5px 5px 0 var(--ink);transform:rotate(-8deg);
+  }
+  .wait-big{
+    font-family:'Caveat',cursive;font-size:88px;line-height:1;color:var(--ink);
+    transform:rotate(-2deg);position:relative;align-self:flex-end;
+  }
+  .wait-big::after{
+    content:'';position:absolute;left:-4%;right:-2%;bottom:8px;height:7px;
+    background:var(--marker);transform:rotate(-1deg);opacity:.85;z-index:-1;
+  }
+  .interrupt-meta{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);
+    letter-spacing:.04em;align-self:flex-start;
+    text-align:right;line-height:1.4;
+  }
+
+  .exchange{
+    display:grid;grid-template-columns:240px 1fr;gap:32px;align-items:flex-start;
+    position:relative;z-index:2;
+  }
+  .suit{
+    width:200px;height:200px;
+    background:
+      /* a stripped-down pixel suit alien using rect-style shapes */
+      linear-gradient(transparent 0 100%);
+    position:relative;flex-shrink:0;
+  }
+  .suit svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+  .suit-shadow{
+    position:absolute;left:14%;right:14%;bottom:-8px;height:14px;
+    background:radial-gradient(ellipse,rgba(0,0,0,.22),transparent 65%);
+  }
+
+  .bark-bubble{
+    background:#fff;border:2px solid var(--ink);padding:18px 22px;
+    box-shadow:5px 5px 0 var(--marker);
+    transform:rotate(-1deg);position:relative;
+    font-family:'Caveat',cursive;font-size:24px;line-height:1.25;color:var(--ink);
+    max-width:520px;
+  }
+  .bark-bubble::before{
+    content:'';position:absolute;left:-12px;top:36px;
+    width:0;height:0;border-top:10px solid transparent;border-bottom:10px solid transparent;
+    border-right:14px solid #fff;
+    filter:drop-shadow(-2px 0 0 var(--ink));
+  }
+  .bark-bubble .quote-mark{
+    font-family:'Instrument Serif',serif;font-size:54px;line-height:0;
+    color:var(--marker);position:absolute;top:18px;left:8px;
+  }
+  .bark-bubble q{quotes:none}
+  .bark-bubble .attr{
+    display:block;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--ink-soft);letter-spacing:.04em;font-weight:400;
+  }
+  .bark-sparks{
+    position:absolute;top:-8px;right:-14px;width:60px;height:60px;
+  }
+  .bark-sparks span{
+    position:absolute;width:2.5px;background:var(--marker);transform-origin:bottom center;
+  }
+  .bark-sparks span:nth-child(1){left:50%;top:0;height:14px}
+  .bark-sparks span:nth-child(2){left:80%;top:14%;height:12px;transform:rotate(35deg)}
+  .bark-sparks span:nth-child(3){left:14%;top:18%;height:10px;transform:rotate(-30deg)}
+  .bark-sparks span:nth-child(4){left:88%;top:50%;height:10px;transform:rotate(70deg)}
+
+  /* response — torn paper note overlapping bark, with pixel stamp */
+  .response{
+    margin-top:28px;display:grid;grid-template-columns:1fr 140px;gap:28px;
+    align-items:flex-start;position:relative;z-index:2;
+  }
+  .response-card{
+    background:var(--paper-card);border:1.5px solid var(--ink);
+    padding:22px 28px;
+    box-shadow:
+      4px 0 0 var(--ink),0 4px 0 var(--ink),4px 4px 0 var(--ink);
+    position:relative;transform:rotate(.3deg);
+  }
+  .response-card .label{
+    font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--fluency);
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:10px;
+  }
+  .response-card .label::before{
+    content:'';display:inline-block;width:32px;height:3px;background:var(--fluency);
+  }
+  .response-card h3{
+    font-family:'Instrument Serif',serif;font-weight:400;font-size:32px;line-height:1.1;
+    margin-bottom:10px;
+  }
+  .response-card h3 em{color:var(--fluency);font-style:italic}
+  .response-card p{font-size:14px;line-height:1.55;color:var(--ink)}
+  .response-card .arrow{
+    position:absolute;left:-28px;top:-22px;width:80px;height:60px;color:var(--ink-soft);
+    transform:rotate(-8deg);
+  }
+
+  .stamp{
+    width:130px;height:130px;background:var(--fluency);
+    color:var(--paper);font-family:'Press Start 2P',monospace;font-size:10px;line-height:1.4;
+    text-align:center;letter-spacing:.04em;
+    display:flex;align-items:center;justify-content:center;
+    transform:rotate(-8deg);position:relative;align-self:center;justify-self:center;
+    box-shadow:
+      4px 0 0 var(--ink),0 4px 0 var(--ink),4px 4px 0 var(--ink),
+      8px 4px 0 var(--fluency-2),4px 8px 0 var(--fluency-2),8px 8px 0 var(--fluency-2);
+    padding:10px;
+  }
+  .stamp::before{content:'';position:absolute;inset:6px;border:2px solid var(--paper)}
+  .stamp span{position:relative;z-index:1}
+
+  /* === SPECS panel ====================================== */
+  .specs{
+    margin-top:36px;display:grid;grid-template-columns:repeat(2,1fr);gap:18px;
+    position:relative;z-index:2;
+  }
+  .spec{
+    background:var(--paper-card);border:1.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+    padding:14px 18px;
+  }
+  .spec .k{
+    font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.06em;color:var(--fluency);
+    margin-bottom:6px;
+  }
+  .spec h4{font-family:'Instrument Serif',serif;font-weight:400;font-size:20px;margin-bottom:6px}
+  .spec p{font-size:13px;line-height:1.55;color:var(--ink)}
+  .spec code{
+    display:block;margin-top:8px;background:var(--ink);color:var(--fluency-2);
+    font-family:'JetBrains Mono',monospace;font-size:11px;padding:8px 10px;
+    line-height:1.55;white-space:pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-head">
+  <span class="eyebrow">▶ FOLLOW-UP / 02 · OBJECTION</span>
+  <h1>The "<em>wait.</em>" moment.</h1>
+  <p>Cuts the redundant "objection we always hear" label. Replaces it with a scroll-triggered interruption that physically dismantles the reader's defense before introducing the response. Same paper background continues — pixel debris drifts down from the Gap to keep the language flowing.</p>
+</div>
+
+<!-- Storyboard -->
+<div class="frames" aria-label="4-frame storyboard">
+  <div class="frame f1">
+    <span class="fr-num">▶ 01 · 0ms</span>
+    <div class="stage">
+      <div class="ghost-line"></div>
+      <div class="ghost-line short"></div>
+      <div class="ghost-line"></div>
+    </div>
+    <div class="fr-cap">end of Gap section · scroll trigger fires at 70% reveal</div>
+  </div>
+  <div class="frame f2">
+    <span class="fr-num">▶ 02 · +120ms</span>
+    <span class="speed s1"></span><span class="speed s2"></span><span class="speed s3"></span>
+    <div class="stage"><div class="bang">!</div></div>
+    <div class="fr-cap">pixel "!" enters from left, overshoots, settles · 320ms</div>
+  </div>
+  <div class="frame f3">
+    <span class="fr-num">▶ 03 · +480ms</span>
+    <span class="scratch s1">x</span>
+    <span class="scratch s2">x</span>
+    <div class="stage"><div class="wait">wait.</div></div>
+    <div class="fr-cap">"wait." drops in handwritten · marker underline scribbles</div>
+  </div>
+  <div class="frame f4">
+    <span class="fr-num">▶ 04 · +720ms</span>
+    <div class="stage">
+      <div class="suit-mini" aria-hidden="true"></div>
+      <div class="bark"><q>Our company has AI tools…</q><span class="attr">— every exec</span></div>
+    </div>
+    <div class="fr-cap">SUIT slides in from left · bark already rendered (no typing)</div>
+  </div>
+</div>
+
+<!-- Final layout -->
+<div class="mock-head">Final layout · <em>same paper, no section break</em></div>
+
+<div class="mock">
+  <!-- Interruption row -->
+  <div class="interrupt">
+    <div class="bang-big">!</div>
+    <div class="wait-big">wait.</div>
+    <div class="interrupt-meta">
+      // SCROLL_TRIGGER<br/>
+      io ratio: 0.7<br/>
+      anim: spring(420,18)
+    </div>
+  </div>
+
+  <!-- Exchange -->
+  <div class="exchange">
+    <div class="suit" aria-hidden="true">
+      <svg id="suitAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
+      <span class="suit-shadow"></span>
+    </div>
+    <div class="bark-bubble">
+      <span class="quote-mark">"</span>
+      Our company has AI tools and we have guidelines around how they should be used.
+      <span class="attr">— every exec we've ever pitched</span>
+      <div class="bark-sparks" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Response -->
+  <div class="response">
+    <div class="response-card">
+      <svg class="arrow" viewBox="0 0 100 70" aria-hidden="true">
+        <path d="M 4 60 C 24 16, 56 8, 92 38 M 84 28 L 96 38 L 86 46" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="label">Our take</span>
+      <h3>That's <em>not a problem.</em></h3>
+      <p>Most companies we work with have those same tools and guidelines. The Counter builds a safe sandbox alongside everything you have — your team practices on real problems without IT sending you a heated email.</p>
+    </div>
+    <div class="stamp"><span>COUNTER<br/>APPROVED</span></div>
+  </div>
+</div>
+
+<!-- Implementation specs for the dev agent -->
+<div class="specs">
+  <div class="spec">
+    <div class="k">▶ SCROLL TRIGGER</div>
+    <h4>One IntersectionObserver, two stages</h4>
+    <p>When .objection-section enters at 0.7 ratio, add <code>.is-active</code>. Animate <code>.bang-big</code> in first (X transform + spring), then <code>.wait-big</code> at +160ms (Y transform + slight rotation), then the bark at +400ms (X transform from -120%).</p>
+<code>const io = new IntersectionObserver(es =&gt;
+  es.forEach(e =&gt; e.isIntersecting &amp;&amp;
+    e.target.classList.add('is-active')),
+  { threshold: 0.7 });</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ NO BACKGROUND BREAK</div>
+    <h4>Drop the .objection-section bg</h4>
+    <p>Currently the section reverts to <code>--paper</code> as a fresh block. Remove its background entirely — let .gap-section's paper continue. Add an absolutely-positioned ::before with the pixel-debris dots so the eye reads "the pixels from the Gap are still falling."</p>
+<code>.objection-section{
+  background: transparent;
+  padding-top: 40px; /* tight to .gap */
+}</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ HANDWRITTEN BARK</div>
+    <h4>Caveat replaces Space Grotesk</h4>
+    <p>The bark is a quote — make it look quoted. Caveat 24px, marker box-shadow, slight tilt, oversized serif quote glyph anchored top-left. Attribution stays in JetBrains Mono so it reads as a footnote, not part of the speech.</p>
+<code>.bark-bubble{ font-family:'Caveat',cursive }
+.bark-bubble q{ quotes:none }</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ PIXEL DEBRIS</div>
+    <h4>Continuity from Gap to Counter-Is</h4>
+    <p>A field of 6–8 small radial-gradient dots scattered across the section in fluency green, mint, ink, and one marker red. Same dots reappear (slightly denser) on the next section to imply gravity pulling pixels toward the journey.</p>
+<code>background-image:
+  radial-gradient(2px 2px at 8% 10%,
+    var(--fluency) 50%,transparent 50%),
+  /* …7 more stops… */;</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ STAMP</div>
+    <h4>Use Pixel Kit · Element 04</h4>
+    <p>Replace the existing round wax seal with the square pixel stamp from the kit. Same green fill, two-tone stepped shadow, inner paper-color border, -8° rotation. No radial gradient, no glossy seal.</p>
+<code>border-radius: 0;
+transform: rotate(-8deg);
+&amp;::before { /* inner border */ }</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ COPY CHANGES</div>
+    <h4>Cut what's redundant</h4>
+    <p>Delete the "objection we always hear" eyebrow above the bark. Delete "Our take" if you'd rather — the arrow does the work. Keep <code>"that's not a problem."</code> as the response title; that's the line that converts.</p>
+  </div>
+</div>
+
+<script>
+/* Lightweight pixel SUIT — same grammar as cohort aliens. */
+(function(){
+  const svg=document.getElementById('suitAlien');
+  if(!svg) return;
+  const NS='http://www.w3.org/2000/svg',CELL=8;
+  const SAGE='#73956F',SAGE_DEEP='#5B7A58',MINT='#95D7AE',INK='#2A2E33',PAPER='#F6F0E1',BLUSH='#E3A4A4';
+  const GRID=[
+    '.........aa.........',
+    '.........aa.........',
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......bbbbbbbb......',
+    '.....hhbbbbbbss.....',
+    '....hhwwbbbbwwss....',
+    '....hbbeebbeebsss...',
+    '....hbbepbbbpebss...',
+    '....hbbeebbeebsss...',
+    '....hhbbbmmmmbbss...',
+    '....hbbbmmmmmmbbs...',
+    '.....hbBbmmmmbBbs...',
+    '....JJJJWWTTWWJJJJ..',
+    '...JJJJJLWTTWLJJJJJ.',
+    '..JJJJJJLtttLJJJJJJ.',
+    '..JJJ.JJJLtLJJJJ.JJJ',
+    '..JJJ.JJJJttJJJJ.JJJ',
+    '..JJJ.JJJJttJJJJ.JJJ',
+    '..HHH.JJJJJJJJJJ.HHH',
+    '...CC.JJJ....JJJ....',
+    '...CC.JJJ....JJJ....',
+    '.....ffff....ffff...'
+  ];
+  const PAL={'b':SAGE,'h':MINT,'s':SAGE_DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'w':INK,'a':SAGE_DEEP,'f':INK,'J':INK,'L':'#1A1C20','W':PAPER,'t':'#B23A3A','T':'#7A1F1F','H':SAGE,'C':'#3F2A10'};
+  const rows=GRID.length,cols=GRID[0].length;
+  const offX=(200-cols*CELL)/2,offY=(200-rows*CELL)/2;
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const ch=GRID[y][x]; if(ch==='.'||ch===' ') continue;
+    const f=PAL[ch]; if(!f) continue;
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',offX+x*CELL);r.setAttribute('y',offY+y*CELL);
+    r.setAttribute('width',CELL);r.setAttribute('height',CELL);
+    r.setAttribute('fill',f);
+    svg.appendChild(r);
+  }
+})();
+</script>
+
+</body>
+</html>

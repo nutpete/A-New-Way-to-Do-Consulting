@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Gap — Section v2 (paste-ready)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;
+    --paper-2:#EEE4D1;
+    --paper-card:#FAF6EC;
+    --ink:#2A2E33;
+    --ink-soft:#454851;
+    --ink-deep:#1C2024;
+    --fluency:#73956F;
+    --fluency-2:#95D7AE;
+    --fluency-3:#52E08D;
+    --marker:#9D5A5A;
+    --line:rgba(42,46,51,0.16);
+
+    /* Win2000 palette — locally scoped to literacy column */
+    --w2k-face:#C0C0C0;
+    --w2k-face-2:#D4D0C8;
+    --w2k-shadow:#808080;
+    --w2k-shadow-2:#404040;
+    --w2k-light:#FFFFFF;
+    --w2k-title-a:#0A246A;
+    --w2k-title-b:#A6CAF0;
+    --w2k-blue:#000080;
+    --w2k-text:#000000;
+    --w2k-desk:#008080;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right, rgba(42,46,51,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px);
+    background-size:36px 36px,36px 36px;
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:17px;
+    line-height:1.55;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;mix-blend-mode:multiply;z-index:1;
+  }
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+
+  /* ---- section shell ---- */
+  .gap-section{padding:120px 0 100px;position:relative;background:var(--paper)}
+  .gap-header{text-align:center;max-width:880px;margin:0 auto 72px}
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-soft);display:inline-flex;align-items:center;gap:14px;
+  }
+  .section-label::before{
+    content:'';display:inline-block;width:42px;height:3px;
+    background:var(--ink);
+  }
+  .gap-headline{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(36px,4.6vw,64px);line-height:1.05;letter-spacing:-.018em;
+    margin-top:22px;
+  }
+  .gap-headline .hi{position:relative;display:inline-block;white-space:nowrap}
+  .gap-headline .hi::after{
+    content:'';position:absolute;left:-2%;right:-2%;bottom:.05em;
+    height:10px;background:var(--marker);transform:rotate(-1.2deg);opacity:.9;z-index:-1;
+  }
+
+  /* ---- side-by-side ---- */
+  .compare{
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;
+    max-width:1180px;margin:0 auto;align-items:start;
+  }
+  .compare-col{display:flex;flex-direction:column;gap:18px;min-width:0}
+
+  .compare-eyebrow{
+    font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;
+    align-self:flex-start;padding:6px 12px;color:#fff;
+  }
+  .lit-eyebrow{background:var(--w2k-shadow-2);transform:rotate(-1.2deg)}
+  .flu-eyebrow{
+    background:var(--ink);color:var(--fluency-2);
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.08em;
+    transform:rotate(-1.2deg);
+    box-shadow:3px 3px 0 var(--fluency);
+  }
+
+  .compare-title{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(32px,3.2vw,46px);line-height:1.05;letter-spacing:-.02em;
+  }
+  .lit-title{color:var(--ink-soft);opacity:.7;filter:saturate(.4)}
+  .flu-title{color:var(--ink)}
+  .flu-title em{font-style:italic;color:var(--fluency)}
+
+  .compare-sub{
+    font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.55;
+    color:var(--ink-soft);max-width:38ch;
+  }
+  .lit-sub{opacity:.7}
+
+  /* =========================================================
+     LITERACY SIDE — Windows 2000
+  ========================================================= */
+  .w2k-stack{
+    display:flex;flex-direction:column;gap:18px;margin-top:14px;
+    filter:saturate(.6);opacity:.95;
+  }
+  .w2k-window{
+    background:var(--w2k-face);
+    /* outer 3D bevel: white top/left, dark gray bottom/right */
+    box-shadow:
+      inset  1px  1px 0 var(--w2k-light),
+      inset -1px -1px 0 var(--w2k-shadow-2),
+      inset  2px  2px 0 var(--w2k-face-2),
+      inset -2px -2px 0 var(--w2k-shadow),
+      3px 3px 0 rgba(0,0,0,.18);
+    padding:3px;
+    font-family:'Tahoma','MS Sans Serif',sans-serif;
+    font-size:11px;color:var(--w2k-text);
+    transform:rotate(-.6deg);
+  }
+  .w2k-window.tilt-r{transform:rotate(.8deg) translateY(4px)}
+  .w2k-window.tilt-l{transform:rotate(-1.2deg) translateY(2px)}
+
+  .w2k-title{
+    background:linear-gradient(90deg,var(--w2k-title-a) 0%,#1A41A8 60%,var(--w2k-title-b) 100%);
+    color:#fff;font-weight:700;font-size:11px;
+    padding:3px 6px;display:flex;align-items:center;justify-content:space-between;
+    letter-spacing:.02em;
+  }
+  .w2k-title-text{display:flex;align-items:center;gap:6px}
+  .w2k-title-icon{
+    width:14px;height:14px;display:inline-block;background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light), inset -1px -1px 0 var(--w2k-shadow-2);
+    position:relative;
+  }
+  .w2k-title-icon::after{
+    content:'';position:absolute;inset:3px;background:var(--w2k-blue);
+  }
+  .w2k-controls{display:flex;gap:2px}
+  .w2k-ctl{
+    width:16px;height:14px;background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2);
+    color:var(--w2k-text);font-size:10px;font-weight:700;line-height:14px;text-align:center;
+  }
+  .w2k-menu{
+    background:var(--w2k-face);padding:2px 4px;
+    border-bottom:1px solid var(--w2k-shadow);
+    display:flex;gap:10px;color:var(--w2k-text);font-size:11px;
+  }
+  .w2k-menu u{text-decoration:underline}
+  .w2k-body{
+    background:#fff;padding:14px 16px;color:#000;
+    font-family:'Tahoma','MS Sans Serif',sans-serif;
+  }
+
+  /* Vignette 1 — Slide deck */
+  .w2k-slide{
+    background:#fff;border:1px solid #999;padding:18px 22px;
+    color:#000;
+    background-image:
+      linear-gradient(180deg,#fff 0%,#fff 100%);
+  }
+  .w2k-slide-h{
+    font-family:'Times New Roman',serif;font-size:22px;font-weight:700;
+    color:var(--w2k-blue);margin-bottom:4px;letter-spacing:-.01em;
+  }
+  .w2k-slide-rule{height:2px;background:var(--w2k-blue);margin:6px 0 14px;width:60%}
+  .w2k-bullets{list-style:none;font-size:13px;line-height:1.7;color:#000}
+  .w2k-bullets li{padding-left:18px;position:relative;margin-bottom:2px}
+  .w2k-bullets li::before{
+    content:'';position:absolute;left:2px;top:8px;
+    width:7px;height:7px;background:var(--w2k-blue);
+    transform:rotate(45deg);
+  }
+  .w2k-slide-foot{
+    margin-top:18px;display:flex;justify-content:space-between;align-items:center;
+    font-family:'Tahoma',sans-serif;font-size:10px;color:#666;
+    border-top:1px dotted #aaa;padding-top:8px;
+  }
+  .w2k-slide-foot .pg{
+    background:#eee;padding:1px 6px;border:1px solid #aaa;font-weight:700;color:#000;
+  }
+
+  /* Vignette 2 — stock photo placeholder */
+  .w2k-photo{
+    height:96px;background:
+      repeating-linear-gradient(45deg,#a8a299 0 8px,#94908a 8px 16px);
+    border:1px solid #666;
+    box-shadow:inset 1px 1px 0 #d4d0c8;
+    position:relative;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em;
+    text-shadow:1px 1px 0 #000;
+  }
+  .w2k-photo span{padding:3px 8px;background:rgba(0,0,0,.55)}
+
+  /* Vignette 3 — chat box (one shot) */
+  .w2k-chat{padding:12px 14px}
+  .w2k-chat-row{
+    border:1px solid #999;background:#fff;padding:8px 10px;font-size:12px;
+    margin-bottom:8px;color:#000;font-family:'Tahoma',sans-serif;
+  }
+  .w2k-chat-row.you{
+    box-shadow:inset 1px 1px 0 #d4d0c8;
+  }
+  .w2k-chat-row .who{
+    font-weight:700;color:var(--w2k-blue);font-size:11px;display:block;margin-bottom:3px;
+  }
+  .w2k-chat-row.ai .who{color:#5d4d8a}
+  .w2k-chat-prompt{
+    display:flex;gap:6px;margin-top:10px;
+  }
+  .w2k-chat-input{
+    flex:1;background:#fff;border:1px solid #666;
+    box-shadow:inset 1px 1px 0 #808080,inset -1px -1px 0 #fff;
+    padding:4px 6px;font-family:'Tahoma',sans-serif;font-size:11px;color:#666;
+  }
+  .w2k-btn{
+    background:var(--w2k-face);
+    box-shadow:
+      inset  1px  1px 0 var(--w2k-light),
+      inset -1px -1px 0 var(--w2k-shadow-2),
+      inset  2px  2px 0 var(--w2k-face-2),
+      inset -2px -2px 0 var(--w2k-shadow);
+    padding:3px 14px;font-family:'Tahoma',sans-serif;font-size:11px;color:#000;
+  }
+
+  .w2k-tag{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-soft);
+    letter-spacing:.04em;padding:4px 8px;background:rgba(42,46,51,.06);
+    align-self:flex-start;margin-top:-2px;
+  }
+
+  /* =========================================================
+     FLUENCY SIDE — pixel arcade
+  ========================================================= */
+  .flu-stack{display:flex;flex-direction:column;gap:18px;margin-top:14px;position:relative}
+
+  .pixel-frame{
+    background:var(--paper-card);
+    border:2px solid var(--ink);
+    position:relative;
+    box-shadow:
+      4px 0 0 0 var(--ink),
+      0 4px 0 0 var(--ink),
+      4px 4px 0 0 var(--ink),
+      8px 4px 0 0 var(--fluency),
+      4px 8px 0 0 var(--fluency),
+      8px 8px 0 0 var(--fluency);
+    transform:rotate(-.4deg);
+  }
+  .pixel-frame.tilt-r{transform:rotate(.6deg)}
+
+  /* Vignette 1 — Iterative chat */
+  .flu-chat{padding:18px 20px 20px}
+  .flu-chat-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:14px;padding-bottom:10px;border-bottom:1px dashed var(--line);
+  }
+  .flu-chat-h{
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.06em;
+    color:var(--ink);
+  }
+  .flu-chat-meta{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fluency);
+    display:flex;align-items:center;gap:6px;
+  }
+  .flu-chat-meta .dot{
+    width:7px;height:7px;background:var(--fluency-3);
+    box-shadow:0 0 0 2px var(--paper-card),0 0 0 3px var(--fluency-2);
+  }
+  .flu-msg{
+    font-size:13px;line-height:1.5;color:var(--ink);
+    margin-bottom:10px;display:grid;grid-template-columns:64px 1fr;gap:12px;
+  }
+  .flu-msg .who{
+    font-family:'Press Start 2P',monospace;font-size:8px;
+    color:var(--ink-soft);letter-spacing:.04em;line-height:1.6;
+    padding-top:2px;
+  }
+  .flu-msg.you .who{color:var(--marker)}
+  .flu-msg.ai .who{color:var(--fluency)}
+  .flu-msg .text{
+    background:var(--paper);
+    padding:8px 12px;border-left:3px solid var(--fluency-2);
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .flu-msg.you .text{border-left-color:var(--marker)}
+  .flu-msg.ai .text{border-left-color:var(--fluency)}
+  .flu-msg .text em{
+    background:var(--fluency-2);font-style:normal;padding:0 4px;
+  }
+
+  /* Vignette 2 — Custom tool UI (pixel-browser) */
+  .flu-tool{padding:0;overflow:hidden}
+  .flu-browser-bar{
+    background:var(--ink);color:var(--paper);
+    padding:7px 10px;display:flex;align-items:center;gap:8px;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+  }
+  .flu-tlights{display:flex;gap:4px}
+  .flu-tlights span{
+    width:8px;height:8px;background:var(--fluency-3);display:inline-block;
+  }
+  .flu-tlights span:nth-child(2){background:var(--fluency-2)}
+  .flu-tlights span:nth-child(3){background:var(--fluency)}
+  .flu-url{
+    flex:1;background:#1a1d22;padding:3px 8px;color:var(--fluency-2);
+    letter-spacing:.04em;font-size:10px;
+  }
+  .flu-url .slash{color:var(--ink-soft)}
+
+  .flu-tool-body{
+    display:grid;grid-template-columns:96px 1fr;min-height:184px;
+    background:var(--paper-card);
+  }
+  .flu-side{
+    background:var(--paper-2);padding:12px 10px;
+    border-right:2px solid var(--ink);
+    display:flex;flex-direction:column;gap:6px;
+  }
+  .flu-side-h{
+    font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:.06em;
+    color:var(--ink-soft);margin-bottom:4px;
+  }
+  .flu-side-item{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink);
+    padding:5px 6px;background:var(--paper-card);
+    border-left:3px solid transparent;
+  }
+  .flu-side-item.active{
+    border-left-color:var(--fluency);
+    background:var(--fluency-2);font-weight:600;
+  }
+  .flu-side-item.muted{color:var(--ink-soft)}
+
+  .flu-main{padding:14px;display:flex;flex-direction:column;gap:10px}
+  .flu-main-h{
+    font-family:'Instrument Serif',serif;font-size:20px;line-height:1.05;
+    color:var(--ink);
+  }
+  .flu-main-h em{color:var(--fluency);font-style:italic}
+  .flu-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .flu-card{
+    background:var(--paper);border:1.5px solid var(--ink);
+    padding:8px 10px;
+    box-shadow:3px 3px 0 var(--fluency);
+    font-family:'JetBrains Mono',monospace;
+  }
+  .flu-card-k{font-size:9px;letter-spacing:.12em;color:var(--ink-soft);text-transform:uppercase}
+  .flu-card-v{
+    font-family:'Instrument Serif',serif;font-size:24px;line-height:1.1;
+    color:var(--ink);margin-top:2px;
+  }
+  .flu-card-v .up{color:var(--fluency)}
+  .flu-bar{
+    display:flex;align-items:flex-end;gap:3px;height:32px;margin-top:4px;
+  }
+  .flu-bar span{flex:1;background:var(--fluency-2);min-height:6px}
+  .flu-bar span:nth-child(2){background:var(--fluency)}
+  .flu-bar span:nth-child(4){background:var(--fluency-3)}
+
+  /* Vignette 3 — before/after pill */
+  .flu-baf{
+    padding:14px 16px;display:grid;grid-template-columns:1fr 28px 1fr;align-items:center;gap:8px;
+  }
+  .flu-baf-side .k{
+    font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:.06em;
+    color:var(--ink-soft);margin-bottom:6px;
+  }
+  .flu-baf-side .v{
+    font-family:'Space Grotesk',sans-serif;font-size:12px;line-height:1.4;
+    color:var(--ink);
+  }
+  .flu-baf-side.before .v{color:var(--ink-soft);opacity:.8}
+  .flu-baf-side.after .v{color:var(--ink);font-weight:600}
+  .flu-baf-side.after .k{color:var(--fluency)}
+  .flu-baf-arrow{
+    font-family:'Press Start 2P',monospace;font-size:14px;color:var(--fluency);
+    text-align:center;line-height:1;
+  }
+
+  /* Cohort alien peeker */
+  .flu-peeker{
+    position:absolute;right:-22px;top:-46px;width:88px;height:88px;
+    pointer-events:none;
+    transform:rotate(6deg);
+  }
+  .flu-peeker svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+
+  /* Tag below stack */
+  .flu-tag{
+    font-family:'Press Start 2P',monospace;font-size:8px;color:var(--fluency);
+    letter-spacing:.06em;padding:6px 10px;background:var(--ink);
+    align-self:flex-start;margin-top:-2px;
+    box-shadow:3px 3px 0 var(--fluency-2);
+  }
+
+  /* ---- responsive ---- */
+  @media (max-width:900px){
+    .compare{grid-template-columns:1fr;gap:64px}
+    .flu-peeker{right:0;top:-58px}
+  }
+</style>
+</head>
+<body>
+
+<section class="gap-section" id="pov">
+  <div class="wrap">
+    <div class="gap-header">
+      <span class="section-label">01 · The Gap</span>
+      <h2 class="gap-headline">
+        This gap exists because<br>
+        learning what AI can do<br>
+        <span class="hi">is not the same as</span> knowing<br>
+        how to work with it.
+      </h2>
+    </div>
+
+    <div class="compare">
+
+      <!-- ───────── LITERACY ───────── -->
+      <div class="compare-col">
+        <span class="compare-eyebrow lit-eyebrow">What happens today</span>
+        <h3 class="compare-title lit-title">AI&nbsp;Literacy.</h3>
+        <p class="compare-sub lit-sub">Programs that teach what AI can do. The deck, the workshop, the one-shot prompt — and then back to the same job, the same way.</p>
+
+        <div class="w2k-stack" aria-label="Literacy artifacts">
+
+          <!-- Slide deck window -->
+          <div class="w2k-window">
+            <div class="w2k-title">
+              <span class="w2k-title-text"><span class="w2k-title-icon"></span> AI_Workshop_Module2.ppt — PowerPoint</span>
+              <span class="w2k-controls"><span class="w2k-ctl">_</span><span class="w2k-ctl">▢</span><span class="w2k-ctl">×</span></span>
+            </div>
+            <div class="w2k-menu">
+              <span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>I</u>nsert</span><span><u>S</u>lide Show</span><span><u>H</u>elp</span>
+            </div>
+            <div class="w2k-body" style="padding:10px">
+              <div class="w2k-slide">
+                <div class="w2k-slide-h">What AI Can Do</div>
+                <div class="w2k-slide-rule"></div>
+                <ul class="w2k-bullets">
+                  <li>Summarize documents</li>
+                  <li>Draft emails &amp; first drafts</li>
+                  <li>Generate ideas in brainstorms</li>
+                  <li>Answer common questions</li>
+                  <li>Boost individual productivity</li>
+                </ul>
+                <div class="w2k-slide-foot">
+                  <span>AI Literacy Workshop · Module 2 of 6</span>
+                  <span class="pg">7 / 24</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stock photo window -->
+          <div class="w2k-window tilt-r">
+            <div class="w2k-title">
+              <span class="w2k-title-text"><span class="w2k-title-icon"></span> workshop_room.jpg — Image Viewer</span>
+              <span class="w2k-controls"><span class="w2k-ctl">_</span><span class="w2k-ctl">▢</span><span class="w2k-ctl">×</span></span>
+            </div>
+            <div class="w2k-body" style="padding:10px">
+              <div class="w2k-photo"><span>// STOCK_WORKSHOP_ROOM_2008.JPG</span></div>
+              <div style="display:flex;justify-content:space-between;font-family:'Tahoma',sans-serif;font-size:10px;color:#666;margin-top:8px">
+                <span>3,872 × 2,592 · JPEG</span>
+                <span>Used 14 times</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat box window -->
+          <div class="w2k-window tilt-l">
+            <div class="w2k-title">
+              <span class="w2k-title-text"><span class="w2k-title-icon"></span> Ask&nbsp;AI — Internal Tool v1.0.4</span>
+              <span class="w2k-controls"><span class="w2k-ctl">_</span><span class="w2k-ctl">▢</span><span class="w2k-ctl">×</span></span>
+            </div>
+            <div class="w2k-body w2k-chat">
+              <div class="w2k-chat-row you">
+                <span class="who">You</span>
+                Write a status update for my project.
+              </div>
+              <div class="w2k-chat-row ai">
+                <span class="who">Assistant</span>
+                Here is a status update for your project: This week the team made progress on key deliverables and identified several risks that will be addressed next sprint…
+              </div>
+              <div class="w2k-chat-prompt">
+                <div class="w2k-chat-input">Type your prompt here...</div>
+                <button class="w2k-btn">Send</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <span class="w2k-tag">// teaches what AI can do</span>
+      </div>
+
+      <!-- ───────── FLUENCY ───────── -->
+      <div class="compare-col">
+        <span class="compare-eyebrow flu-eyebrow">What your teams need</span>
+        <h3 class="compare-title flu-title">AI <em>Fluency.</em></h3>
+        <p class="compare-sub">The instinct to think and work with AI on real problems — shaping output, building tools, expanding what the team can take on.</p>
+
+        <div class="flu-stack" aria-label="Fluency artifacts">
+
+          <!-- Cohort alien peeker -->
+          <div class="flu-peeker" aria-hidden="true">
+            <svg viewBox="0 0 200 200" shape-rendering="crispEdges" id="peekerAlien"></svg>
+          </div>
+
+          <!-- Iterative chat -->
+          <div class="pixel-frame flu-chat">
+            <div class="flu-chat-head">
+              <span class="flu-chat-h">ITERATING · v0.4</span>
+              <span class="flu-chat-meta"><span class="dot"></span> WORKING</span>
+            </div>
+            <div class="flu-msg you">
+              <span class="who">YOU</span>
+              <span class="text">Build me a tool that flags renewals 60 days out, but only ones above $50k.</span>
+            </div>
+            <div class="flu-msg ai">
+              <span class="who">AI</span>
+              <span class="text">Got it. Want it grouped by AM, or one flat list?</span>
+            </div>
+            <div class="flu-msg you">
+              <span class="who">YOU</span>
+              <span class="text">By AM. And add a column for <em>last touch</em>.</span>
+            </div>
+            <div class="flu-msg ai">
+              <span class="who">AI</span>
+              <span class="text">Done. Preview ↗</span>
+            </div>
+          </div>
+
+          <!-- Custom tool -->
+          <div class="pixel-frame tilt-r flu-tool">
+            <div class="flu-browser-bar">
+              <span class="flu-tlights"><span></span><span></span><span></span></span>
+              <span class="flu-url">renewals.<span class="slash">internal</span>/q3</span>
+              <span style="color:var(--fluency-2)">● live</span>
+            </div>
+            <div class="flu-tool-body">
+              <div class="flu-side">
+                <span class="flu-side-h">VIEWS</span>
+                <span class="flu-side-item active">By AM</span>
+                <span class="flu-side-item">All accounts</span>
+                <span class="flu-side-item muted">Closed-won</span>
+                <span class="flu-side-item muted">Archive</span>
+              </div>
+              <div class="flu-main">
+                <div class="flu-main-h">Renewals · <em>Q3 watchlist</em></div>
+                <div class="flu-cards">
+                  <div class="flu-card">
+                    <div class="flu-card-k">at risk</div>
+                    <div class="flu-card-v">14<span style="font-size:14px">/22</span></div>
+                  </div>
+                  <div class="flu-card">
+                    <div class="flu-card-k">arr</div>
+                    <div class="flu-card-v"><span class="up">$2.4M</span></div>
+                  </div>
+                </div>
+                <div class="flu-bar"><span style="height:40%"></span><span style="height:72%"></span><span style="height:55%"></span><span style="height:88%"></span><span style="height:30%"></span><span style="height:64%"></span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Before / After -->
+          <div class="pixel-frame flu-baf">
+            <div class="flu-baf-side before">
+              <div class="k">PROMPT</div>
+              <div class="v">"Help me prioritize renewals."</div>
+            </div>
+            <div class="flu-baf-arrow">▶</div>
+            <div class="flu-baf-side after">
+              <div class="k">SHIPPED</div>
+              <div class="v">Live tool · used by 6 AMs · 14 risks surfaced</div>
+            </div>
+          </div>
+
+        </div>
+
+        <span class="flu-tag">▶ THINK + WORK WITH AI</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* Cohort alien peeker — same chunky pixel grammar as the rest of the site. */
+(function(){
+  const svg=document.getElementById('peekerAlien');
+  if(!svg) return;
+  const NS='http://www.w3.org/2000/svg';
+  const CELL=8;
+  const SAGE='#73956F',SAGE_DEEP='#5B7A58',MINT='#95D7AE',INK='#2A2E33',PAPER='#F6F0E1',BLUSH='#E3A4A4',LIME='#B8C96A';
+  // peeker — 20 wide × 16 tall, looks like alien peering over an edge
+  const GRID=[
+    '.........aa.........',
+    '.........aa.........',
+    '........bbbb........',
+    '.......bbbbbb.......',
+    '......bbbbbbbb......',
+    '.....hhbbbbbbss.....',
+    '....hhbbbbbbbbss....',
+    '....hbbeebbeebsss...',
+    '....hbbepbbbpebss...',
+    '....hbbeebbeebsss...',
+    '....hhbbbmmmmbbss...',
+    '....hbbbmmmmmmbbs...',
+    '.....hbBbmmmmbBbs...',
+    '......bbbbbbbb......',
+    '.......bbbbbb.......',
+    '........bbbb........'
+  ];
+  const PAL={'b':SAGE,'h':MINT,'s':SAGE_DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'a':SAGE_DEEP};
+  const rows=GRID.length,cols=GRID[0].length;
+  const offX=(200-cols*CELL)/2,offY=(200-rows*CELL)/2;
+  for(let y=0;y<rows;y++){
+    for(let x=0;x<cols;x++){
+      const ch=GRID[y][x];
+      if(ch==='.'||ch===' ') continue;
+      const f=PAL[ch]; if(!f) continue;
+      const r=document.createElementNS(NS,'rect');
+      r.setAttribute('x',offX+x*CELL);r.setAttribute('y',offY+y*CELL);
+      r.setAttribute('width',CELL);r.setAttribute('height',CELL);
+      r.setAttribute('fill',f);
+      svg.appendChild(r);
+    }
+  }
+})();
+</script>
+
+</body>
+</html>

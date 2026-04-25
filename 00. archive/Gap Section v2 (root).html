@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>The Gap — Section v2 (paste-ready, checklist-first)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;
+    --paper-2:#EEE4D1;
+    --paper-card:#FAF6EC;
+    --ink:#2A2E33;
+    --ink-soft:#454851;
+    --ink-deep:#1C2024;
+    --fluency:#73956F;
+    --fluency-2:#95D7AE;
+    --fluency-3:#52E08D;
+    --marker:#9D5A5A;
+    --line:rgba(42,46,51,0.16);
+
+    /* Win2000 palette — locally scoped to literacy column */
+    --w2k-face:#C0C0C0;
+    --w2k-face-2:#D4D0C8;
+    --w2k-shadow:#808080;
+    --w2k-shadow-2:#404040;
+    --w2k-light:#FFFFFF;
+    --w2k-title-a:#0A246A;
+    --w2k-title-b:#A6CAF0;
+    --w2k-blue:#000080;
+    --w2k-text:#000000;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right, rgba(42,46,51,0.035) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(42,46,51,0.035) 1px, transparent 1px);
+    background-size:36px 36px,36px 36px;
+    color:var(--ink);
+    font-family:'Space Grotesk',sans-serif;
+    font-size:17px;
+    line-height:1.55;
+  }
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.08  0 0 0 0 0.08  0 0 0 0 0.05  0 0 0 0.08 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    opacity:.55;mix-blend-mode:multiply;z-index:1;
+  }
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px;position:relative;z-index:2}
+
+  /* ---- section shell ---- */
+  .gap-section{padding:80px 0 80px;position:relative;background:var(--paper)}
+  .gap-header{text-align:center;max-width:920px;margin:0 auto 44px}
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ink-soft);display:inline-flex;align-items:center;gap:14px;
+  }
+  .section-label::before{
+    content:'';display:inline-block;width:42px;height:3px;background:var(--ink);
+  }
+  .gap-headline{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(34px,4vw,54px);line-height:1.08;letter-spacing:-.018em;
+    margin-top:18px;
+  }
+  .gap-headline em{font-style:italic;color:var(--fluency)}
+  .gap-headline .hi{
+    position:relative;
+    background-image:linear-gradient(var(--marker),var(--marker));
+    background-repeat:no-repeat;
+    background-position:0 88%;
+    background-size:100% 9px;
+    padding:0 2px;
+  }
+
+  /* ---- side-by-side ---- */
+  .compare{
+    display:grid;grid-template-columns:1fr 1fr;gap:56px;
+    max-width:1180px;margin:0 auto;align-items:start;
+  }
+  .compare-col{display:flex;flex-direction:column;gap:14px;min-width:0}
+
+  .compare-eyebrow{
+    font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:.18em;
+    text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;
+    align-self:flex-start;padding:6px 12px;color:#fff;
+  }
+  .lit-eyebrow{background:var(--w2k-shadow-2);transform:rotate(-1.2deg)}
+  .flu-eyebrow{
+    background:var(--ink);color:var(--fluency-2);
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.08em;
+    transform:rotate(-1.2deg);
+    box-shadow:3px 3px 0 var(--fluency);
+  }
+
+  .compare-title{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:clamp(36px,3.6vw,52px);line-height:1.02;letter-spacing:-.02em;
+    margin-bottom:2px;
+  }
+  .lit-title{color:var(--ink-soft);opacity:.7;filter:saturate(.4)}
+  .flu-title{color:var(--ink)}
+  .flu-title em{font-style:italic;color:var(--fluency)}
+
+  .compare-sub{
+    font-family:'Space Grotesk',sans-serif;font-size:15px;line-height:1.5;
+    color:var(--ink-soft);max-width:42ch;margin-bottom:6px;
+  }
+  .lit-sub{opacity:.7}
+
+  /* ---- the checklist (the spine) -------------------------- */
+  .check-list{
+    list-style:none;padding:0;margin:6px 0 18px;
+    display:flex;flex-direction:column;
+  }
+  .check-list li{
+    display:grid;grid-template-columns:32px 1fr;gap:10px;align-items:center;
+    padding:9px 0;border-bottom:1px dotted var(--line);
+    font-size:15.5px;line-height:1.4;color:var(--ink);
+  }
+  .check-list li:last-child{border-bottom:none}
+  .check-list .mark{
+    font-family:'Caveat',cursive;font-size:26px;line-height:1;
+    color:var(--ink-soft);
+  }
+
+  /* literacy list — desaturated */
+  .lit-list li{color:var(--ink-soft);opacity:.78}
+  .lit-list .mark{color:var(--ink-soft);opacity:.6}
+
+  /* fluency list — alive, with pixel ticks */
+  .flu-list li{color:var(--ink);font-weight:500}
+  .flu-list .mark{
+    font-family:'Press Start 2P',monospace;font-size:10px;
+    color:var(--paper);background:var(--fluency);
+    width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;
+    box-shadow:2px 2px 0 var(--ink);
+    letter-spacing:0;line-height:1;
+    transform:translateY(-1px);
+  }
+  .flu-list li{padding:10px 0}
+
+  /* footnote tag */
+  .col-tag{
+    align-self:flex-start;
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    letter-spacing:.04em;padding:4px 8px;color:var(--ink-soft);
+    background:rgba(42,46,51,.06);
+  }
+  .col-tag.flu{
+    font-family:'Press Start 2P',monospace;font-size:8px;
+    background:var(--ink);color:var(--fluency);letter-spacing:.06em;
+    box-shadow:3px 3px 0 var(--fluency-2);padding:6px 10px;
+  }
+
+  /* =========================================================
+     SUPPORTING VISUALS — small, partial, decorative
+  ========================================================= */
+  .vis-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;
+  }
+  .vis-row.span-2{grid-template-columns:1fr 1fr}
+  .vis-row.tall{grid-template-columns:1fr}
+
+  /* ---- LITERACY mini-vignettes (Win2K, scaled down) ---- */
+  .w2k-mini{
+    background:var(--w2k-face);
+    box-shadow:
+      inset  1px  1px 0 var(--w2k-light),
+      inset -1px -1px 0 var(--w2k-shadow-2),
+      inset  2px  2px 0 var(--w2k-face-2),
+      inset -2px -2px 0 var(--w2k-shadow),
+      3px 3px 0 rgba(0,0,0,.16);
+    padding:2px;
+    font-family:'Tahoma','MS Sans Serif',sans-serif;
+    font-size:9px;color:var(--w2k-text);
+    filter:saturate(.55);opacity:.92;
+  }
+  .w2k-mini.tilt-l{transform:rotate(-1.2deg)}
+  .w2k-mini.tilt-r{transform:rotate(.8deg)}
+  .w2k-mini-bar{
+    background:linear-gradient(90deg,var(--w2k-title-a) 0%,#1A41A8 60%,var(--w2k-title-b) 100%);
+    color:#fff;font-weight:700;font-size:9px;
+    padding:2px 5px;display:flex;align-items:center;justify-content:space-between;
+    letter-spacing:.02em;line-height:1.3;
+  }
+  .w2k-mini-bar .ctls{display:flex;gap:1px}
+  .w2k-mini-bar .ctl{
+    width:11px;height:9px;background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2);
+    font-size:8px;line-height:9px;text-align:center;color:#000;
+  }
+  .w2k-mini-body{background:#fff;padding:8px 10px;color:#000;min-height:84px}
+
+  /* slide mini */
+  .v-slide-h{
+    font-family:'Times New Roman',serif;font-size:13px;font-weight:700;
+    color:var(--w2k-blue);letter-spacing:-.01em;
+  }
+  .v-slide-rule{height:1.5px;background:var(--w2k-blue);margin:3px 0 6px;width:50%}
+  .v-slide-bullets{list-style:none;font-size:9.5px;line-height:1.55;color:#000}
+  .v-slide-bullets li{padding-left:11px;position:relative;margin-bottom:1px}
+  .v-slide-bullets li::before{
+    content:'';position:absolute;left:1px;top:5px;width:5px;height:5px;
+    background:var(--w2k-blue);transform:rotate(45deg);
+  }
+  .v-slide-foot{
+    margin-top:6px;display:flex;justify-content:space-between;
+    font-size:7.5px;color:#666;border-top:1px dotted #aaa;padding-top:4px;
+  }
+  .v-slide-foot .pg{
+    background:#eee;padding:0 4px;border:1px solid #aaa;font-weight:700;color:#000;font-size:7.5px;
+  }
+
+  /* photo mini */
+  .v-photo{
+    height:64px;background:repeating-linear-gradient(45deg,#a8a299 0 6px,#94908a 6px 12px);
+    border:1px solid #666;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.06em;
+    text-shadow:1px 1px 0 #000;
+  }
+  .v-photo span{padding:2px 6px;background:rgba(0,0,0,.55)}
+  .v-photo-meta{
+    font-family:'Tahoma',sans-serif;font-size:7.5px;color:#666;
+    margin-top:5px;display:flex;justify-content:space-between;
+  }
+
+  /* chat mini (one-shot) */
+  .v-chat{padding:7px 8px;background:#fff;min-height:84px}
+  .v-chat-row{
+    border:1px solid #999;background:#fff;padding:5px 7px;font-size:9.5px;
+    margin-bottom:4px;color:#000;line-height:1.35;
+  }
+  .v-chat-row .who{
+    font-weight:700;color:var(--w2k-blue);font-size:8px;display:block;margin-bottom:1px;
+  }
+  .v-chat-row.ai .who{color:#5d4d8a}
+  .v-chat-input-row{display:flex;gap:4px;margin-top:4px}
+  .v-chat-input{
+    flex:1;background:#fff;border:1px solid #666;
+    box-shadow:inset 1px 1px 0 #808080,inset -1px -1px 0 #fff;
+    padding:2px 4px;font-size:8.5px;color:#666;
+  }
+  .v-chat-btn{
+    background:var(--w2k-face);
+    box-shadow:inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2),inset 2px 2px 0 var(--w2k-face-2),inset -2px -2px 0 var(--w2k-shadow);
+    padding:1px 8px;font-size:8.5px;color:#000;
+  }
+
+  /* ---- FLUENCY mini-vignettes (pixel arcade, scaled down) ---- */
+  .pixel-mini{
+    background:var(--paper-card);
+    border:2px solid var(--ink);
+    position:relative;
+    box-shadow:
+      3px 0 0 0 var(--ink),
+      0 3px 0 0 var(--ink),
+      3px 3px 0 0 var(--ink),
+      6px 3px 0 0 var(--fluency),
+      3px 6px 0 0 var(--fluency),
+      6px 6px 0 0 var(--fluency);
+    transform:rotate(-.4deg);
+    overflow:hidden;
+  }
+  .pixel-mini.tilt-r{transform:rotate(.6deg)}
+
+  /* iterative chat mini */
+  .v-flu-chat{padding:10px 12px;min-height:96px}
+  .v-flu-chat-h{
+    display:flex;justify-content:space-between;align-items:center;
+    padding-bottom:5px;border-bottom:1px dashed var(--line);margin-bottom:8px;
+  }
+  .v-flu-chat-h .t{
+    font-family:'Press Start 2P',monospace;font-size:7px;letter-spacing:.06em;
+  }
+  .v-flu-chat-h .meta{
+    font-family:'JetBrains Mono',monospace;font-size:8.5px;color:var(--fluency);
+    display:flex;align-items:center;gap:5px;
+  }
+  .v-flu-chat-h .meta .dot{
+    width:6px;height:6px;background:var(--fluency-3);
+    box-shadow:0 0 0 1.5px var(--paper-card),0 0 0 2.5px var(--fluency-2);
+  }
+  .v-flu-msg{
+    display:grid;grid-template-columns:34px 1fr;gap:6px;margin-bottom:5px;
+    font-size:10px;line-height:1.4;
+  }
+  .v-flu-msg .who{
+    font-family:'Press Start 2P',monospace;font-size:6px;
+    color:var(--ink-soft);letter-spacing:.04em;padding-top:2px;line-height:1.6;
+  }
+  .v-flu-msg.you .who{color:var(--marker)}
+  .v-flu-msg.ai .who{color:var(--fluency)}
+  .v-flu-msg .text{
+    background:var(--paper);padding:4px 7px;border-left:2px solid var(--fluency-2);
+  }
+  .v-flu-msg.you .text{border-left-color:var(--marker)}
+  .v-flu-msg.ai .text{border-left-color:var(--fluency)}
+  .v-flu-msg .text em{
+    background:var(--fluency-2);font-style:normal;padding:0 2px;
+  }
+
+  /* tool mini (browser chrome + sidebar + cards) */
+  .v-flu-tool{padding:0;min-height:96px}
+  .v-flu-bar{
+    background:var(--ink);color:var(--paper);
+    padding:4px 7px;display:flex;align-items:center;gap:5px;
+    font-family:'JetBrains Mono',monospace;font-size:8px;
+  }
+  .v-flu-bar .tl{display:flex;gap:2px}
+  .v-flu-bar .tl span{width:5px;height:5px;background:var(--fluency-3);display:inline-block}
+  .v-flu-bar .tl span:nth-child(2){background:var(--fluency-2)}
+  .v-flu-bar .tl span:nth-child(3){background:var(--fluency)}
+  .v-flu-bar .url{
+    flex:1;background:#1a1d22;padding:1.5px 5px;color:var(--fluency-2);
+    letter-spacing:.04em;font-size:8px;
+  }
+  .v-flu-bar .url .slash{color:var(--ink-soft)}
+  .v-flu-tool-body{
+    display:grid;grid-template-columns:60px 1fr;min-height:78px;background:var(--paper-card);
+  }
+  .v-flu-side{
+    background:var(--paper-2);padding:6px 5px;border-right:2px solid var(--ink);
+    display:flex;flex-direction:column;gap:3px;
+  }
+  .v-flu-side .h{
+    font-family:'Press Start 2P',monospace;font-size:5.5px;letter-spacing:.06em;
+    color:var(--ink-soft);margin-bottom:2px;
+  }
+  .v-flu-side .item{
+    font-family:'JetBrains Mono',monospace;font-size:8px;color:var(--ink);
+    padding:2px 4px;background:var(--paper-card);
+    border-left:2px solid transparent;
+  }
+  .v-flu-side .item.active{
+    border-left-color:var(--fluency);background:var(--fluency-2);font-weight:600;
+  }
+  .v-flu-side .item.muted{color:var(--ink-soft)}
+  .v-flu-main{padding:7px;display:flex;flex-direction:column;gap:5px}
+  .v-flu-main-h{
+    font-family:'Instrument Serif',serif;font-size:12px;line-height:1.05;color:var(--ink);
+  }
+  .v-flu-main-h em{color:var(--fluency);font-style:italic}
+  .v-flu-cards{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+  .v-flu-card{
+    background:var(--paper);border:1px solid var(--ink);padding:4px 5px;
+    box-shadow:2px 2px 0 var(--fluency);
+  }
+  .v-flu-card .k{
+    font-family:'JetBrains Mono',monospace;font-size:6.5px;letter-spacing:.1em;
+    color:var(--ink-soft);text-transform:uppercase;
+  }
+  .v-flu-card .v{
+    font-family:'Instrument Serif',serif;font-size:14px;line-height:1.05;color:var(--ink);
+  }
+  .v-flu-card .v .up{color:var(--fluency)}
+
+  /* before/after mini */
+  .v-flu-baf{
+    padding:9px 11px;display:grid;grid-template-columns:1fr 18px 1fr;align-items:center;gap:4px;
+    min-height:72px;
+  }
+  .v-flu-baf .k{
+    font-family:'Press Start 2P',monospace;font-size:5.5px;letter-spacing:.06em;
+    color:var(--ink-soft);margin-bottom:3px;
+  }
+  .v-flu-baf .v{font-size:9.5px;line-height:1.35;color:var(--ink)}
+  .v-flu-baf .before .v{color:var(--ink-soft);opacity:.8}
+  .v-flu-baf .after .v{color:var(--ink);font-weight:600}
+  .v-flu-baf .after .k{color:var(--fluency)}
+  .v-flu-baf .arrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;color:var(--fluency);text-align:center;
+  }
+
+  /* peeker alien — kept, repositioned smaller */
+  .flu-peeker{
+    position:absolute;right:-14px;top:-30px;width:56px;height:56px;
+    pointer-events:none;transform:rotate(6deg);
+  }
+  .flu-peeker svg{width:100%;height:100%;display:block;image-rendering:pixelated}
+
+  /* responsive */
+  @media (max-width:900px){
+    .compare{grid-template-columns:1fr;gap:48px}
+    .flu-peeker{right:-6px;top:-34px}
+  }
+</style>
+</head>
+<body>
+
+<section class="gap-section" id="pov">
+  <div class="wrap">
+
+    <!-- Tightened headline -->
+    <div class="gap-header">
+      <span class="section-label">01 · The Gap</span>
+      <h2 class="gap-headline">
+        <em>Literacy</em> teaches what AI does.<br>
+        <em>Fluency</em> builds <span class="hi">how to&nbsp;work with&nbsp;it.</span>
+      </h2>
+    </div>
+
+    <div class="compare">
+
+      <!-- ───────── LITERACY ───────── -->
+      <div class="compare-col">
+        <span class="compare-eyebrow lit-eyebrow">What happens today</span>
+        <h3 class="compare-title lit-title">AI&nbsp;Literacy.</h3>
+        <p class="compare-sub lit-sub">Programs that teach what AI can do — the deck, the workshop, the one-shot prompt.</p>
+
+        <ul class="check-list lit-list" aria-label="Literacy outcomes">
+          <li><span class="mark">✓</span>Knows what AI can do</li>
+          <li><span class="mark">✓</span>Uses AI for simple tasks</li>
+          <li><span class="mark">✓</span>Accepts what AI gives back</li>
+          <li><span class="mark">✓</span>Applies generic use cases</li>
+          <li><span class="mark">✓</span>Speeds up existing work</li>
+          <li><span class="mark">✓</span>Reduces costs</li>
+        </ul>
+
+        <!-- Two small Win2K vignettes flanking each other -->
+        <div class="vis-row" aria-label="Literacy artifacts">
+          <!-- Slide deck mini -->
+          <div class="w2k-mini tilt-l">
+            <div class="w2k-mini-bar">
+              <span>AI_Workshop_M2.ppt</span>
+              <span class="ctls"><span class="ctl">_</span><span class="ctl">×</span></span>
+            </div>
+            <div class="w2k-mini-body">
+              <div class="v-slide-h">What AI Can Do</div>
+              <div class="v-slide-rule"></div>
+              <ul class="v-slide-bullets">
+                <li>Summarize documents</li>
+                <li>Draft emails</li>
+                <li>Brainstorm ideas</li>
+                <li>Boost productivity</li>
+              </ul>
+              <div class="v-slide-foot">
+                <span>Module 2 of 6</span>
+                <span class="pg">7 / 24</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chat box mini (one-shot) -->
+          <div class="w2k-mini tilt-r">
+            <div class="w2k-mini-bar">
+              <span>Ask AI — v1.0.4</span>
+              <span class="ctls"><span class="ctl">_</span><span class="ctl">×</span></span>
+            </div>
+            <div class="w2k-mini-body v-chat">
+              <div class="v-chat-row">
+                <span class="who">You</span>
+                Write a status update.
+              </div>
+              <div class="v-chat-row ai">
+                <span class="who">Assistant</span>
+                Here is a status update for your project: this week the team made progress…
+              </div>
+              <div class="v-chat-input-row">
+                <span class="v-chat-input">Type a message…</span>
+                <span class="v-chat-btn">Send</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="col-tag">// already have this. it isn&rsquo;t enough.</span>
+      </div>
+
+      <!-- ───────── FLUENCY ───────── -->
+      <div class="compare-col" style="position:relative">
+        <!-- peeker -->
+        <div class="flu-peeker" aria-hidden="true">
+          <svg id="peekerAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
+        </div>
+
+        <span class="compare-eyebrow flu-eyebrow">▶ WHAT YOUR TEAMS NEED</span>
+        <h3 class="compare-title flu-title">AI&nbsp;<em>Fluency.</em></h3>
+        <p class="compare-sub">A way of working with AI — instinctual, iterative, shaped to the problems your team actually has.</p>
+
+        <ul class="check-list flu-list" aria-label="Fluency outcomes">
+          <li><span class="mark">✓</span>Knows how to work with AI</li>
+          <li><span class="mark">✓</span>Uses AI on real problems</li>
+          <li><span class="mark">✓</span>Shapes what AI produces</li>
+          <li><span class="mark">✓</span>Builds context-specific solutions</li>
+          <li><span class="mark">✓</span>Expands what teams can take on</li>
+          <li><span class="mark">✓</span>Reduces costs &amp; unlocks growth</li>
+        </ul>
+
+        <!-- Two small fluency vignettes -->
+        <div class="vis-row" aria-label="Fluency artifacts">
+          <!-- Iterative chat mini -->
+          <div class="pixel-mini">
+            <div class="v-flu-chat">
+              <div class="v-flu-chat-h">
+                <span class="t">▶ ITERATING</span>
+                <span class="meta"><span class="dot"></span>turn 04</span>
+              </div>
+              <div class="v-flu-msg you">
+                <span class="who">YOU</span>
+                <span class="text">closer — but cite the <em>Q3 deck</em>, not the wiki.</span>
+              </div>
+              <div class="v-flu-msg ai">
+                <span class="who">AI</span>
+                <span class="text">Re-grounded on Q3 deck p.14. Updated draft attached.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom tool mini -->
+          <div class="pixel-mini tilt-r v-flu-tool">
+            <div class="v-flu-bar">
+              <span class="tl"><span></span><span></span><span></span></span>
+              <span class="url">counter.app<span class="slash">/</span>onboarding</span>
+            </div>
+            <div class="v-flu-tool-body">
+              <div class="v-flu-side">
+                <span class="h">VIEWS</span>
+                <span class="item active">Cohort</span>
+                <span class="item muted">Drafts</span>
+                <span class="item muted">Eval</span>
+              </div>
+              <div class="v-flu-main">
+                <div class="v-flu-main-h"><em>Onboarding</em> · v3</div>
+                <div class="v-flu-cards">
+                  <div class="v-flu-card"><div class="k">TIME</div><div class="v"><span class="up">−42%</span></div></div>
+                  <div class="v-flu-card"><div class="k">SHIPPED</div><div class="v">7</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <span class="col-tag flu">▶ THE COUNTER BUILDS THIS</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+/* Peeker alien — small cohort character at the corner of the fluency column.
+   Same grammar as cohort sprites elsewhere on the site. */
+(function(){
+  const svg=document.getElementById('peekerAlien'); if(!svg) return;
+  const NS='http://www.w3.org/2000/svg',CELL=10;
+  const SAGE='#73956F',SAGE_DEEP='#5B7A58',MINT='#95D7AE',INK='#2A2E33',PAPER='#F6F0E1',BLUSH='#E3A4A4',GLOW='#52E08D';
+  const GRID=[
+    '......aa....',
+    '.....bbbb...',
+    '....bbbbbb..',
+    '...hbbbbbbs.',
+    '..hwbbbbwbs.',
+    '..hbeebbeebs',
+    '..hbepbbpebs',
+    '..hbeebbeebs',
+    '..hbbbmmmbbs',
+    '..hbBbmmmbBs',
+    '...sbbbbbss.',
+    '....bbbbbb..',
+    '.....JJJJ...',
+    '.....JJJJ...',
+    '....JJ..JJ..',
+  ];
+  const PAL={'b':SAGE,'h':MINT,'s':SAGE_DEEP,'e':PAPER,'p':INK,'m':INK,'B':BLUSH,'w':INK,'a':SAGE_DEEP,'J':INK,'g':GLOW};
+  const rows=GRID.length,cols=GRID[0].length;
+  const offX=(200-cols*CELL)/2,offY=(200-rows*CELL)/2;
+  for(let y=0;y<rows;y++)for(let x=0;x<cols;x++){
+    const ch=GRID[y][x]; if(ch==='.'||ch===' ') continue;
+    const f=PAL[ch]; if(!f) continue;
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',offX+x*CELL);r.setAttribute('y',offY+y*CELL);
+    r.setAttribute('width',CELL);r.setAttribute('height',CELL);
+    r.setAttribute('fill',f);
+    svg.appendChild(r);
+  }
+})();
+</script>
+
+</body>
+</html>

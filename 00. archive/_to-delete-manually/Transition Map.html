@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Pixel Density Transition Map — The Counter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;--ink-deep:#1C2024;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--line:rgba(42,46,51,0.16);
+    --space:#050810;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.05) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.05) 1px,transparent 1px);
+    background-size:24px 24px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:15px;
+    padding:48px;
+  }
+  .head{margin-bottom:36px;max-width:760px}
+  .eyebrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:.08em;
+    color:var(--fluency);background:var(--ink);padding:6px 10px;
+    box-shadow:3px 3px 0 var(--fluency-2);display:inline-block;margin-bottom:18px;
+  }
+  .title{font-family:'Instrument Serif',serif;font-size:54px;line-height:1;letter-spacing:-.02em}
+  .title em{font-style:italic;color:var(--fluency)}
+  .sub{font-size:16px;line-height:1.55;color:var(--ink-soft);margin-top:12px;max-width:60ch}
+
+  .map{
+    display:grid;
+    grid-template-columns:96px 1fr 280px;
+    gap:0;
+    margin-top:32px;
+    border:1.5px solid var(--ink);
+    background:var(--paper-card);
+    box-shadow:6px 6px 0 var(--ink);
+  }
+
+  .col-head{
+    background:var(--ink);color:var(--paper);
+    padding:10px 14px;
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.06em;
+  }
+  .col-head.meter{color:var(--fluency-2);text-align:right}
+
+  .row{display:contents}
+  .row > *{border-top:1px solid var(--line);padding:18px 16px}
+  .row:first-of-type > *{border-top:none}
+
+  .cell-meter{
+    background:var(--paper-2);
+    text-align:center;
+    font-family:'Press Start 2P',monospace;font-size:9px;color:var(--ink-soft);
+    letter-spacing:.04em;
+  }
+  .cell-meter .pct{font-size:14px;color:var(--ink);display:block;margin-bottom:10px}
+  .cell-meter .meter{
+    width:100%;height:14px;background:var(--paper-card);border:1.5px solid var(--ink);
+    position:relative;
+  }
+  .cell-meter .fill{
+    position:absolute;inset:0;
+    background-image:
+      linear-gradient(to right, var(--fluency-3) 4px, transparent 4px);
+    background-size:8px 14px;
+    background-color:var(--fluency);
+  }
+
+  .cell-name h4{
+    font-family:'Instrument Serif',serif;font-weight:400;font-size:24px;line-height:1.05;
+    letter-spacing:-.01em;
+  }
+  .cell-name .sec{
+    font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--fluency);
+    letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;
+  }
+  .cell-name .desc{
+    font-size:13px;color:var(--ink-soft);line-height:1.5;margin-top:6px;
+  }
+
+  .cell-elements{
+    background:var(--paper);
+    border-left:1px solid var(--line);border-right:1px solid var(--line);
+  }
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .pill{
+    font-family:'JetBrains Mono',monospace;font-size:10px;
+    padding:4px 8px;background:var(--paper-card);
+    border:1px solid var(--ink);
+    color:var(--ink);
+    letter-spacing:.02em;
+  }
+  .pill.on{
+    background:var(--fluency);color:var(--paper);
+    border-color:var(--fluency);
+    box-shadow:2px 2px 0 var(--fluency-2);
+  }
+  .pill.off{opacity:.4;text-decoration:line-through;color:var(--ink-soft)}
+  .cell-elements .feel{
+    font-family:'Caveat',cursive;font-size:18px;color:var(--marker);
+    line-height:1.2;margin-top:10px;
+  }
+
+  /* row backgrounds tint to follow density */
+  .row.r1 > *{background:var(--paper-card)}
+  .row.r2 > *{background:var(--paper-card)}
+  .row.r3 > *{background:var(--paper-card)}
+  .row.r4 > *{background:#F1EFD8}
+  .row.r5 > *{background:#E8EFD8}
+  .row.r6 > *{background:#1A2027;color:var(--paper)}
+  .row.r6 .cell-name h4{color:var(--paper)}
+  .row.r6 .pill{background:#0E1218;color:var(--paper);border-color:var(--paper)}
+  .row.r6 .pill.on{background:var(--fluency-3);color:var(--ink-deep);border-color:var(--fluency-3);box-shadow:2px 2px 0 var(--fluency-2)}
+  .row.r6 .cell-meter{background:#11161D;color:var(--fluency-2)}
+  .row.r6 .cell-meter .meter{background:#000;border-color:var(--paper)}
+  .row.r6 .feel{color:var(--fluency-2)}
+  .row.r7 > *{background:#231F2A;color:var(--paper)}
+  .row.r7 .cell-name h4{color:var(--paper)}
+  .row.r7 .pill{background:#160F1E;color:var(--paper);border-color:var(--paper)}
+  .row.r7 .pill.on{background:var(--fluency-3);color:var(--ink-deep);border-color:var(--fluency-3);box-shadow:2px 2px 0 var(--fluency-2)}
+  .row.r7 .cell-meter{background:#1A1622;color:var(--fluency-2)}
+  .row.r7 .cell-meter .meter{background:#000;border-color:var(--paper)}
+  .row.r7 .feel{color:var(--fluency-2)}
+
+  .legend{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;
+  }
+  .legend .item{
+    background:var(--paper-card);border:1.5px solid var(--ink);padding:12px 14px;
+    box-shadow:3px 3px 0 var(--ink);
+  }
+  .legend .item .k{
+    font-family:'Press Start 2P',monospace;font-size:8px;color:var(--fluency);
+    letter-spacing:.06em;margin-bottom:6px;
+  }
+  .legend .item .v{font-size:13px;line-height:1.5;color:var(--ink)}
+
+  .principle{
+    margin-top:36px;background:var(--ink);color:var(--paper);padding:24px 28px;
+    box-shadow:6px 6px 0 var(--fluency);position:relative;
+  }
+  .principle .k{
+    font-family:'Press Start 2P',monospace;font-size:9px;color:var(--fluency-2);
+    letter-spacing:.06em;margin-bottom:10px;
+  }
+  .principle h3{
+    font-family:'Instrument Serif',serif;font-weight:400;font-size:30px;line-height:1.1;
+  }
+  .principle h3 em{font-style:italic;color:var(--fluency-2)}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <span class="eyebrow">▶ TRANSITION MAP</span>
+  <h1 class="title">Pixels <em>build</em> as you scroll.</h1>
+  <p class="sub">The pixel language doesn't appear at full volume. It seeps in — one accent at a time — so the buyer arrives at the journey having already been quietly converted. By the time the page goes to space, the design has done the selling.</p>
+</div>
+
+<div class="map">
+  <div class="col-head">SCROLL</div>
+  <div class="col-head" style="border-left:1px solid rgba(255,255,255,.18)">SECTION · WHAT GETS PIXELATED</div>
+  <div class="col-head meter" style="border-left:1px solid rgba(255,255,255,.18)">DENSITY</div>
+
+  <!-- ROW 1 - Hero -->
+  <div class="row r1">
+    <div class="cell-meter">
+      <span class="pct">5%</span>
+      <div class="meter"><div class="fill" style="width:5%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">00 · Hero</div>
+      <h4>Still feels handcrafted.</h4>
+      <div class="pill-row">
+        <span class="pill on">logo tick (square)</span>
+        <span class="pill on">CTA stepped shadow</span>
+        <span class="pill off">everything else</span>
+      </div>
+      <div class="feel">paper world — barely a whisper</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">5%</span>
+      <div class="meter"><div class="fill" style="width:5%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 2 - The Gap -->
+  <div class="row r2">
+    <div class="cell-meter">
+      <span class="pct">35%</span>
+      <div class="meter"><div class="fill" style="width:35%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">01 · The Gap</div>
+      <h4>The split happens here.</h4>
+      <div class="pill-row">
+        <span class="pill off">literacy side: Win2k chrome (no green)</span>
+        <span class="pill on">fluency side: full pixel kit</span>
+        <span class="pill on">first alien sprite peeker</span>
+      </div>
+      <div class="feel">two worlds, side by side</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">35%</span>
+      <div class="meter"><div class="fill" style="width:35%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 3 - Objection -->
+  <div class="row r3">
+    <div class="cell-meter">
+      <span class="pct">45%</span>
+      <div class="meter"><div class="fill" style="width:45%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">02 · Objection</div>
+      <h4>Bridge between worlds.</h4>
+      <div class="pill-row">
+        <span class="pill on">SUIT alien (already pixel)</span>
+        <span class="pill on">Counter Approved → square stamp</span>
+        <span class="pill on">section dash (3px)</span>
+      </div>
+      <div class="feel">paper + pixel coexist</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">45%</span>
+      <div class="meter"><div class="fill" style="width:45%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 4 - What The Counter Is -->
+  <div class="row r4">
+    <div class="cell-meter">
+      <span class="pct">55%</span>
+      <div class="meter"><div class="fill" style="width:55%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">03 · What The Counter Is</div>
+      <h4>Receipt grows pixel borders.</h4>
+      <div class="pill-row">
+        <span class="pill on">receipt: solid border + stepped ink shadow</span>
+        <span class="pill on">"NET RESULT" → Press Start 2P</span>
+      </div>
+      <div class="feel">arcade is leaning in</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">55%</span>
+      <div class="meter"><div class="fill" style="width:55%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 5 - The dither bridge -->
+  <div class="row r5">
+    <div class="cell-meter">
+      <span class="pct">75%</span>
+      <div class="meter"><div class="fill" style="width:75%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">⤓ · Dither bridge (existing)</div>
+      <h4>Paper crumbles into space.</h4>
+      <div class="pill-row">
+        <span class="pill on">2×2 checker dither (already shipped)</span>
+      </div>
+      <div class="feel">the visible handoff</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">75%</span>
+      <div class="meter"><div class="fill" style="width:75%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 6 - Journey -->
+  <div class="row r6">
+    <div class="cell-meter">
+      <span class="pct">100%</span>
+      <div class="meter"><div class="fill" style="width:100%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">04 · The Journey</div>
+      <h4>Full arcade.</h4>
+      <div class="pill-row">
+        <span class="pill on">starfield · neon path · cohort aliens</span>
+        <span class="pill on">treasure map · waypoints · HUD</span>
+      </div>
+      <div class="feel">arrival, not collision</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">100%</span>
+      <div class="meter"><div class="fill" style="width:100%"></div></div>
+    </div>
+  </div>
+
+  <!-- ROW 7 - Outcomes through CTA -->
+  <div class="row r7">
+    <div class="cell-meter">
+      <span class="pct">70%</span>
+      <div class="meter"><div class="fill" style="width:70%"></div></div>
+    </div>
+    <div class="cell-name cell-elements">
+      <div class="sec">05–07 · Outcomes / Cases / About / CTA</div>
+      <h4>Pixel + paper braid.</h4>
+      <div class="pill-row">
+        <span class="pill on">outcome cards: 2-tone stepped shadow</span>
+        <span class="pill on">case tabs: square + active accent</span>
+        <span class="pill on">founder pics: square + Press Start 2P</span>
+        <span class="pill off">book card stays paper</span>
+      </div>
+      <div class="feel">the language has taken</div>
+    </div>
+    <div class="cell-meter">
+      <span class="pct">70%</span>
+      <div class="meter"><div class="fill" style="width:70%"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="legend">
+  <div class="item"><div class="k">▶ ON</div><div class="v">Element gets the pixel treatment in this section.</div></div>
+  <div class="item"><div class="k">▶ OFF</div><div class="v">Stays paper — deliberate hold-out so the contrast still works.</div></div>
+  <div class="item"><div class="k">▶ DENSITY</div><div class="v">Rough share of UI surface using the pixel kit at that scroll point.</div></div>
+</div>
+
+<div class="principle">
+  <div class="k">▶ PRINCIPLE</div>
+  <h3>Pixel = fluency. Paper = the human work that surrounds it.<br>The site never goes <em>fully</em> pixel until the journey — because <em>fluency is the destination.</em></h3>
+</div>
+
+</body>
+</html>

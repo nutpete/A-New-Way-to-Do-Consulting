@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>What The Counter Is — reimagined</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Caveat:wght@500;700&family=Archivo+Black&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F0E1;--paper-2:#EEE4D1;--paper-card:#FAF6EC;
+    --ink:#2A2E33;--ink-soft:#454851;--ink-deep:#1C2024;
+    --fluency:#73956F;--fluency-2:#95D7AE;--fluency-3:#52E08D;
+    --marker:#9D5A5A;--line:rgba(42,46,51,0.16);
+    --space:#050810;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right,rgba(42,46,51,0.035) 1px,transparent 1px),
+      linear-gradient(to bottom,rgba(42,46,51,0.035) 1px,transparent 1px);
+    background-size:36px 36px;
+    color:var(--ink);font-family:'Space Grotesk',sans-serif;font-size:15px;
+    padding:48px;
+  }
+  .doc-head{margin-bottom:28px;max-width:760px}
+  .eyebrow{
+    font-family:'Press Start 2P',monospace;font-size:10px;letter-spacing:.08em;
+    color:var(--fluency);background:var(--ink);padding:6px 10px;
+    box-shadow:3px 3px 0 var(--fluency-2);display:inline-block;margin-bottom:14px;
+  }
+  h1{font-family:'Instrument Serif',serif;font-size:48px;line-height:1.02;letter-spacing:-.02em}
+  h1 em{font-style:italic;color:var(--fluency)}
+  .doc-head p{font-size:15px;line-height:1.55;color:var(--ink-soft);margin-top:10px;max-width:60ch}
+
+  .mock{
+    background:var(--paper);
+    border:1.5px solid var(--ink);box-shadow:6px 6px 0 var(--ink);
+    padding:64px 56px;min-height:580px;position:relative;overflow:hidden;
+  }
+  /* Space gradient bleeding in from the bottom-right corner. This is the
+     trick: the section is paper at top-left, space at bottom-right. The
+     transition to .how is no longer abrupt because space is already arriving. */
+  .mock::after{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 80% 80% at 110% 130%,
+        var(--space) 0%,
+        rgba(5,8,16,.92) 22%,
+        rgba(5,8,16,.55) 42%,
+        rgba(5,8,16,.18) 60%,
+        transparent 78%);
+    z-index:1;
+  }
+  /* a 2×2 dither row at the very bottom — same motif used in the dither bridge */
+  .mock::before{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:36px;z-index:2;
+    background:
+      linear-gradient(to right, var(--space) 0 8px, transparent 8px 16px),
+      linear-gradient(to right, transparent 0 8px, rgba(5,8,16,.6) 8px 16px);
+    background-size:16px 8px,16px 8px;
+    background-position:0 0,0 8px;
+    background-repeat:repeat-x;
+    opacity:.85;
+  }
+
+  .grid{
+    display:grid;grid-template-columns:1fr 1.05fr;gap:48px;align-items:center;
+    position:relative;z-index:3;
+  }
+
+  /* LEFT — copy ----------------------------------------------- */
+  .label{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--ink-soft);
+    display:inline-flex;align-items:center;gap:14px;margin-bottom:18px;
+  }
+  .label::before{
+    content:'';display:inline-block;width:42px;height:3px;background:var(--ink);
+  }
+  .head{
+    font-family:'Instrument Serif',serif;font-weight:400;
+    font-size:64px;line-height:1.02;letter-spacing:-.018em;
+  }
+  .head em{font-style:italic;color:var(--fluency)}
+  .lede{
+    font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+    font-size:24px;line-height:1.35;color:var(--ink);margin-top:22px;max-width:24ch;
+  }
+  .scribble{
+    margin-top:18px;font-family:'Caveat',cursive;font-size:22px;
+    color:var(--marker);transform:rotate(-1.5deg);display:inline-block;
+  }
+  .scribble u{text-decoration:none;border-bottom:2px solid currentColor}
+
+  /* tiny pixel sprites scattered behind copy */
+  .sprite{
+    position:absolute;width:28px;height:28px;image-rendering:pixelated;z-index:2;
+  }
+  .sprite-rocket{top:8%;left:42%;width:36px;height:36px;transform:rotate(-12deg)}
+  .sprite-planet{top:62%;left:6%;width:42px;height:42px}
+  .sprite-sat{top:14%;right:8%;width:32px;height:32px;transform:rotate(8deg)}
+  .sprite-star{top:36%;left:50%;width:14px;height:14px}
+
+  /* RIGHT — receipt on starfield ----------------------------- */
+  .receipt-stage{
+    position:relative;display:flex;align-items:center;justify-content:center;
+    min-height:520px;
+  }
+  /* localized starfield bg behind receipt only */
+  .receipt-stage::before{
+    content:'';position:absolute;inset:-12px -32px -32px -12px;
+    background:
+      radial-gradient(1.5px 1.5px at 8% 12%, rgba(149,215,174,.7) 50%, transparent 50%),
+      radial-gradient(2px 2px at 22% 36%, rgba(255,255,255,.45) 50%, transparent 50%),
+      radial-gradient(1px 1px at 36% 18%, rgba(149,215,174,.6) 50%, transparent 50%),
+      radial-gradient(2px 2px at 60% 70%, rgba(255,255,255,.5) 50%, transparent 50%),
+      radial-gradient(1.5px 1.5px at 78% 22%, rgba(115,149,111,.7) 50%, transparent 50%),
+      radial-gradient(1px 1px at 88% 56%, rgba(149,215,174,.5) 50%, transparent 50%),
+      radial-gradient(1.5px 1.5px at 14% 84%, rgba(255,255,255,.4) 50%, transparent 50%),
+      radial-gradient(2px 2px at 70% 92%, rgba(149,215,174,.5) 50%, transparent 50%);
+    z-index:0;
+  }
+
+  .receipt{
+    position:relative;z-index:2;width:340px;
+    background:var(--paper-card);
+    border:2px solid var(--ink);
+    padding:24px 26px 22px;
+    color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:13px;
+    transform:rotate(-1.4deg);
+    box-shadow:
+      4px 0 0 var(--ink),0 4px 0 var(--ink),4px 4px 0 var(--ink),
+      8px 4px 0 var(--fluency),4px 8px 0 var(--fluency),8px 8px 0 var(--fluency);
+  }
+  .receipt::before,.receipt::after{
+    content:'';position:absolute;left:-2px;right:-2px;height:10px;
+    background:
+      radial-gradient(circle at 6px 5px, var(--paper) 4px, transparent 5px) 0 0/12px 10px repeat-x,
+      var(--paper-card);
+  }
+  .receipt::before{top:-1px;transform:scaleY(-1)}
+  .receipt::after{bottom:-1px}
+
+  .r-title{
+    font-family:'Press Start 2P',monospace;font-size:11px;letter-spacing:.06em;
+    text-align:center;padding-bottom:6px;border-bottom:1.5px solid var(--ink);
+  }
+  .r-sub{
+    text-align:center;font-size:10px;letter-spacing:.18em;color:var(--ink-soft);
+    margin:6px 0 16px;text-transform:uppercase;
+  }
+  .r-row{
+    display:flex;justify-content:space-between;padding:6px 0;
+    border-bottom:1px dashed var(--line);font-size:12px;
+  }
+  .r-row span:first-child{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:10px}
+  .r-row span:last-child{color:var(--ink-soft)}
+  .r-total{
+    margin-top:14px;padding:12px 0 6px;
+    border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);
+    border-style:dashed;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.04em;
+  }
+  .r-total span:last-child{color:var(--fluency-3);text-shadow:1.5px 1.5px 0 var(--ink)}
+  .r-stamp{
+    margin-top:18px;text-align:center;
+    font-family:'Caveat',cursive;font-size:18px;color:var(--marker);transform:rotate(-2deg);
+  }
+
+  /* sprites near the receipt to prefigure the journey */
+  .receipt-stage .sprite-comet{
+    position:absolute;top:14%;right:0;width:60px;height:24px;z-index:1;
+    background:linear-gradient(90deg,transparent 0,var(--fluency-3) 40%,#fff 100%);
+    clip-path:polygon(0 50%,80% 0,100% 50%,80% 100%);
+    image-rendering:pixelated;opacity:.85;
+  }
+  .receipt-stage .sprite-orbit{
+    position:absolute;bottom:8%;left:8%;width:90px;height:90px;
+    border:2px dashed rgba(149,215,174,.5);border-radius:50%;
+    transform:rotate(-12deg);z-index:1;
+  }
+  .receipt-stage .sprite-orbit::before{
+    content:'';position:absolute;left:-6px;top:36%;width:12px;height:12px;
+    background:var(--fluency-3);box-shadow:2px 2px 0 var(--ink);
+  }
+
+  /* === SPECS panel ====================================== */
+  .specs{
+    margin-top:32px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px;
+  }
+  .spec{
+    background:var(--paper-card);border:1.5px solid var(--ink);box-shadow:3px 3px 0 var(--ink);
+    padding:14px 18px;
+  }
+  .spec .k{
+    font-family:'Press Start 2P',monospace;font-size:8px;letter-spacing:.06em;color:var(--fluency);
+    margin-bottom:6px;
+  }
+  .spec h4{font-family:'Instrument Serif',serif;font-weight:400;font-size:18px;margin-bottom:6px}
+  .spec p{font-size:12.5px;line-height:1.5;color:var(--ink)}
+  .spec code{
+    display:block;margin-top:6px;background:var(--ink);color:var(--fluency-2);
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:6px 8px;line-height:1.5;
+    white-space:pre-wrap;
+  }
+
+  .copy-block{
+    margin-top:22px;background:var(--ink);color:var(--paper);padding:18px 22px;
+    box-shadow:5px 5px 0 var(--fluency);
+  }
+  .copy-block .k{
+    font-family:'Press Start 2P',monospace;font-size:9px;color:var(--fluency-2);letter-spacing:.06em;
+    margin-bottom:8px;
+  }
+  .copy-block p{font-family:'Instrument Serif',serif;font-size:22px;line-height:1.3}
+  .copy-block p em{color:var(--fluency-2);font-style:italic}
+  .copy-block .strike{
+    margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7d8590;
+    text-decoration:line-through;
+  }
+</style>
+</head>
+<body>
+
+<div class="doc-head">
+  <span class="eyebrow">▶ FOLLOW-UP / 03 · WHAT THE COUNTER IS</span>
+  <h1>Where space <em>starts arriving.</em></h1>
+  <p>Cut the body text down to one italic line. Redesigned receipt with the pixel kit. Space gradient bleeds in from the bottom-right corner and a 2×2 dither row sits along the bottom — so the journey isn't a hard cut, it's already happening here.</p>
+</div>
+
+<div class="mock">
+
+  <!-- ambient sprites -->
+  <svg class="sprite sprite-rocket" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+    <rect x="7" y="1" width="2" height="2" fill="#9D5A5A"/>
+    <rect x="6" y="3" width="4" height="6" fill="#73956F"/>
+    <rect x="5" y="5" width="6" height="4" fill="#95D7AE"/>
+    <rect x="6" y="9" width="4" height="2" fill="#2A2E33"/>
+    <rect x="5" y="11" width="2" height="3" fill="#52E08D"/>
+    <rect x="9" y="11" width="2" height="3" fill="#52E08D"/>
+  </svg>
+  <svg class="sprite sprite-planet" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+    <rect x="4" y="3" width="8" height="2" fill="#73956F"/>
+    <rect x="3" y="5" width="10" height="6" fill="#95D7AE"/>
+    <rect x="4" y="11" width="8" height="2" fill="#73956F"/>
+    <rect x="6" y="6" width="2" height="2" fill="#73956F"/>
+    <rect x="9" y="8" width="3" height="1" fill="#73956F"/>
+    <rect x="0" y="7" width="16" height="2" fill="rgba(115,149,111,.4)"/>
+  </svg>
+  <svg class="sprite sprite-sat" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+    <rect x="6" y="6" width="4" height="4" fill="#2A2E33"/>
+    <rect x="2" y="7" width="4" height="2" fill="#73956F"/>
+    <rect x="10" y="7" width="4" height="2" fill="#73956F"/>
+    <rect x="7" y="2" width="2" height="4" fill="#9D5A5A"/>
+  </svg>
+  <svg class="sprite sprite-star" viewBox="0 0 8 8" shape-rendering="crispEdges" aria-hidden="true">
+    <rect x="3" y="0" width="2" height="2" fill="#52E08D"/>
+    <rect x="3" y="6" width="2" height="2" fill="#52E08D"/>
+    <rect x="0" y="3" width="2" height="2" fill="#52E08D"/>
+    <rect x="6" y="3" width="2" height="2" fill="#52E08D"/>
+    <rect x="3" y="3" width="2" height="2" fill="#fff"/>
+  </svg>
+
+  <div class="grid">
+
+    <!-- LEFT -->
+    <div>
+      <span class="label">02 · What 'The Counter' Is</span>
+      <h2 class="head">Your fast track to <em>AI fluency.</em></h2>
+      <p class="lede">Over time, working and thinking with AI becomes fluid, instinctual — eventually second nature.</p>
+      <div class="scribble">↳ <u>not a tool roll-out.</u> a way of working.</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="receipt-stage">
+      <span class="sprite-comet" aria-hidden="true"></span>
+      <span class="sprite-orbit" aria-hidden="true"></span>
+      <div class="receipt">
+        <div class="r-title">THE COUNTER</div>
+        <div class="r-sub">Engagement Order · #0042</div>
+        <div class="r-row"><span>Cohort</span><span>×6 / your team</span></div>
+        <div class="r-row"><span>Curriculum</span><span>your real problems</span></div>
+        <div class="r-row"><span>Coaching</span><span>through iteration</span></div>
+        <div class="r-row"><span>Prototypes</span><span>1 per person</span></div>
+        <div class="r-row"><span>Duration</span><span>4–6 weeks</span></div>
+        <div class="r-total">
+          <span>NET RESULT</span>
+          <span>FLUENCY</span>
+        </div>
+        <div class="r-stamp">— in weeks, not years</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Copy diff -->
+<div class="copy-block">
+  <div class="k">▶ COPY · KEEP / CUT</div>
+  <p><em>"Over time, working and thinking with AI becomes fluid, instinctual — eventually second nature."</em></p>
+  <div class="strike">We guide a cohort from your team through a hands-on experience designed to solve problems and priorities they are already working on over four to six weeks. In the process, they develop the mindsets, behaviors, and skills…</div>
+</div>
+
+<!-- Specs -->
+<div class="specs">
+  <div class="spec">
+    <div class="k">▶ SPACE GRADIENT BLEED</div>
+    <h4>Bottom-right corner</h4>
+    <p>A radial gradient anchored at <code>110% 130%</code> bleeds the journey's space color (<code>#050810</code>) into this section, so the .how dither bridge has somewhere to come from.</p>
+<code>.popup-section::after {
+  background: radial-gradient(
+    ellipse 80% 80% at 110% 130%,
+    var(--space) 0%,
+    transparent 78%);
+}</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ DITHER FOOT</div>
+    <h4>2×2 checker, 36px tall</h4>
+    <p>Same dither motif from the .how transition, dropped at the section's bottom edge as a 36px strip. When .how starts immediately below, the patterns line up — no visible seam.</p>
+<code>.popup-section::before {
+  bottom: 0; height: 36px;
+  background-size: 16px 8px;
+}</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ RECEIPT</div>
+    <h4>Pixel Kit · Element 08</h4>
+    <p>Header in Press Start 2P. Solid 2px ink border + two-tone stepped shadow (ink → fluency). Total row also Press Start 2P, with <code>--fluency-3</code> on the result for a touch of arcade glow.</p>
+<code>border:2px solid var(--ink);
+box-shadow:
+  4px 4px 0 var(--ink),
+  8px 8px 0 var(--fluency);</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ AMBIENT SPRITES</div>
+    <h4>4 small, ≤42px</h4>
+    <p>Tiny pixel rocket, planet (with rings), satellite, and a 4-arm star. Scatter at low opacity behind copy. They preview the journey's iconography without spoiling the reveal.</p>
+<code>image-rendering: pixelated;
+shape-rendering: crispEdges;
+opacity: 0.85;</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ COMET + ORBIT</div>
+    <h4>Decorative around receipt</h4>
+    <p>A clipped pixel comet streaks across the upper right. A dashed mint orbit ring curves around the lower left with a single chunky planet riding it. Both sit behind the receipt.</p>
+<code>border:2px dashed
+  rgba(149,215,174,.5);
+border-radius:50%;</code>
+  </div>
+
+  <div class="spec">
+    <div class="k">▶ RIGHT-COLUMN BG</div>
+    <h4>Localized starfield</h4>
+    <p>8 radial-gradient star points behind the receipt only — keeps the left column readable on paper while the right column already feels like deep space. The viewer's eye does the math.</p>
+<code>background: radial-gradient(
+  1.5px 1.5px at 8% 12%,
+  rgba(149,215,174,.7) 50%,
+  transparent 50%) /* …8 stops… */;</code>
+  </div>
+</div>
+
+</body>
+</html>
