@@ -1167,9 +1167,10 @@
       padding:0 18px;
     }
 
-    /* Contrast spines — left = rigid red, right = fluid green squiggle. */
+    /* Contrast spines — left = rigid red, right = fluid green squiggle.
+       Now per-row, spanning each row's full height. */
     .spine{
-      position:absolute;top:96px;bottom:96px;width:18px;pointer-events:none;
+      position:absolute;top:0;bottom:0;width:18px;pointer-events:none;
       z-index:1;
     }
     .spine svg{width:100%;height:100%;display:block;overflow:visible}
@@ -1203,28 +1204,38 @@
     .gap-col-header.flu em{font-style:italic;color:var(--fluency);font-weight:500}
     .gap-col-header.flu .num{color:var(--fluency)}
 
-    /* The rows */
+    /* The rows — title sits ABOVE the box. Each .gap-row-box is the
+       framed container with spines/gutter/borders. Big gap between rows
+       so each comparison reads as a discrete card. */
     .gap-rows{
-      display:flex;flex-direction:column;gap:64px;
+      display:flex;flex-direction:column;gap:80px;
       padding-top:8px;position:relative;z-index:2;
     }
     .gap-row{position:relative}
 
+    /* Row title — big, sits ABOVE the box. Acts as the box's chapter label. */
     .gap-row-head{
-      display:flex;align-items:baseline;gap:18px;
-      border-bottom:1.5px solid var(--ink);
-      padding-bottom:14px;margin-bottom:32px;
-      position:relative;
+      display:flex;align-items:baseline;gap:22px;
+      margin-bottom:24px;
     }
     .gap-row-num{
-      font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;
+      font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:.18em;
       color:var(--ink-soft);text-transform:uppercase;
-      flex-shrink:0;padding-bottom:4px;
+      flex-shrink:0;padding-bottom:8px;
     }
     .gap-row-title{
       font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
-      font-size:clamp(28px,2.6vw,36px);line-height:1;letter-spacing:-.018em;
+      font-size:clamp(40px,4vw,56px);line-height:1;letter-spacing:-.018em;
       color:var(--ink);
+    }
+
+    /* The framed box — top + bottom borders are the black lines, spines
+       form the left + right edges, gutter runs down the middle. */
+    .gap-row-box{
+      position:relative;
+      border-top:1.5px solid var(--ink);
+      border-bottom:1.5px solid var(--ink);
+      padding:46px 18px 36px;
     }
     .gap-row-q{
       font-family:'Instrument Serif',serif;font-style:italic;
@@ -1239,21 +1250,19 @@
       position:relative;
     }
 
-    /* THE GAP GUTTER — a single hand-drawn dashed vertical line that runs
-       the full height of the table down the column seam. The whisper that
-       says "two different worlds on either side." */
+    /* THE GAP GUTTER — a hand-drawn dashed vertical line down the
+       column seam, now per-row, terminating at the row's bottom border. */
     .gap-gutter{
-      position:absolute;left:50%;top:96px;bottom:96px;
+      position:absolute;left:50%;top:0;bottom:0;
       width:60px;transform:translateX(-50%);
       pointer-events:none;z-index:2;
     }
     .gap-gutter svg{width:100%;height:100%;display:block;overflow:visible}
 
-    /* Small ≠ glyph — sits on each row divider (the bottom border of
-       the row-head), centered on the seam. Reinforces "literacy ≠ fluency"
-       at every level: mindset, interaction, outcome. */
+    /* Small ≠ glyph — sits on the box's top border, centered on the
+       dashed seam. Reinforces "literacy ≠ fluency" at every level. */
     .neq-mini{
-      position:absolute;left:50%;top:100%;
+      position:absolute;left:50%;top:0;
       transform:translate(-50%,-50%);
       width:48px;height:48px;
       background:var(--paper);
@@ -1262,15 +1271,19 @@
     }
     .neq-mini svg{width:34px;height:34px;display:block;overflow:visible}
     .gap-cell{
-      display:flex;flex-direction:column;align-items:center;gap:18px;
+      display:flex;flex-direction:column;align-items:center;gap:10px;
       min-width:0;
     }
     /* Per-cell column label — "AI Literacy." / "AI Fluency." Sits above
        each artifact so the contrast is named on every row.
        Typography carries the world: lit = italic serif (handwritten/paper),
-       flu = Press Start 2P (pixel/digital). Reads as analog → digital. */
+       flu = Press Start 2P (pixel/digital). Reads as analog → digital.
+       Fixed-height shared row so both labels sit on the same baseline
+       regardless of font size. */
     .gap-cell-label{
       align-self:center;line-height:1;
+      display:grid;align-items:end;justify-items:center;
+      min-height:42px;
     }
     .gap-cell-label.lit{
       font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
@@ -1288,29 +1301,118 @@
       color:var(--fluency-3);text-transform:uppercase;
       text-shadow:1.5px 1.5px 0 var(--ink);
     }
+    /* Fixed stage so every artifact lives in a uniform 380px-tall box.
+       Internal artifact size varies; the stage doesn't. */
     .gap-art-wrap{
       display:flex;align-items:center;justify-content:center;
-      min-height:240px;width:100%;
+      height:380px;width:100%;
     }
 
-    /* Caption beneath each artifact */
+    /* Caption beneath each artifact — the row-level punchline.
+       Bumped size so the eye lands here after the visual.
+       min-height keeps 1- and 2-line captions on the same baseline. */
     .gap-cap{
       font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
-      font-size:17px;line-height:1.35;text-align:center;
-      max-width:34ch;
+      font-size:clamp(19px,1.6vw,22px);line-height:1.3;text-align:center;
+      max-width:34ch;color:var(--ink);
+      margin:0 auto;min-height:2.6em;
     }
-    .gap-cap.lit{color:var(--ink-soft);opacity:.78}
+    .gap-cap.lit{color:var(--ink-soft)}
     .gap-cap.flu{color:var(--ink)}
     .gap-cap.flu em{color:var(--fluency);font-style:italic}
     .gap-cap .quote{font-style:italic}
 
-    /* ───────── Footer punchline row ───────── */
-    .gap-footer{
-      margin-top:64px;padding-top:28px;
+    /* ───────── The payoff — landing the gap ─────────
+       Wrapped in a containing box. Each equation gets a 3-layer header:
+       pixel pill eyebrow, italic-serif FOR/WITH statement, then equation.
+       Bracket dips down to point at the closing line. */
+    .gap-close{
+      margin-top:128px;padding:0 0 96px;
+      text-align:center;position:relative;z-index:2;
+    }
+    .gap-close-box{
+      background:var(--paper-card);
       border-top:2px solid var(--ink);
-      display:grid;grid-template-columns:1fr 1fr;gap:56px;
-      align-items:center;
-      position:relative;z-index:2;
+      border-bottom:2px solid var(--ink);
+      padding:64px 32px 56px;
+      max-width:1080px;margin:0 auto;
+      position:relative;
+    }
+
+    .eq-row{margin-bottom:48px}
+    .eq-row.eq-row-flu{margin-bottom:80px}
+
+    /* LHS wrapper of equation 2 — gives the bracket a positioning context
+       so it sits under just "new instincts + new reflexes + redefined work". */
+    .flu-lhs-wrap{
+      position:relative;
+      display:inline-block;
+    }
+
+    .eq-label{
+      display:inline-block;
+      font-family:'Press Start 2P',monospace;font-size:9px;letter-spacing:.08em;
+      text-transform:uppercase;line-height:1;
+      padding:8px 12px;
+      margin-bottom:24px;
+    }
+    .eq-label-lit{
+      background:rgba(157,90,90,.16);color:var(--marker);
+    }
+    .eq-label-flu{
+      background:var(--ink);color:var(--paper);
+    }
+    .eq-label-flu .lbl-flu-word{
+      color:var(--fluency-3);
+    }
+
+    .equation{
+      font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+      font-size:clamp(28px,3vw,42px);line-height:1.2;letter-spacing:-.018em;
+      margin:0;
+    }
+    .equation .eq-plus{
+      font-style:normal;font-size:0.7em;
+      margin:0 .15em;opacity:.55;
+    }
+    .equation .eq-op{
+      font-style:normal;font-size:1.1em;font-weight:600;
+      margin:0 .2em;
+    }
+    .equation .eq-rhs{font-style:italic}
+
+    .lit-eq{color:var(--ink-soft)}
+    .lit-eq .eq-op.neq{color:var(--marker)}
+    .lit-eq .eq-rhs{color:var(--marker)}
+
+    .flu-eq{color:var(--fluency)}
+    .flu-eq em{font-style:italic;color:var(--fluency)}
+    .flu-eq .eq-op.eq{color:var(--fluency)}
+    .flu-eq .ai-fluency{
+      font-family:'Press Start 2P',monospace;font-style:normal;
+      font-size:0.58em;letter-spacing:.04em;line-height:1;
+      color:var(--fluency-3);text-transform:uppercase;
+      text-shadow:1.6px 1.6px 0 var(--ink);
+      vertical-align:0.18em;
+      display:inline-block;margin-left:0.05em;
+    }
+
+    /* Bracket — sits absolutely below the LHS wrap, spanning only the
+       three terms (instincts + reflexes + redefined work). The divot is
+       at the right side so it angles down toward the closing line. */
+    .eq-bracket{
+      position:absolute;
+      left:4px;right:4px;top:100%;
+      margin-top:14px;
+      display:block;
+      pointer-events:none;
+    }
+    .eq-bracket svg{width:100%;height:32px;display:block;overflow:visible}
+
+    .verdict-final{
+      font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;
+      font-size:clamp(22px,1.9vw,28px);line-height:1.3;letter-spacing:-.012em;
+      color:var(--ink);margin:8px auto 0;max-width:680px;
     }
     .col-tag{
       align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:11px;
@@ -1373,7 +1475,7 @@
 
     /* Interaction · Win2K one-shot */
     .lit-oneshot{
-      width:280px;max-width:100%;
+      width:300px;max-width:100%;
       background:var(--w2k-face);
       box-shadow:
         inset 1px 1px 0 var(--w2k-light),inset -1px -1px 0 var(--w2k-shadow-2),
@@ -8332,59 +8434,7 @@
         <!-- The comparison table -->
         <div class="gap-table reveal">
 
-          <!-- The gap gutter — vertical dashed seam down the column divide -->
-          <div class="gap-gutter" aria-hidden="true">
-            <svg viewBox="0 0 60 800" preserveAspectRatio="none">
-              <path d="
-                M 30 0
-                C 26 100, 34 200, 30 300
-                C 26 400, 34 500, 30 600
-                C 26 700, 34 750, 30 800
-              " fill="none" stroke="#2A2E33" stroke-width="1.2" opacity=".35" stroke-dasharray="3 5"/>
-            </svg>
-          </div>
-
-          <!-- Contrast spines — rigid red on lit edge, fluid green on flu edge -->
-          <div class="spine lit" aria-hidden="true">
-            <svg viewBox="0 0 18 800" preserveAspectRatio="none">
-              <line x1="9" y1="0" x2="9" y2="800" stroke="#9D5A5A" stroke-width="1.5"
-                stroke-dasharray="0" opacity=".55"/>
-              <g stroke="#9D5A5A" stroke-width="1.2" opacity=".4">
-                <line x1="4" y1="80"  x2="14" y2="80"/>
-                <line x1="4" y1="160" x2="14" y2="160"/>
-                <line x1="4" y1="240" x2="14" y2="240"/>
-                <line x1="4" y1="320" x2="14" y2="320"/>
-                <line x1="4" y1="400" x2="14" y2="400"/>
-                <line x1="4" y1="480" x2="14" y2="480"/>
-                <line x1="4" y1="560" x2="14" y2="560"/>
-                <line x1="4" y1="640" x2="14" y2="640"/>
-                <line x1="4" y1="720" x2="14" y2="720"/>
-              </g>
-            </svg>
-          </div>
-          <div class="spine flu" aria-hidden="true">
-            <svg viewBox="0 0 18 800" preserveAspectRatio="none">
-              <path d="
-                M 9 0
-                C 4 30, 14 60, 9 90
-                C 4 120, 14 150, 9 180
-                C 5 210, 13 240, 9 270
-                C 4 300, 14 330, 9 360
-                C 5 390, 13 420, 9 450
-                C 4 480, 14 510, 9 540
-                C 5 570, 13 600, 9 630
-                C 4 660, 14 690, 9 720
-                C 5 750, 13 780, 9 800
-              " fill="none" stroke="#73956F" stroke-width="2" stroke-linecap="round"
-                opacity=".75"/>
-              <g fill="#52E08D">
-                <circle cx="9" cy="90"  r="2.2"/>
-                <circle cx="9" cy="270" r="2.2"/>
-                <circle cx="9" cy="450" r="2.2"/>
-                <circle cx="9" cy="630" r="2.2"/>
-              </g>
-            </svg>
-          </div>
+          <!-- (Spines + gutter moved to per-row decorations below.) -->
 
           <!-- Rows -->
           <!-- (Column headers used to live above. Removed — each row now
@@ -8397,7 +8447,45 @@
               <div class="gap-row-head">
                 <span class="gap-row-num">01</span>
                 <h3 class="gap-row-title">The Mindset</h3>
-                <span class="gap-row-q">what AI is to you</span>
+                                </div>
+              <div class="gap-row-box">
+              <!-- Per-row decorations: red ruler left, green squiggle right, dashed gutter middle. -->
+              <div class="spine lit" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <line x1="9" y1="0" x2="9" y2="400" stroke="#9D5A5A" stroke-width="1.5" opacity=".55"/>
+                  <g stroke="#9D5A5A" stroke-width="1.2" opacity=".4">
+                    <line x1="4" y1="60"  x2="14" y2="60"/>
+                    <line x1="4" y1="140" x2="14" y2="140"/>
+                    <line x1="4" y1="220" x2="14" y2="220"/>
+                    <line x1="4" y1="300" x2="14" y2="300"/>
+                    <line x1="4" y1="380" x2="14" y2="380"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="spine flu" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <path d="
+                    M 9 0
+                    C 4 40, 14 80, 9 120
+                    C 4 160, 14 200, 9 240
+                    C 5 280, 13 320, 9 360
+                    C 4 380, 14 390, 9 400
+                  " fill="none" stroke="#73956F" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+                  <g fill="#52E08D">
+                    <circle cx="9" cy="120" r="2.2"/>
+                    <circle cx="9" cy="280" r="2.2"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="gap-gutter" aria-hidden="true">
+                <svg viewBox="0 0 60 400" preserveAspectRatio="none">
+                  <path d="
+                    M 30 0
+                    C 26 80, 34 160, 30 240
+                    C 26 320, 34 380, 30 400
+                  " fill="none" stroke="#2A2E33" stroke-width="1.2" opacity=".35" stroke-dasharray="3 5"/>
+                </svg>
+              </div>
                 <span class="neq-mini" aria-hidden="true">
                   <svg viewBox="0 0 34 34">
                     <rect x="4" y="13" width="26" height="3" fill="#2A2E33"/>
@@ -8405,11 +8493,10 @@
                     <path d="M 28 4 L 6 30" stroke="#73956F" stroke-width="3" stroke-linecap="round" fill="none"/>
                   </svg>
                 </span>
-              </div>
               <div class="gap-pair">
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label lit">AI <em>Literacy.</em></span>
+                  <span class="gap-cell-label lit"><span>AI <em>Literacy.</em></span></span>
                   <div class="gap-art-wrap">
                     <div class="lit-handout">
                       <div class="lit-handout-header">
@@ -8428,7 +8515,7 @@
                 </div>
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label flu">AI FLUENCY</span>
+                  <span class="gap-cell-label flu"><span>AI FLUENCY</span></span>
                   <div class="gap-art-wrap">
                     <div class="flu-card flu-mindset">
                       <div class="flu-mindset-bar">
@@ -8455,6 +8542,7 @@
                 </div>
 
               </div>
+              </div>
             </div>
 
             <!-- ROW 2 — THE INTERACTION -->
@@ -8462,7 +8550,45 @@
               <div class="gap-row-head">
                 <span class="gap-row-num">02</span>
                 <h3 class="gap-row-title">The Interaction</h3>
-                <span class="gap-row-q">how AI shows up in your work</span>
+                                </div>
+              <div class="gap-row-box">
+              <!-- Per-row decorations: red ruler left, green squiggle right, dashed gutter middle. -->
+              <div class="spine lit" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <line x1="9" y1="0" x2="9" y2="400" stroke="#9D5A5A" stroke-width="1.5" opacity=".55"/>
+                  <g stroke="#9D5A5A" stroke-width="1.2" opacity=".4">
+                    <line x1="4" y1="60"  x2="14" y2="60"/>
+                    <line x1="4" y1="140" x2="14" y2="140"/>
+                    <line x1="4" y1="220" x2="14" y2="220"/>
+                    <line x1="4" y1="300" x2="14" y2="300"/>
+                    <line x1="4" y1="380" x2="14" y2="380"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="spine flu" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <path d="
+                    M 9 0
+                    C 4 40, 14 80, 9 120
+                    C 4 160, 14 200, 9 240
+                    C 5 280, 13 320, 9 360
+                    C 4 380, 14 390, 9 400
+                  " fill="none" stroke="#73956F" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+                  <g fill="#52E08D">
+                    <circle cx="9" cy="120" r="2.2"/>
+                    <circle cx="9" cy="280" r="2.2"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="gap-gutter" aria-hidden="true">
+                <svg viewBox="0 0 60 400" preserveAspectRatio="none">
+                  <path d="
+                    M 30 0
+                    C 26 80, 34 160, 30 240
+                    C 26 320, 34 380, 30 400
+                  " fill="none" stroke="#2A2E33" stroke-width="1.2" opacity=".35" stroke-dasharray="3 5"/>
+                </svg>
+              </div>
                 <span class="neq-mini" aria-hidden="true">
                   <svg viewBox="0 0 34 34">
                     <rect x="4" y="13" width="26" height="3" fill="#2A2E33"/>
@@ -8470,11 +8596,10 @@
                     <path d="M 28 4 L 6 30" stroke="#73956F" stroke-width="3" stroke-linecap="round" fill="none"/>
                   </svg>
                 </span>
-              </div>
               <div class="gap-pair">
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label lit">AI <em>Literacy.</em></span>
+                  <span class="gap-cell-label lit"><span>AI <em>Literacy.</em></span></span>
                   <div class="gap-art-wrap">
                     <div class="lit-oneshot">
                       <div class="lit-oneshot-bar">
@@ -8495,7 +8620,7 @@
                 </div>
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label flu">AI FLUENCY</span>
+                  <span class="gap-cell-label flu"><span>AI FLUENCY</span></span>
                   <div class="gap-art-wrap">
                     <div class="flu-card flu-transform">
                       <div class="flu-mess">
@@ -8525,6 +8650,7 @@
                 </div>
 
               </div>
+              </div>
             </div>
 
             <!-- ROW 3 — THE OUTCOME -->
@@ -8532,7 +8658,45 @@
               <div class="gap-row-head">
                 <span class="gap-row-num">03</span>
                 <h3 class="gap-row-title">The Outcome</h3>
-                <span class="gap-row-q">what changes for the team</span>
+                                </div>
+              <div class="gap-row-box">
+              <!-- Per-row decorations: red ruler left, green squiggle right, dashed gutter middle. -->
+              <div class="spine lit" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <line x1="9" y1="0" x2="9" y2="400" stroke="#9D5A5A" stroke-width="1.5" opacity=".55"/>
+                  <g stroke="#9D5A5A" stroke-width="1.2" opacity=".4">
+                    <line x1="4" y1="60"  x2="14" y2="60"/>
+                    <line x1="4" y1="140" x2="14" y2="140"/>
+                    <line x1="4" y1="220" x2="14" y2="220"/>
+                    <line x1="4" y1="300" x2="14" y2="300"/>
+                    <line x1="4" y1="380" x2="14" y2="380"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="spine flu" aria-hidden="true">
+                <svg viewBox="0 0 18 400" preserveAspectRatio="none">
+                  <path d="
+                    M 9 0
+                    C 4 40, 14 80, 9 120
+                    C 4 160, 14 200, 9 240
+                    C 5 280, 13 320, 9 360
+                    C 4 380, 14 390, 9 400
+                  " fill="none" stroke="#73956F" stroke-width="2" stroke-linecap="round" opacity=".75"/>
+                  <g fill="#52E08D">
+                    <circle cx="9" cy="120" r="2.2"/>
+                    <circle cx="9" cy="280" r="2.2"/>
+                  </g>
+                </svg>
+              </div>
+              <div class="gap-gutter" aria-hidden="true">
+                <svg viewBox="0 0 60 400" preserveAspectRatio="none">
+                  <path d="
+                    M 30 0
+                    C 26 80, 34 160, 30 240
+                    C 26 320, 34 380, 30 400
+                  " fill="none" stroke="#2A2E33" stroke-width="1.2" opacity=".35" stroke-dasharray="3 5"/>
+                </svg>
+              </div>
                 <span class="neq-mini" aria-hidden="true">
                   <svg viewBox="0 0 34 34">
                     <rect x="4" y="13" width="26" height="3" fill="#2A2E33"/>
@@ -8540,11 +8704,10 @@
                     <path d="M 28 4 L 6 30" stroke="#73956F" stroke-width="3" stroke-linecap="round" fill="none"/>
                   </svg>
                 </span>
-              </div>
               <div class="gap-pair">
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label lit">AI <em>Literacy.</em></span>
+                  <span class="gap-cell-label lit"><span>AI <em>Literacy.</em></span></span>
                   <div class="gap-art-wrap">
                     <div class="lit-memo">
                       <div class="lit-memo-h">Q3 Productivity Update</div>
@@ -8559,7 +8722,7 @@
                 </div>
 
                 <div class="gap-cell">
-                  <span class="gap-cell-label flu">AI FLUENCY</span>
+                  <span class="gap-cell-label flu"><span>AI FLUENCY</span></span>
                   <div class="gap-art-wrap">
                     <div class="flu-card flu-log">
                       <div class="flu-log-h">
@@ -8577,19 +8740,53 @@
                 </div>
 
               </div>
+              </div>
             </div>
 
           </div>
 
-          <!-- Footer punchlines — own table-row, bordered top -->
-          <div class="gap-footer">
-            <span class="col-tag">Literacy // you already have this. It isn&rsquo;t enough.</span>
-            <span class="col-tag flu">
-              <span class="flu-peeker" aria-hidden="true">
-                <svg id="peekerAlien" viewBox="0 0 200 200" shape-rendering="crispEdges"></svg>
-              </span>
-              FLUENCY // THE COUNTER BUILDS THIS.
-            </span>
+          <!-- The payoff — wrapped in a containing box.
+               Each equation has a 3-layer header: pixel pill eyebrow,
+               italic-serif FOR/WITH statement, then the equation itself.
+               Bracket beneath equation 2 points down to the closing line. -->
+          <div class="gap-close">
+            <div class="gap-close-box">
+
+              <div class="eq-row">
+                <span class="eq-label eq-label-lit">// what teams have today</span>
+                <p class="equation lit-eq">
+                  AI Literacy <span class="eq-plus">+</span> Tools <span class="eq-plus">+</span> Time
+                  <span class="eq-op neq">&ne;</span>
+                  <span class="eq-rhs">AI Fluency</span>
+                </p>
+              </div>
+
+              <div class="eq-row eq-row-flu">
+                <span class="eq-label eq-label-flu">// what actually builds <span class="lbl-flu-word">fluency</span></span>
+                <p class="equation flu-eq">
+                  <span class="flu-lhs-wrap">
+                    <em>new instincts</em> <span class="eq-plus">+</span> <em>new reflexes</em> <span class="eq-plus">+</span> <em>redefined work</em>
+                    <!-- Bracket sits under just the LHS terms, divot at the right
+                         (closer to the equation center) so it angles toward the
+                         closing line below. -->
+                    <span class="eq-bracket" aria-hidden="true">
+                      <svg viewBox="0 0 800 38" preserveAspectRatio="none">
+                        <path d="M 4 2 L 4 14 L 612 14 L 616 26 L 620 32 L 624 34 L 628 32 L 632 26 L 636 14 L 796 14 L 796 2"
+                          stroke="#73956F" stroke-width="1.6" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round" opacity=".75"/>
+                      </svg>
+                    </span>
+                  </span>
+                  <span class="eq-op eq">=</span>
+                  <span class="eq-rhs ai-fluency">AI FLUENCY</span>
+                </p>
+              </div>
+
+              <p class="verdict-final">
+                This is what The Counter is designed around.
+              </p>
+
+            </div>
           </div>
 
         </div>
