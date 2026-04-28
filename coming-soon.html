@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Counter — Under Construction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #F6F0E1;
+      --ink: #2A2E33;
+      --ink-soft: #454851;
+      --green: #52E08D;
+      --mint: #95D7AE;
+      --sage: #73956F;
+      --sage-deep: #5B7A58;
+      --mauve: #9D5A5A;
+      --forest: #1F3933;
+      --blush: #E3A4A4;
+      --display: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      --pixel: 'Press Start 2P', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--display);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .frame {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      background:
+        linear-gradient(rgba(42,46,51,.055) 1px, transparent 1px) 0 0 / 56px 56px,
+        linear-gradient(90deg, rgba(42,46,51,.055) 1px, transparent 1px) 0 0 / 56px 56px,
+        var(--paper);
+      color: var(--ink);
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(246,240,225,.06),
+        0 30px 60px -20px rgba(0,0,0,.55);
+      padding: clamp(36px, 5vh, 56px) clamp(28px, 4vw, 48px);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      overflow: hidden;
+    }
+
+    /* scene: alien + barricades */
+    .scene {
+      position: relative;
+      width: 320px;
+      height: 200px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .scene svg { display: block; }
+
+    .alien-wrap {
+      position: relative;
+      z-index: 2;
+      animation: bob 2s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .barricade {
+      position: absolute;
+      bottom: 6px;
+      z-index: 1;
+    }
+    .barricade.left { left: 10px; }
+    .barricade.right { right: 10px; }
+
+    /* ground shadow */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 260px;
+      height: 8px;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .brand {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+    }
+    .brand strong { color: var(--ink); font-weight: 500; }
+
+    h1 {
+      font-family: var(--pixel);
+      font-size: clamp(14px, 3vw, 18px);
+      line-height: 1.6;
+      letter-spacing: .04em;
+      color: var(--ink);
+    }
+
+    .sub {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--ink-soft);
+      max-width: 34ch;
+    }
+
+    .rule {
+      width: 48px;
+      height: 2px;
+      background: var(--green);
+    }
+
+    .footer {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(42,46,51,.35);
+    }
+
+    /* blinking light on barricade */
+    .blink-light {
+      animation: blink 1.4s steps(2, end) infinite;
+    }
+    .blink-light.offset {
+      animation-delay: .7s;
+    }
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: .15; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .alien-wrap { animation: none; }
+      .blink-light { animation: none; opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="frame">
+    <div class="card">
+
+      <div class="brand"><strong>The Counter</strong> &mdash; AI Fluency Studio</div>
+
+      <div class="scene">
+        <!-- Left barricade -->
+        <div class="barricade left">
+          <svg width="80" height="70" viewBox="0 0 80 70" shape-rendering="crispEdges">
+            <!-- legs -->
+            <rect x="8" y="36" width="6" height="30" fill="#8B6914"/>
+            <rect x="66" y="36" width="6" height="30" fill="#8B6914"/>
+            <!-- crossbar -->
+            <rect x="4" y="28" width="72" height="14" fill="#E8A825"/>
+            <!-- stripes -->
+            <rect x="4" y="28" width="14" height="14" fill="var(--ink)"/>
+            <rect x="32" y="28" width="14" height="14" fill="var(--ink)"/>
+            <rect x="60" y="28" width="16" height="14" fill="var(--ink)"/>
+            <!-- blink light -->
+            <rect x="36" y="20" width="8" height="8" rx="0" fill="#FF6B35" class="blink-light"/>
+          </svg>
+        </div>
+
+        <!-- Podlet alien with hard hat -->
+        <div class="alien-wrap">
+          <svg id="alien" width="120" height="140" viewBox="0 0 200 220" shape-rendering="crispEdges"></svg>
+        </div>
+
+        <!-- Right barricade -->
+        <div class="barricade right">
+          <svg width="80" height="70" viewBox="0 0 80 70" shape-rendering="crispEdges">
+            <rect x="8" y="36" width="6" height="30" fill="#8B6914"/>
+            <rect x="66" y="36" width="6" height="30" fill="#8B6914"/>
+            <rect x="4" y="28" width="72" height="14" fill="#E8A825"/>
+            <rect x="4" y="28" width="14" height="14" fill="var(--ink)"/>
+            <rect x="32" y="28" width="14" height="14" fill="var(--ink)"/>
+            <rect x="60" y="28" width="16" height="14" fill="var(--ink)"/>
+            <rect x="36" y="20" width="8" height="8" rx="0" fill="#FF6B35" class="blink-light offset"/>
+          </svg>
+        </div>
+
+        <div class="ground"></div>
+      </div>
+
+      <h1>Under Construction</h1>
+      <p class="sub">We're putting the finishing touches on our new home. Check back soon.</p>
+      <div class="rule"></div>
+      <p class="footer">AIfluency.studio</p>
+    </div>
+  </div>
+
+  <script>
+    // Pixel renderer — same system as the cohort aliens
+    const CELL = 8;
+    const SAGE = '#73956F', SAGE_DEEP = '#5B7A58', SAGE_DARK = '#3F5B3D';
+    const MINT = '#95D7AE';
+    const INK = '#2A2E33', PAPER = '#F6F0E1', BLUSH = '#E3A4A4';
+
+    function render(svgId, grid, palette) {
+      const svg = document.getElementById(svgId);
+      const NS = 'http://www.w3.org/2000/svg';
+      const rows = grid.length, cols = grid[0].length;
+      const offX = (200 - cols * CELL) / 2;
+      const offY = (220 - rows * CELL) / 2 + 6;
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const ch = grid[y][x];
+          if (ch === '.' || ch === ' ') continue;
+          const fill = palette[ch];
+          if (!fill) continue;
+          const r = document.createElementNS(NS, 'rect');
+          r.setAttribute('x', offX + x * CELL);
+          r.setAttribute('y', offY + y * CELL);
+          r.setAttribute('width', CELL);
+          r.setAttribute('height', CELL);
+          r.setAttribute('fill', fill);
+          svg.appendChild(r);
+        }
+      }
+      // ground shadow
+      const g = document.createElementNS(NS, 'ellipse');
+      g.setAttribute('cx', 100);
+      g.setAttribute('cy', offY + rows * CELL + 4);
+      g.setAttribute('rx', 46);
+      g.setAttribute('ry', 4);
+      g.setAttribute('fill', 'rgba(0,0,0,0.15)');
+      svg.insertBefore(g, svg.firstChild);
+    }
+
+    // Podlet — same pixel alien from the cohort set
+    const PODLET_HAT = [
+      '.........aa.........',
+      '.........aa.........',
+      '........bbbb........',
+      '.......bbbbbb.......',
+      '......bbbbbbbb......',
+      '.....hhbbbbbbss.....',
+      '....hhbbbbbbbbss....',
+      '....hbbeebbeebsss...',
+      '....hbbeppbeppbss...',
+      '....hbbeebbeebsss...',
+      '....hhbbbbmmbbss....',
+      '....hbbbbmmmmbbs....',
+      '.....hbBbbmmbBbs....',
+      '....bbbbbbbbbbbbb...',
+      '...bbbbbbbbbbbbbbb..',
+      '..bbbbbbbbbbbbbbbbb.',
+      '..bb.bbbbbbbbbb..bb.',
+      '..bb.bbbbbbbbbb..bb.',
+      '..HH.bbbbbbbbbb..HH.',
+      '.....bbbb..bbbb.....',
+      '.....bbbb..bbbb.....',
+      '....ffff....ffff....',
+    ];
+
+    const P_PODLET_HAT = {
+      'b': SAGE, 'h': MINT, 's': SAGE_DEEP,
+      'e': PAPER, 'p': INK, 'm': INK, 'B': BLUSH,
+      'a': SAGE_DEEP, 'f': INK, 'H': SAGE_DEEP,
+      'Y': '#E8A825',   // hard hat yellow
+      'O': '#FFD54F',   // hat highlight
+    };
+
+    render('alien', PODLET_HAT, P_PODLET_HAT);
+  </script>
+</body>
+
+</html>
