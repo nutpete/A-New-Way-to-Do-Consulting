@@ -1,0 +1,5649 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Xceptor × The Counter — A Proposal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      /* Brand palette — per /03. Brand Colors */
+      --ink: #07070E;
+      /* outer frame */
+      --ink-2: #1E1F38;
+      /* dark pages / deep navy */
+      --paper: #ECE6D6;
+      /* cream, the book */
+      --paper-2: #E0D9C6;
+      /* cream shadow/divider */
+      --green: #52E08D;
+      /* primary brand green — nav accent */
+      --mint: #AFF1CB;
+      /* light mint */
+      --mauve: #B76B6B;
+      /* warm rose */
+      --taupe: #8E7A82;
+      /* muted taupe */
+      --violet: #4A405C;
+      /* deep plum */
+
+      --line: rgba(7, 7, 14, .12);
+      --line-strong: rgba(7, 7, 14, .22);
+      --line-dark: rgba(236, 230, 214, .14);
+      --ink-60: rgba(7, 7, 14, .62);
+      --ink-45: rgba(7, 7, 14, .45);
+
+      --display: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--ink);
+      color: var(--paper);
+      font-family: var(--display);
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer
+    }
+
+    /* =========================================================
+     BOOK — contained card floating in the dark frame
+     ========================================================= */
+    .frame {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(20px, 3.2vh, 40px) clamp(24px, 3vw, 56px);
+    }
+
+    .book {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background:
+        linear-gradient(rgba(7, 7, 14, .055) 1px, transparent 1px) 0 0 / 56px 56px,
+        linear-gradient(90deg, rgba(7, 7, 14, .055) 1px, transparent 1px) 0 0 / 56px 56px,
+        var(--paper);
+      color: var(--ink);
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(236, 230, 214, .06),
+        0 30px 60px -20px rgba(0, 0, 0, .55),
+        0 12px 30px -10px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* =========================================================
+     BOOK CHROME — top bar (progress + chapters) + bottom bar
+     ========================================================= */
+    .book-top {
+      flex: 0 0 auto;
+      padding: 14px 28px 0;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .progress-rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 12px;
+    }
+
+    .progress-rail .seg {
+      height: 2px;
+      background: var(--line-strong);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-rail .seg::after {
+      content: "";
+      position: absolute;
+      inset: 0 100% 0 0;
+      background: var(--ink);
+      transition: right .5s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .progress-rail .seg.active::after {
+      right: 0;
+      background: var(--green)
+    }
+
+    .progress-rail .seg.active.partial::after {
+      right: 50%;
+      background: var(--green)
+    }
+
+    .progress-rail .seg.done::after {
+      right: 0;
+      background: var(--ink)
+    }
+
+    /* ---- runner track (pixel character that skips between chapters) ---- */
+    .runner-track {
+      position: relative;
+      height: 30px;
+      margin-bottom: 6px;
+    }
+
+    .runner {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 26px;
+      height: 30px;
+      transform: translateX(0);
+      transition: transform .55s cubic-bezier(.2, .8, .2, 1);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .runner svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible
+    }
+
+    .runner .rbob {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: rbob 1.1s ease-in-out infinite
+    }
+
+    .runner.running .rbob {
+      animation-duration: .4s
+    }
+
+    .runner .leg-l,
+    .runner .leg-r,
+    .runner .arm-l,
+    .runner .arm-r {
+      transform-box: fill-box;
+    }
+
+    .runner .leg-l {
+      transform-origin: 50% 0%;
+      animation: leg-swing-l 1.1s ease-in-out infinite
+    }
+
+    .runner .leg-r {
+      transform-origin: 50% 0%;
+      animation: leg-swing-r 1.1s ease-in-out infinite
+    }
+
+    .runner .arm-l {
+      transform-origin: 50% 0%;
+      animation: arm-swing-l 1.1s ease-in-out infinite
+    }
+
+    .runner .arm-r {
+      transform-origin: 50% 0%;
+      animation: arm-swing-r 1.1s ease-in-out infinite
+    }
+
+    .runner.running .leg-l,
+    .runner.running .leg-r,
+    .runner.running .arm-l,
+    .runner.running .arm-r {
+      animation-duration: .28s
+    }
+
+    @keyframes rbob {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-1.5px)
+      }
+    }
+
+    @keyframes leg-swing-l {
+
+      0%,
+      100% {
+        transform: rotate(-12deg)
+      }
+
+      50% {
+        transform: rotate(18deg)
+      }
+    }
+
+    @keyframes leg-swing-r {
+
+      0%,
+      100% {
+        transform: rotate(18deg)
+      }
+
+      50% {
+        transform: rotate(-12deg)
+      }
+    }
+
+    @keyframes arm-swing-l {
+
+      0%,
+      100% {
+        transform: rotate(20deg)
+      }
+
+      50% {
+        transform: rotate(-20deg)
+      }
+    }
+
+    @keyframes arm-swing-r {
+
+      0%,
+      100% {
+        transform: rotate(-20deg)
+      }
+
+      50% {
+        transform: rotate(20deg)
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .runner,
+      .runner * {
+        animation: none !important
+      }
+    }
+
+    .chap-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      padding-bottom: 10px;
+    }
+
+    .chap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+      cursor: pointer;
+      padding: 2px 0;
+      background: none;
+      border: none;
+      text-align: left;
+      transition: color .2s;
+    }
+
+    .chap .n {
+      font-weight: 500
+    }
+
+    .chap:hover {
+      color: var(--ink)
+    }
+
+    .chap.done {
+      color: var(--ink)
+    }
+
+    .chap.done .n {
+      color: var(--ink)
+    }
+
+    .chap.active {
+      color: var(--ink)
+    }
+
+    .chap.active .n {
+      color: var(--ink);
+      background: var(--green);
+      padding: 2px 6px;
+      margin-right: 4px;
+    }
+
+    /* ---- sub-page rail (shows dots under the active chap) ---- */
+    .sub-rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      padding-bottom: 10px;
+      min-height: 14px;
+    }
+
+    .sub-cell {
+      display: flex;
+      gap: 6px;
+      align-items: center
+    }
+
+    .sub-cell .dot {
+      width: 14px;
+      height: 4px;
+      background: var(--line-strong);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: background .2s, width .2s;
+    }
+
+    .sub-cell .dot:hover {
+      background: var(--ink)
+    }
+
+    .sub-cell .dot.active {
+      background: var(--green);
+      width: 20px
+    }
+
+    .sub-cell .dot.done {
+      background: var(--ink)
+    }
+
+    .book-bottom {
+      flex: 0 0 auto;
+      padding: 10px 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: var(--paper);
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+    }
+
+    .book-bottom .brand {
+      color: var(--ink);
+      font-weight: 500
+    }
+
+    .book-bottom .brand span {
+      color: var(--mauve)
+    }
+
+    .book-bottom .center {
+      color: var(--ink-45)
+    }
+
+    .book-bottom .nav {
+      display: flex;
+      gap: 8px;
+      align-items: center
+    }
+
+    .book-bottom .nav .subs {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      margin-right: 10px;
+      padding-right: 10px;
+      border-right: 1px solid var(--line-strong);
+      min-height: 16px;
+    }
+
+    .book-bottom .nav .subs:empty {
+      display: none
+    }
+
+    .book-bottom .nav .subs .dot {
+      width: 12px;
+      height: 4px;
+      background: var(--line-strong);
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      transition: background .2s, width .2s;
+    }
+
+    .book-bottom .nav .subs .dot:hover {
+      background: var(--ink)
+    }
+
+    .book-bottom .nav .subs .dot.active {
+      background: var(--green);
+      width: 18px
+    }
+
+    .book-bottom .nav .subs .dot.done {
+      background: var(--ink)
+    }
+
+    .book-bottom .nav .counter {
+      margin-right: 8px;
+      color: var(--ink);
+      font-weight: 500
+    }
+
+    .book-bottom .nav .counter .sub-n {
+      color: var(--ink);
+      font-weight: 500
+    }
+
+    .book-bottom .nav button {
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .15s, color .15s, border-color .15s;
+    }
+
+    .book-bottom .nav button:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink)
+    }
+
+    .book-bottom .nav button:disabled {
+      opacity: .3;
+      cursor: not-allowed
+    }
+
+    /* =========================================================
+     PAGES — horizontal scroll-snap strip inside book
+     ========================================================= */
+    .pages {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      /* No scroll-snap or scroll-behavior — JS goTo() is the sole navigation controller.
+         This prevents the browser's snap engine from fighting programmatic scrollTo(). */
+    }
+
+    .pages::-webkit-scrollbar {
+      display: none
+    }
+
+    .pages {
+      scrollbar-width: none
+    }
+
+    .page {
+      flex: 0 0 100%;
+      height: 100%;
+      padding: clamp(28px, 4vh, 48px) clamp(32px, 4vw, 56px);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(20px, 3vh, 32px);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page.dark {
+      background: var(--ink);
+      color: var(--paper)
+    }
+
+    .page.dark .eyebrow {
+      color: var(--mint)
+    }
+
+    .page.dark .rule {
+      background: var(--line-dark)
+    }
+
+    /* =========================================================
+     TYPOGRAPHY SYSTEM (disciplined, modest)
+     ========================================================= */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--mauve);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .eyebrow .bracket {
+      opacity: .55
+    }
+
+    h1.hero {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(44px, 6.4vw, 92px);
+      line-height: .96;
+      letter-spacing: -.025em;
+      max-width: 18ch;
+    }
+
+    h1.hero em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mauve)
+    }
+
+    .page.dark h1.hero em {
+      color: var(--mint)
+    }
+
+    h2.title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(32px, 4.2vw, 56px);
+      line-height: 1;
+      letter-spacing: -.02em;
+      max-width: 20ch;
+    }
+
+    h2.title em {
+      font-style: italic;
+      font-weight: 400
+    }
+
+    h3 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(18px, 1.5vw, 22px);
+      line-height: 1.2;
+      letter-spacing: -.005em;
+    }
+
+    p {
+      font-size: 13.5px;
+      line-height: 1.55;
+      max-width: 60ch;
+      color: inherit
+    }
+
+    p.lede {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: clamp(15px, 1.2vw, 18px);
+      line-height: 1.45;
+      max-width: 42ch;
+      color: var(--ink-60);
+    }
+
+    .page.dark p.lede {
+      color: rgba(236, 230, 214, .75)
+    }
+
+    .label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+    }
+
+    .page.dark .label {
+      color: rgba(236, 230, 214, .55)
+    }
+
+    .rule {
+      height: 1px;
+      width: 100%;
+      background: var(--line)
+    }
+
+    /* =========================================================
+     PAGE HEADER BLOCK (reusable)
+     ========================================================= */
+    .p-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    .p-head .meta {
+      text-align: right
+    }
+
+    /* =========================================================
+     PAGE 00 — COVER (minimal)
+     ========================================================= */
+    .p0 {
+      padding: 0 !important;
+      grid-template-rows: 1fr !important;
+      gap: 0 !important;
+      background: transparent;
+      position: relative;
+      display: block;
+    }
+
+    .p0 .cover {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      padding: clamp(28px, 4vh, 44px) clamp(36px, 5vw, 72px);
+      overflow: hidden;
+    }
+
+    /* top bar — mono, small */
+    .p0 .coverbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    .p0 .coverbar .left {
+      display: flex;
+      gap: 12px;
+      align-items: center
+    }
+
+    .p0 .coverbar .mono-mark {
+      display: inline-grid;
+      grid-template-columns: repeat(2, 5px);
+      grid-template-rows: repeat(2, 5px);
+      gap: 1.5px;
+    }
+
+    .p0 .coverbar .mono-mark i {
+      display: block;
+      background: var(--ink)
+    }
+
+    .p0 .coverbar .mono-mark i.r {
+      background: var(--mauve)
+    }
+
+    .p0 .coverbar .mono-mark i.blink {
+      animation: px-blink 1.1s steps(2, end) infinite;
+      background: var(--green)
+    }
+
+    @keyframes px-blink {
+
+      0%,
+      49% {
+        opacity: 1
+      }
+
+      50%,
+      100% {
+        opacity: .2
+      }
+    }
+
+    /* pixel pulse for the small 4x4 accent grid on cover */
+    .p0 .accent i.m {
+      animation: px-fade 2.4s steps(3, end) infinite
+    }
+
+    .p0 .accent i.k {
+      animation: px-fade 2.4s steps(3, end) -.8s infinite
+    }
+
+    @keyframes px-fade {
+
+      0%,
+      100% {
+        opacity: .35
+      }
+
+      50% {
+        opacity: 1
+      }
+    }
+
+    /* title — dominant, single weight, no italics */
+    .p0 .coverbody {
+      display: flex;
+      align-items: center;
+      padding: clamp(24px, 5vh, 64px) 0;
+      position: relative;
+    }
+
+    .p0 .coverbody h1 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(44px, 6.2vw, 92px);
+      line-height: .98;
+      letter-spacing: -.028em;
+      color: var(--ink);
+      max-width: 14ch;
+      position: relative;
+    }
+
+    /* mint pop — substantial block above the title */
+    .p0 .coverbody h1::before {
+      content: "";
+      display: block;
+      width: clamp(180px, 22vw, 280px);
+      height: clamp(28px, 3.2vh, 40px);
+      background: var(--mint);
+      margin-bottom: clamp(22px, 3vh, 36px);
+      box-shadow:
+        clamp(8px, 1vw, 14px) 0 0 var(--ink);
+    }
+
+    /* subtle pixel accent — small, top-right, whitespace-breaker only */
+    .p0 .accent {
+      position: absolute;
+      top: 0;
+      right: 0;
+      display: grid;
+      grid-template-columns: repeat(4, 8px);
+      grid-template-rows: repeat(4, 8px);
+      gap: 2px;
+    }
+
+    .p0 .accent i {
+      display: block;
+      background: transparent
+    }
+
+    .p0 .accent i.k {
+      background: var(--ink)
+    }
+
+    .p0 .accent i.r {
+      background: var(--mauve)
+    }
+
+    .p0 .accent i.m {
+      background: var(--mint)
+    }
+
+    /* bottom — prepared for / by, two tight columns separated by a hairline */
+    .p0 .coverfoot {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(24px, 4vw, 56px);
+      padding-top: 22px;
+      border-top: 1px solid var(--ink);
+    }
+
+    .p0 .coverfoot .block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+    }
+
+    .p0 .coverfoot .block .lbl {
+      color: var(--ink-45)
+    }
+
+    .p0 .coverfoot .block b {
+      color: var(--ink);
+      font-weight: 500;
+      font-family: var(--display);
+      letter-spacing: -.005em;
+      text-transform: none;
+      font-size: 15px;
+    }
+
+    /* =========================================================
+     PAGE 00b — TABLE OF CONTENTS
+     ========================================================= */
+    .page.p0b {
+      background: var(--paper-2);
+      grid-template-rows: auto auto 1fr !important;
+      gap: clamp(20px, 2.6vh, 30px) !important;
+    }
+
+    .p0b .toc-lead {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .p0b .toc-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border-top: 1px solid var(--ink);
+      align-self: start;
+      width: 100%;
+    }
+
+    .p0b .toc-item {
+      display: grid;
+      grid-template-columns: 70px 640px auto auto 1fr;
+      align-items: center;
+      gap: 28px;
+      padding: clamp(20px, 3vh, 30px) 10px;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+      position: relative;
+      opacity: 0;
+      transform: translateY(8px);
+      transition:
+        opacity .55s ease,
+        transform .55s cubic-bezier(.2, .8, .2, 1),
+        background .25s ease,
+        padding-left .35s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p0b.in-view .toc-item {
+      opacity: 1;
+      transform: none;
+    }
+
+    .p0b.in-view .toc-item:nth-child(1) {
+      transition-delay: .15s;
+    }
+
+    .p0b.in-view .toc-item:nth-child(2) {
+      transition-delay: .28s;
+    }
+
+    .p0b.in-view .toc-item:nth-child(3) {
+      transition-delay: .41s;
+    }
+
+    .p0b .toc-item::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--green);
+      transform: scaleY(0);
+      transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p0b .toc-item:hover {
+      background: var(--paper);
+      padding-left: 22px;
+    }
+
+    .p0b .toc-item:hover::before {
+      transform: scaleY(.7);
+    }
+
+    .p0b .toc-num {
+      font-family: var(--mono);
+      font-size: 26px;
+      letter-spacing: -.02em;
+      color: var(--ink-45);
+      font-weight: 500;
+      line-height: 1;
+      transition: color .25s;
+    }
+
+    .p0b .toc-item:hover .toc-num {
+      color: #2D9656;
+    }
+
+    .p0b .toc-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .p0b .toc-title {
+      font-family: var(--display);
+      font-size: clamp(22px, 2.2vw, 30px);
+      font-weight: 500;
+      line-height: 1.05;
+      letter-spacing: -.012em;
+      color: var(--ink);
+    }
+
+    .p0b .toc-desc {
+      font-family: var(--display);
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--ink-60);
+      white-space: nowrap;
+    }
+
+    .p0b .toc-page {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+      white-space: nowrap;
+      transition: color .25s;
+    }
+
+    .p0b .toc-item:hover .toc-page {
+      color: var(--ink);
+    }
+
+    .p0b .toc-arrow {
+      font-family: var(--mono);
+      font-size: 18px;
+      color: var(--ink-45);
+      transition: color .25s, transform .35s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p0b .toc-item:hover .toc-arrow {
+      color: #2D9656;
+      transform: translateX(6px);
+    }
+
+    /* =========================================================
+     PAGE 01a — TAKEAWAYS FROM YOUR RFP
+     PAGE 01b — DELIVERABLES
+     ========================================================= */
+
+    /* ---------------- PAGE 01a ---------------- */
+    .page.p1a {
+      grid-template-rows: 1fr;
+      gap: 0;
+      padding: clamp(32px, 4.5vh, 56px) clamp(32px, 4vw, 64px);
+      background: var(--paper);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* decorative ambient shapes */
+    .p1a .amb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .p1a .amb.a1 {
+      right: -120px;
+      top: -100px;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(82, 224, 141, .35), rgba(82, 224, 141, 0) 70%);
+      animation: float-slow 14s ease-in-out infinite;
+    }
+
+    .p1a .amb.a2 {
+      left: 38%;
+      bottom: -160px;
+      width: 320px;
+      height: 320px;
+      background: radial-gradient(circle at 50% 50%, rgba(183, 107, 107, .18), rgba(183, 107, 107, 0) 70%);
+      animation: float-slow 18s ease-in-out -4s infinite;
+    }
+
+    .p1a .amb.a3 {
+      right: 32%;
+      top: 20%;
+      width: 10px;
+      height: 10px;
+      background: var(--green);
+      opacity: .6;
+      animation: twinkle 3s ease-in-out infinite;
+    }
+
+    .p1a .amb.a4 {
+      right: 14%;
+      top: 42%;
+      width: 6px;
+      height: 6px;
+      background: var(--mauve);
+      opacity: .7;
+      animation: twinkle 3.6s ease-in-out -1s infinite;
+    }
+
+    .p1a .amb.a5 {
+      left: 40%;
+      top: 8%;
+      width: 4px;
+      height: 4px;
+      background: var(--ink);
+      opacity: .35;
+      animation: twinkle 4s ease-in-out -2s infinite;
+    }
+
+    @keyframes float-slow {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1)
+      }
+
+      50% {
+        transform: translate(-14px, 10px) scale(1.05)
+      }
+    }
+
+    @keyframes twinkle {
+
+      0%,
+      100% {
+        opacity: .2;
+        transform: scale(.8)
+      }
+
+      50% {
+        opacity: .9;
+        transform: scale(1.15)
+      }
+    }
+
+    .p1a .p1a-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+      gap: clamp(32px, 4vw, 72px);
+      align-items: start;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .p1a .p1a-lead {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 2vh, 24px);
+      position: relative;
+    }
+
+    .p1a .p1a-title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(26px, 2.7vw, 38px);
+      line-height: 1.12;
+      letter-spacing: -.018em;
+      color: var(--ink);
+      max-width: 22ch;
+      position: relative;
+    }
+
+    .p1a .p1a-title em {
+      font-style: normal;
+      color: var(--ink);
+      background: linear-gradient(transparent 62%, var(--green) 62%, var(--green) 100%);
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+
+    /* animated scribble under title */
+    .p1a .p1a-scribble {
+      width: clamp(160px, 22vw, 260px);
+      height: 18px;
+      overflow: visible;
+      margin-top: 4px;
+    }
+
+    .p1a .p1a-scribble path,
+    .p1a .p1a-scribble polyline {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 3;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+    }
+
+    .page.p1a.in-view .p1a-scribble path,
+    .page.p1a.in-view .p1a-scribble polyline {
+      animation: draw-in 1.6s steps(20, end) .4s forwards;
+    }
+
+    @keyframes draw-in {
+      to {
+        stroke-dashoffset: 0
+      }
+    }
+
+    /* "listening" mark — pixel equalizer bars */
+    .p1a .p1a-mark {
+      margin-top: clamp(10px, 1.4vh, 18px);
+      display: flex;
+      align-items: flex-end;
+      gap: 5px;
+      height: 42px;
+    }
+
+    .p1a .p1a-mark .bar {
+      width: 9px;
+      background: var(--green);
+      display: block;
+      box-shadow: 2px 2px 0 var(--ink);
+      animation: bar-bounce 1.1s steps(4, end) infinite;
+    }
+
+    .p1a .p1a-mark .bar:nth-child(1) {
+      animation-delay: 0s;
+      height: 12px
+    }
+
+    .p1a .p1a-mark .bar:nth-child(2) {
+      animation-delay: .14s;
+      height: 24px
+    }
+
+    .p1a .p1a-mark .bar:nth-child(3) {
+      animation-delay: .06s;
+      height: 36px
+    }
+
+    .p1a .p1a-mark .bar:nth-child(4) {
+      animation-delay: .22s;
+      height: 18px
+    }
+
+    .p1a .p1a-mark .bar:nth-child(5) {
+      animation-delay: .10s;
+      height: 28px
+    }
+
+    @keyframes bar-bounce {
+
+      0%,
+      100% {
+        transform: scaleY(.4)
+      }
+
+      25% {
+        transform: scaleY(1)
+      }
+
+      50% {
+        transform: scaleY(.65)
+      }
+
+      75% {
+        transform: scaleY(1.15)
+      }
+    }
+
+    .p1a .p1a-mark .bar {
+      transform-origin: bottom
+    }
+
+    /* bigger bullets — cards with colorful circular badges */
+    .p1a .p1a-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .p1a .p1a-list li {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 22px;
+      padding: clamp(11px, 1.5vh, 18px) 0;
+      border-top: 1px dashed rgba(7, 7, 14, .18);
+      align-items: flex-start;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .55s ease, transform .6s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p1a .p1a-list li:first-child {
+      border-top: none;
+      padding-top: 0
+    }
+
+    .p1a .p1a-list li .n {
+      width: 40px;
+      height: 40px;
+      background: var(--green);
+      color: var(--ink);
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: .04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      position: relative;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform .2s steps(3, end);
+    }
+
+    .p1a .p1a-list li:nth-child(2) .n {
+      background: var(--mint)
+    }
+
+    .p1a .p1a-list li:nth-child(3) .n {
+      background: var(--green)
+    }
+
+    .p1a .p1a-list li:nth-child(4) .n {
+      background: var(--mauve);
+      color: var(--paper)
+    }
+
+    .p1a .p1a-list li:nth-child(5) .n {
+      background: var(--green)
+    }
+
+    .p1a .p1a-list li:nth-child(6) .n {
+      background: var(--violet);
+      color: var(--paper)
+    }
+
+    .p1a .p1a-list li:hover .n {
+      transform: rotate(-8deg) scale(1.08)
+    }
+
+    .p1a .p1a-list li p {
+      font-size: clamp(14px, 1.1vw, 16px);
+      line-height: 1.5;
+      color: var(--ink);
+      max-width: 64ch;
+      padding-top: 4px;
+    }
+
+    .p1a .p1a-list li p strong {
+      font-weight: 500;
+      color: var(--ink);
+      background: linear-gradient(transparent 86%, var(--green) 86%, var(--green) 100%);
+      padding: 0 2px;
+    }
+
+    .page.p1a.in-view .p1a-list li {
+      opacity: 1;
+      transform: none
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(1) {
+      transition-delay: .10s
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(2) {
+      transition-delay: .18s
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(3) {
+      transition-delay: .26s
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(4) {
+      transition-delay: .34s
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(5) {
+      transition-delay: .42s
+    }
+
+    .page.p1a.in-view .p1a-list li:nth-child(6) {
+      transition-delay: .50s
+    }
+
+    /* ---------------- PAGE 01b — DELIVERABLES (stamp cluster) ---------------- */
+    .page.p1b {
+      grid-template-rows: auto 1fr;
+      gap: clamp(24px, 3.2vh, 40px);
+      padding: clamp(32px, 4.5vh, 56px) clamp(32px, 4vw, 64px);
+      background: var(--paper);
+      color: var(--ink);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .p1b.dark {
+      background: var(--paper);
+      color: var(--ink)
+    }
+
+    /* override legacy */
+
+    /* ambient wash */
+    .p1b .amb {
+      position: absolute;
+      pointer-events: none;
+      z-index: 0;
+      border-radius: 50%;
+    }
+
+    .p1b .amb.b1 {
+      right: -140px;
+      top: -120px;
+      width: 420px;
+      height: 420px;
+      background: radial-gradient(circle at 30% 30%, rgba(82, 224, 141, .25), rgba(82, 224, 141, 0) 70%);
+      animation: float-slow 16s ease-in-out infinite;
+    }
+
+    .p1b .amb.b2 {
+      left: -120px;
+      bottom: -120px;
+      width: 340px;
+      height: 340px;
+      background: radial-gradient(circle, rgba(183, 107, 107, .14), rgba(183, 107, 107, 0) 70%);
+      animation: float-slow 20s ease-in-out -5s infinite;
+    }
+
+    /* ---- HEAD ---- */
+    .p1b .p1b-head {
+      position: relative;
+      z-index: 1;
+      padding-bottom: clamp(12px, 1.6vh, 18px);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .p1b .p1b-title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(22px, 2.15vw, 30px);
+      line-height: 1.2;
+      letter-spacing: -.016em;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .p1b .p1b-title em {
+      font-style: normal;
+      color: var(--ink);
+      position: relative;
+      display: inline-block;
+    }
+
+    .p1b .p1b-title em::after {
+      content: "";
+      position: absolute;
+      left: -2px;
+      right: -2px;
+      bottom: 2px;
+      height: 38%;
+      background: var(--green);
+      z-index: -1;
+      transform: skewX(-4deg);
+      border-radius: 3px;
+    }
+
+    /* ---- STAMP CLUSTER ---- */
+    .p1b-stamps {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: clamp(14px, 1.6vw, 28px);
+      align-items: start;
+      padding-top: clamp(6px, 1vh, 14px);
+    }
+
+    .stamp-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(14px, 1.6vh, 20px);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity .55s ease, transform .6s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .page.p1b.in-view .stamp-cell {
+      opacity: 1;
+      transform: none
+    }
+
+    .page.p1b.in-view .stamp-cell:nth-child(1) {
+      transition-delay: .08s
+    }
+
+    .page.p1b.in-view .stamp-cell:nth-child(2) {
+      transition-delay: .18s
+    }
+
+    .page.p1b.in-view .stamp-cell:nth-child(3) {
+      transition-delay: .28s
+    }
+
+    .page.p1b.in-view .stamp-cell:nth-child(4) {
+      transition-delay: .38s
+    }
+
+    .page.p1b.in-view .stamp-cell:nth-child(5) {
+      transition-delay: .48s
+    }
+
+    /* alternate vertical offset for cluster rhythm */
+    .stamp-cell:nth-child(2n) {
+      padding-top: clamp(18px, 2.8vh, 36px)
+    }
+
+    .stamp {
+      width: clamp(128px, 11vw, 168px);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: var(--green);
+      color: var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    /* per-stamp color + resting tilt */
+    .stamp-cell:nth-child(1) .stamp {
+      background: var(--green);
+      color: var(--ink);
+      transform: rotate(-4deg)
+    }
+
+    .stamp-cell:nth-child(2) .stamp {
+      background: var(--mauve);
+      color: var(--paper);
+      transform: rotate(3deg)
+    }
+
+    .stamp-cell:nth-child(3) .stamp {
+      background: var(--mint);
+      color: var(--ink);
+      transform: rotate(-2deg)
+    }
+
+    .stamp-cell:nth-child(4) .stamp {
+      background: var(--violet);
+      color: var(--paper);
+      transform: rotate(4deg)
+    }
+
+    .stamp-cell:nth-child(5) .stamp {
+      background: var(--green);
+      color: var(--ink);
+      transform: rotate(-3deg)
+    }
+
+    .stamp-cell:hover .stamp {
+      transform: rotate(0deg) scale(1.06)
+    }
+
+    /* perforated inner ring — postmark feel (dotted = pixel perforations) */
+    .stamp::before {
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border-radius: 50%;
+      border: 3px dotted currentColor;
+      opacity: .55;
+      pointer-events: none;
+    }
+
+    /* four small registration pixels at cardinal points */
+    .stamp::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background:
+        radial-gradient(2px 2px at 50% 3px, currentColor 100%, transparent 100%) no-repeat,
+        radial-gradient(2px 2px at 50% calc(100% - 3px), currentColor 100%, transparent 100%) no-repeat,
+        radial-gradient(2px 2px at 3px 50%, currentColor 100%, transparent 100%) no-repeat,
+        radial-gradient(2px 2px at calc(100% - 3px) 50%, currentColor 100%, transparent 100%) no-repeat;
+      opacity: .7;
+    }
+
+    .stamp .n {
+      position: absolute;
+      top: 16px;
+      left: 0;
+      right: 0;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .22em;
+      color: currentColor;
+      opacity: .8;
+      text-align: center;
+    }
+
+    .stamp .mark {
+      position: absolute;
+      bottom: 15px;
+      left: 0;
+      right: 0;
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: .18em;
+      color: currentColor;
+      opacity: .55;
+      text-align: center;
+    }
+
+    .stamp .icon {
+      width: 46%;
+      height: 46%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stamp .icon svg {
+      width: 100%;
+      height: 100%;
+      display: block
+    }
+
+    .stamp-cell .caption {
+      text-align: center;
+      max-width: 26ch;
+      padding: 0 4px;
+    }
+
+    .stamp-cell .caption h4 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(15px, 1.2vw, 17px);
+      line-height: 1.28;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .stamp-cell .caption p {
+      font-size: clamp(13px, 1.02vw, 14px);
+      line-height: 1.55;
+      color: var(--ink-60);
+      max-width: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .p1a .p1a-list li,
+      .p1b .stamp-cell,
+      .p1a .amb,
+      .p1b .amb,
+      .p1a .p1a-mark .arc,
+      .p1a .p1a-scribble path {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+        animation: none !important;
+      }
+
+      .stamp-cell:nth-child(1) .stamp,
+      .stamp-cell:nth-child(2) .stamp,
+      .stamp-cell:nth-child(3) .stamp,
+      .stamp-cell:nth-child(4) .stamp,
+      .stamp-cell:nth-child(5) .stamp {
+        transform: none !important
+      }
+    }
+
+    /* =========================================================
+     PAGE 02a — PRINCIPLES (a new way of working)
+     ========================================================= */
+    .page.p2a {
+      grid-template-rows: 1fr;
+      gap: 0;
+      padding: clamp(32px, 4.5vh, 56px) clamp(32px, 4vw, 64px);
+      background: var(--paper);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ambient decoration — same vocabulary as p1a */
+    .p2a .amb {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .p2a .amb.a1 {
+      left: -140px;
+      top: -120px;
+      width: 440px;
+      height: 440px;
+      background: radial-gradient(circle at 60% 40%, rgba(183, 107, 107, .28), rgba(183, 107, 107, 0) 70%);
+      animation: float-slow 16s ease-in-out infinite;
+    }
+
+    .p2a .amb.a2 {
+      right: -120px;
+      bottom: -140px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle at 40% 50%, rgba(82, 224, 141, .26), rgba(82, 224, 141, 0) 70%);
+      animation: float-slow 20s ease-in-out -5s infinite;
+    }
+
+    .p2a .amb.a3 {
+      left: 22%;
+      top: 18%;
+      width: 8px;
+      height: 8px;
+      background: var(--mauve);
+      opacity: .65;
+      animation: twinkle 3.4s ease-in-out infinite;
+    }
+
+    .p2a .amb.a4 {
+      right: 26%;
+      top: 38%;
+      width: 5px;
+      height: 5px;
+      background: var(--violet);
+      opacity: .55;
+      animation: twinkle 4.1s ease-in-out -1.4s infinite;
+    }
+
+    .p2a .amb.a5 {
+      left: 48%;
+      bottom: 12%;
+      width: 4px;
+      height: 4px;
+      background: var(--green);
+      opacity: .8;
+      animation: twinkle 3.8s ease-in-out -2.2s infinite;
+    }
+
+    .p2a .p2a-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: clamp(20px, 2.6vh, 32px);
+      height: 100%;
+      min-height: 0;
+    }
+
+    /* ---- Lede (full-width title) ---- */
+    .p2a .p2a-lede {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(10px, 1.4vh, 16px);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .55s ease, transform .55s ease;
+    }
+
+    .p2a.in-view .p2a-lede {
+      opacity: 1;
+      transform: translateY(0);
+      transition-delay: .05s;
+    }
+
+    .p2a .p2a-title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(26px, 2.6vw, 38px);
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      margin: 0;
+      max-width: none;
+      position: relative;
+    }
+
+    .p2a .p2a-title em {
+      font-style: italic;
+      color: var(--mauve);
+      position: relative;
+      display: inline;
+    }
+
+    .p2a .p2a-intro-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(10px, 1.4vh, 16px);
+      align-items: flex-start;
+      padding-bottom: 6px;
+    }
+
+    .p2a .p2a-scribble {
+      width: clamp(140px, 18vw, 220px);
+      height: 16px;
+      overflow: visible;
+    }
+
+    .p2a .p2a-scribble path,
+    .p2a .p2a-scribble polyline {
+      fill: none;
+      stroke: var(--green);
+      stroke-width: 3;
+      stroke-linecap: square;
+      stroke-linejoin: miter;
+      stroke-dasharray: 600;
+      stroke-dashoffset: 600;
+    }
+
+    .page.p2a.in-view .p2a-scribble path,
+    .page.p2a.in-view .p2a-scribble polyline {
+      animation: draw-in 1.6s steps(20, end) .4s forwards;
+    }
+
+    .p2a .p2a-eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .p2a .p2a-eyebrow::before {
+      content: "";
+      display: inline-block;
+      width: 22px;
+      height: 2px;
+      background: var(--green);
+    }
+
+    .p2a .p2a-intro {
+      font-family: var(--display);
+      font-size: clamp(14px, 1.1vw, 16px);
+      line-height: 1.55;
+      color: var(--ink-60);
+      max-width: 42ch;
+      margin: 0;
+    }
+
+    /* ---- 2x2 grid of principle cards ---- */
+    .p2a .p2a-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: clamp(14px, 1.6vw, 22px);
+      min-height: 0;
+    }
+
+    .p2a .p2a-card {
+      --c-accent: var(--mauve);
+      --c-tint: rgba(183, 107, 107, .07);
+      --c-tint-strong: rgba(183, 107, 107, .18);
+      position: relative;
+      display: grid;
+      grid-template-columns: 48px 1fr;
+      grid-template-rows: auto auto;
+      column-gap: clamp(14px, 1.4vw, 18px);
+      row-gap: clamp(10px, 1.2vh, 14px);
+      padding: clamp(14px, 1.8vh, 20px) clamp(16px, 1.6vw, 22px);
+      background: var(--paper);
+      border: 1px dashed rgba(7, 7, 14, .22);
+      min-height: 0;
+      min-width: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity .55s ease, transform .6s cubic-bezier(.2, .8, .2, 1),
+        background-color .3s ease, border-color .3s ease, box-shadow .3s ease;
+    }
+
+    .p2a .p2a-card::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--c-accent);
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform .35s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p2a .p2a-card:hover {
+      background: var(--c-tint);
+      border-color: transparent;
+      box-shadow: 6px 6px 0 var(--ink);
+      transform: translate(-2px, -2px);
+    }
+
+    .p2a .p2a-card:hover::after {
+      transform: scaleY(1);
+    }
+
+    .p2a .p2a-card:hover .p2a-num-tile {
+      transform: rotate(-6deg) scale(1.06);
+    }
+
+    .p2a.in-view .p2a-card {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .p2a.in-view .p2a-card[data-i="1"] {
+      transition-delay: .15s;
+    }
+
+    .p2a.in-view .p2a-card[data-i="2"] {
+      transition-delay: .25s;
+    }
+
+    .p2a.in-view .p2a-card[data-i="3"] {
+      transition-delay: .35s;
+    }
+
+    .p2a.in-view .p2a-card[data-i="4"] {
+      transition-delay: .45s;
+    }
+
+    .p2a .p2a-card.c-mauve {
+      --c-accent: var(--mauve);
+      --c-tint: rgba(183, 107, 107, .08);
+      --c-tint-strong: rgba(183, 107, 107, .18);
+    }
+
+    .p2a .p2a-card.c-violet {
+      --c-accent: var(--violet);
+      --c-tint: rgba(74, 64, 92, .07);
+      --c-tint-strong: rgba(74, 64, 92, .18);
+    }
+
+    .p2a .p2a-card.c-taupe {
+      --c-accent: var(--taupe);
+      --c-tint: rgba(142, 122, 130, .10);
+      --c-tint-strong: rgba(142, 122, 130, .22);
+    }
+
+    .p2a .p2a-card.c-mint {
+      --c-accent: #4ea886;
+      --c-tint: rgba(78, 168, 134, .10);
+      --c-tint-strong: rgba(78, 168, 134, .22);
+    }
+
+    /* chunky offset-shadow number tile, like p1a's .n */
+    .p2a .p2a-num-tile {
+      grid-row: 1;
+      grid-column: 1;
+      width: 42px;
+      height: 42px;
+      background: var(--c-accent);
+      color: var(--paper);
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: .04em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 3px 3px 0 var(--ink);
+      transition: transform .25s steps(3, end);
+      align-self: start;
+    }
+
+    .p2a .p2a-card.c-taupe .p2a-num-tile {
+      color: var(--paper);
+    }
+
+    .p2a .p2a-row-title {
+      grid-row: 1;
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+      align-self: center;
+    }
+
+    .p2a .p2a-eye {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: .22em;
+      color: var(--c-accent);
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .p2a .p2a-eye::before {
+      content: "";
+      display: inline-block;
+      width: 14px;
+      height: 1px;
+      background: var(--c-accent);
+      opacity: .7;
+    }
+
+    .p2a .p2a-card-title {
+      font-family: var(--display);
+      font-size: clamp(16px, 1.35vw, 20px);
+      line-height: 1.18;
+      letter-spacing: -.014em;
+      color: var(--ink);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .p2a .p2a-card-body {
+      grid-row: 2;
+      grid-column: 1 / -1;
+      font-family: var(--display);
+      font-size: clamp(12px, .92vw, 13.5px);
+      line-height: 1.5;
+      color: var(--ink-60);
+      margin: 0;
+      text-wrap: pretty;
+      max-width: none;
+      padding-top: clamp(4px, .8vh, 8px);
+      border-top: 1px dashed rgba(7, 7, 14, .14);
+    }
+
+    .p2a .p2a-card-body strong {
+      font-weight: 500;
+      color: var(--ink);
+      background: linear-gradient(transparent 86%, var(--c-tint-strong) 86%, var(--c-tint-strong) 100%);
+      padding: 0 2px;
+    }
+
+    /* =========================================================
+     PAGE 02 — PLAN ON A PAGE (tributary infographic journey)
+     ========================================================= */
+    .p2 .p2-title {
+      max-width: none;
+      white-space: nowrap;
+      font-size: clamp(28px, 3.4vw, 48px);
+    }
+
+    .p2 .pop-stage {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background: var(--paper-2);
+      border: 1px solid var(--line-strong);
+      padding: 18px 22px;
+      box-sizing: border-box;
+      box-shadow: 0 1px 0 rgba(7, 7, 14, .04), 0 14px 36px -18px rgba(7, 7, 14, .22);
+      position: relative;
+    }
+
+    /* Decorative corner ticks on the panel */
+    .p2 .pop-stage::before,
+    .p2 .pop-stage::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border: 1.5px solid var(--mauve);
+      pointer-events: none;
+    }
+
+    .p2 .pop-stage::before {
+      top: -1px;
+      left: -1px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .p2 .pop-stage::after {
+      bottom: -1px;
+      right: -1px;
+      border-left: none;
+      border-top: none;
+    }
+
+    .p2 .pop-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      font-family: var(--display);
+    }
+
+    /* Group label "Research workstreams" */
+    .p2 .rg-label .rg-text {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      fill: var(--mauve);
+      font-weight: 500;
+      text-anchor: middle;
+    }
+
+    .p2 .rg-label .rg-line {
+      stroke: var(--mauve);
+      stroke-width: 1;
+      opacity: .45;
+    }
+
+    .p2 .rg-label .rg-bracket {
+      fill: none;
+      stroke: var(--mauve);
+      stroke-width: 1;
+      opacity: .45;
+    }
+
+    .p2 .rg-label {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .rg-label {
+      opacity: 1;
+    }
+
+    /* Thin separator line above week labels */
+    .p2 .week-separator {
+      stroke: var(--ink);
+      stroke-width: 1;
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
+    .p2.in-view .week-separator {
+      opacity: .35;
+      transition-delay: .1s;
+    }
+
+    /* Activity box (research workstreams now rendered as proper boxes with colored left bar) */
+    .p2 .ab-bg {
+      fill: var(--paper);
+      stroke: var(--ink);
+      stroke-width: 1.2;
+    }
+
+    .p2 .activity-box.s1 .ab-accent {
+      fill: var(--mint);
+    }
+
+    .p2 .activity-box.s2 .ab-accent {
+      fill: var(--mauve);
+    }
+
+    .p2 .activity-box.s3 .ab-accent {
+      fill: var(--violet);
+    }
+
+    .p2 .ab-html {
+      font-family: var(--display);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: left;
+      padding: 0 10px 0 8px;
+      box-sizing: border-box;
+    }
+
+    .p2 .ab-html .ab-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.15;
+      margin-bottom: 4px;
+      letter-spacing: -.005em;
+    }
+
+    .p2 .ab-html .ab-desc {
+      font-size: 12px;
+      line-height: 1.3;
+      color: var(--ink-60);
+      text-wrap: pretty;
+    }
+
+    .p2 .activity-box {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .activity-box.s1 {
+      opacity: 1;
+      transition-delay: .05s;
+    }
+
+    .p2.in-view .activity-box.s2 {
+      opacity: 1;
+      transition-delay: .18s;
+    }
+
+    .p2.in-view .activity-box.s3 {
+      opacity: 1;
+      transition-delay: .31s;
+    }
+
+    /* Stream rivers — use CSS keyframe animation (smoother than transition for stroke-dashoffset)
+     pathLength="100" raised from 1 to avoid sub-pixel precision artifacts during the draw. */
+    .p2 .stream {
+      fill: none;
+      stroke-width: 9;
+      stroke-linecap: round;
+      stroke-dasharray: 100;
+      stroke-dashoffset: 100;
+      opacity: .92;
+      will-change: stroke-dashoffset;
+    }
+
+    .p2 .stream.s1 {
+      stroke: #4F9D7A;
+    }
+
+    .p2 .stream.s2 {
+      stroke: var(--mauve);
+    }
+
+    .p2 .stream.s3 {
+      stroke: var(--violet);
+    }
+
+    .p2 .stream.out {
+      stroke: var(--ink);
+      opacity: .78;
+    }
+
+    /* Output stream draws AFTER the hypothesis box appears, not with the input streams */
+    .p2.in-view .stream.out {
+      animation: p2-stream-draw 0.7s cubic-bezier(.22, 1, .36, 1) 1.55s forwards;
+    }
+
+    @keyframes p2-stream-draw {
+      from {
+        stroke-dashoffset: 100;
+      }
+
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .p2.in-view .stream {
+      animation: p2-stream-draw 1.0s cubic-bezier(.22, 1, .36, 1) .3s forwards;
+    }
+
+    /* Generic node base */
+    .p2 .node text {
+      text-anchor: middle;
+    }
+
+    .p2 .node .nl {
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: -.005em;
+    }
+
+    .p2 .node .nm {
+      font-size: 10.5px;
+    }
+
+    .p2 .node .ns {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .p2 .node .nk {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    .p2 .node {
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: scale(.94);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .p2.in-view .node {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .p2.in-view .node.synth {
+      transition-delay: 1.25s;
+    }
+
+    .p2.in-view .node.session {
+      transition-delay: 2.05s;
+    }
+
+    .p2.in-view .node.roadmap {
+      transition-delay: 4.5s;
+    }
+
+    .p2.in-view .node.readout {
+      transition-delay: 4.85s;
+    }
+
+    /* Deliverable nodes (Client Insight Synthesis, Product Roadmap Implications) */
+    .p2 .node.deliverable rect {
+      fill: var(--paper);
+      stroke: var(--ink);
+      stroke-width: 1.2;
+    }
+
+    /* Synthesis bridge box — paper-bg with mauve top accent */
+    .p2 .node.synth .synth-accent {
+      fill: var(--mauve);
+      stroke: none;
+    }
+
+    .p2 .node.synth .nm {
+      fill: var(--ink-60);
+    }
+
+    /* Iteration icon — two looped arrows signalling back-and-forth between streams and hypothesis */
+    .p2 .synth-iter .iter-arc,
+    .p2 .synth-iter .iter-head {
+      fill: none;
+      stroke: var(--mauve);
+      stroke-width: 1.1;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .p2 .synth-iter {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .synth-iter {
+      opacity: 1;
+      transition-delay: 1.45s;
+    }
+
+    .p2 .synth-iter-spin {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes p2-iter-spin {
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .p2.in-view .synth-iter-spin {
+      animation: p2-iter-spin 4.5s linear 1.45s infinite;
+    }
+
+    .p2 .node.deliverable .nl {
+      fill: var(--ink);
+    }
+
+    .p2 .node.deliverable .ns {
+      fill: var(--mauve);
+    }
+
+    /* Client experience nodes (Working Session, Stakeholder Readout) — violet fill, shared design */
+    .p2 .node.client-exp rect {
+      fill: var(--violet);
+      stroke: var(--violet);
+      stroke-width: 1.2;
+    }
+
+    .p2 .node.client-exp .nl {
+      fill: var(--paper);
+    }
+
+    .p2 .node.client-exp .nm {
+      fill: rgba(236, 230, 214, .72);
+    }
+
+    .p2 .node.client-exp .nk {
+      fill: var(--mint);
+    }
+
+    /* Bullets inside client-exp boxes */
+    .p2 .node.client-exp .ce-bullet {
+      font-family: var(--display);
+      font-size: 10.5px;
+      fill: rgba(236, 230, 214, .85);
+      text-anchor: start;
+    }
+
+    .p2 .node.client-exp .ce-bullet .b-mark {
+      fill: var(--mint);
+      font-weight: 500;
+    }
+
+    /* Divider between subtitle and bullets inside client-exp boxes */
+    .p2 .node.client-exp .ce-divider {
+      stroke: var(--mint);
+      stroke-width: 1;
+      opacity: .4;
+    }
+
+    /* Mint outline glow around client-exp boxes */
+    .p2 .ce-glow {
+      fill: none;
+      stroke: var(--mint);
+      stroke-width: 1.4;
+      opacity: 0;
+      transition: opacity .6s ease;
+    }
+
+    .p2.in-view .ce-glow.session {
+      opacity: .6;
+      transition-delay: 2.25s;
+    }
+
+    .p2.in-view .ce-glow.readout {
+      opacity: .6;
+      transition-delay: 5.05s;
+    }
+
+    /* Iteration icon (small two-arrow marching-ants pair) shown inside both client-exp boxes */
+    /* Co-creation icon: two interlocking rings (us + Xceptor) breathing in sync, shared centre pulses */
+    .p2 .ce-cocreate {
+      opacity: 0;
+      transition: opacity .5s ease;
+      transform-box: fill-box;
+    }
+
+    .p2 .ce-cocreate .cc-ring {
+      fill: none;
+      stroke: var(--paper);
+      stroke-width: 1.3;
+      opacity: .85;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .p2 .ce-cocreate .cc-core {
+      fill: var(--mint);
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    @keyframes p2-cc-breathe-a {
+
+      0%,
+      100% {
+        transform: translateX(0) scale(1);
+      }
+
+      50% {
+        transform: translateX(1px) scale(1.08);
+      }
+    }
+
+    @keyframes p2-cc-breathe-b {
+
+      0%,
+      100% {
+        transform: translateX(0) scale(1);
+      }
+
+      50% {
+        transform: translateX(-1px) scale(1.08);
+      }
+    }
+
+    @keyframes p2-cc-core-pulse {
+
+      0%,
+      100% {
+        opacity: 0;
+        transform: scale(.6);
+      }
+
+      50% {
+        opacity: .95;
+        transform: scale(1.1);
+      }
+    }
+
+    .p2.in-view .session .ce-cocreate {
+      opacity: 1;
+      transition-delay: 2.25s;
+    }
+
+    .p2.in-view .readout .ce-cocreate {
+      opacity: 1;
+      transition-delay: 5.05s;
+    }
+
+    .p2.in-view .session .ce-cocreate .cc-ring.a {
+      animation: p2-cc-breathe-a 2.6s ease-in-out 2.25s infinite;
+    }
+
+    .p2.in-view .session .ce-cocreate .cc-ring.b {
+      animation: p2-cc-breathe-b 2.6s ease-in-out 2.25s infinite;
+    }
+
+    .p2.in-view .session .ce-cocreate .cc-core {
+      animation: p2-cc-core-pulse 2.6s ease-in-out 2.25s infinite;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    .p2.in-view .readout .ce-cocreate .cc-ring.a {
+      animation: p2-cc-breathe-a 2.6s ease-in-out 5.05s infinite;
+    }
+
+    .p2.in-view .readout .ce-cocreate .cc-ring.b {
+      animation: p2-cc-breathe-b 2.6s ease-in-out 5.05s infinite;
+    }
+
+    .p2.in-view .readout .ce-cocreate .cc-core {
+      animation: p2-cc-core-pulse 2.6s ease-in-out 5.05s infinite;
+      transform-origin: center;
+      transform-box: fill-box;
+    }
+
+    /* (legacy iter-arrow rules retained for unrelated nodes if any) */
+    .p2 .ce-iter .iter-arrow {
+      stroke: var(--mint);
+      stroke-width: 1.2;
+      fill: none;
+      stroke-dasharray: 3 2;
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+
+    .p2 .ce-iter .iter-head {
+      fill: var(--mint);
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+
+    @keyframes p2-march-fwd {
+      to {
+        stroke-dashoffset: -5;
+      }
+    }
+
+    @keyframes p2-march-back {
+      to {
+        stroke-dashoffset: 5;
+      }
+    }
+
+    /* Working Session iter — appears with the box at 3.05s */
+    .p2.in-view .session .ce-iter .iter-arrow,
+    .p2.in-view .session .ce-iter .iter-head {
+      opacity: .9;
+      transition-delay: 2.25s;
+    }
+
+    .p2.in-view .session .ce-iter .iter-arrow.fwd {
+      animation: p2-march-fwd 1s linear infinite 3.25s;
+    }
+
+    .p2.in-view .session .ce-iter .iter-arrow.back {
+      animation: p2-march-back 1s linear infinite 3.25s;
+    }
+
+    /* Readout iter — appears with the box at 5.85s */
+    .p2.in-view .readout .ce-iter .iter-arrow,
+    .p2.in-view .readout .ce-iter .iter-head {
+      opacity: .9;
+      transition-delay: 5.05s;
+    }
+
+    .p2.in-view .readout .ce-iter .iter-arrow.fwd {
+      animation: p2-march-fwd 1s linear infinite 6.05s;
+    }
+
+    .p2.in-view .readout .ce-iter .iter-arrow.back {
+      animation: p2-march-back 1s linear infinite 6.05s;
+    }
+
+    .p2 .ce-divider {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .session .ce-divider {
+      opacity: .4;
+      transition-delay: 2.4s;
+    }
+
+    .p2.in-view .readout .ce-divider {
+      opacity: .4;
+      transition-delay: 5.2s;
+    }
+
+    .p2 .ce-bullet {
+      opacity: 0;
+      transition: opacity .4s ease;
+    }
+
+    .p2.in-view .session .ce-bullet {
+      opacity: 1;
+    }
+
+    .p2.in-view .session .ce-bullet[data-i="1"] {
+      transition-delay: 2.55s;
+    }
+
+    .p2.in-view .session .ce-bullet[data-i="2"] {
+      transition-delay: 2.7s;
+    }
+
+    .p2.in-view .session .ce-bullet[data-i="3"] {
+      transition-delay: 2.85s;
+    }
+
+    /* Fan + opportunity dots */
+    .p2 .fan-link {
+      fill: none;
+      stroke: var(--ink-45);
+      stroke-width: 1;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset .55s ease;
+    }
+
+    .p2 .fan-link.top {
+      stroke: var(--ink);
+      stroke-width: 1.4;
+    }
+
+    .p2.in-view .fan-link[data-i="0"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.55s;
+    }
+
+    .p2.in-view .fan-link[data-i="1"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.6s;
+    }
+
+    .p2.in-view .fan-link[data-i="2"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.65s;
+    }
+
+    .p2.in-view .fan-link[data-i="3"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.7s;
+    }
+
+    .p2.in-view .fan-link[data-i="4"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.75s;
+    }
+
+    .p2.in-view .fan-link[data-i="5"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.8s;
+    }
+
+    .p2.in-view .fan-link[data-i="6"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.85s;
+    }
+
+    .p2.in-view .fan-link[data-i="7"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.9s;
+    }
+
+    .p2.in-view .fan-link[data-i="8"] {
+      stroke-dashoffset: 0;
+      transition-delay: 2.95s;
+    }
+
+    .p2.in-view .fan-link[data-i="9"] {
+      stroke-dashoffset: 0;
+      transition-delay: 3s;
+    }
+
+    .p2 .opp-cap {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      fill: var(--ink);
+      font-weight: 500;
+      text-anchor: middle;
+    }
+
+    .p2 .opp-cap {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .opp-cap {
+      opacity: 1;
+      transition-delay: 3.15s;
+    }
+
+    /* Prioritized bracket + vertical label for top 3 dots */
+    .p2 .opp-bracket {
+      fill: none;
+      stroke: var(--mauve);
+      stroke-width: 1;
+      opacity: .55;
+    }
+
+    .p2 .opp-tag {
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      fill: var(--mauve);
+      font-weight: 500;
+    }
+
+    .p2 .opp-prioritized {
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .opp-prioritized {
+      opacity: 1;
+      transition-delay: 3.35s;
+    }
+
+    .p2 .opp-dot {
+      fill: var(--paper);
+      stroke: var(--ink);
+      stroke-width: 1;
+      opacity: 0;
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: scale(.4);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .p2 .opp-dot.top {
+      fill: var(--mint);
+      stroke: var(--ink);
+      stroke-width: 1.4;
+    }
+
+    .p2.in-view .opp-dot {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .p2.in-view .opp-dot[data-i="0"] {
+      transition-delay: 2.8s;
+    }
+
+    .p2.in-view .opp-dot[data-i="1"] {
+      transition-delay: 2.85s;
+    }
+
+    .p2.in-view .opp-dot[data-i="2"] {
+      transition-delay: 2.9s;
+    }
+
+    .p2.in-view .opp-dot[data-i="3"] {
+      transition-delay: 2.95s;
+    }
+
+    .p2.in-view .opp-dot[data-i="4"] {
+      transition-delay: 3s;
+    }
+
+    .p2.in-view .opp-dot[data-i="5"] {
+      transition-delay: 3.05s;
+    }
+
+    .p2.in-view .opp-dot[data-i="6"] {
+      transition-delay: 3.1s;
+    }
+
+    .p2.in-view .opp-dot[data-i="7"] {
+      transition-delay: 3.15s;
+    }
+
+    .p2.in-view .opp-dot[data-i="8"] {
+      transition-delay: 3.2s;
+    }
+
+    .p2.in-view .opp-dot[data-i="9"] {
+      transition-delay: 3.25s;
+    }
+
+    /* Top-3 dot pulse to draw attention before they travel */
+    @keyframes p2-top-pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.4);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .p2.in-view .opp-dot.top {
+      animation: p2-top-pulse 1s ease-in-out 4.6s 1;
+    }
+
+    /* Travelers — three highlighted dots animating to Product Roadmap */
+    .p2 .traveler {
+      fill: var(--mint);
+      stroke: var(--ink);
+      stroke-width: 1.4;
+      opacity: 0;
+    }
+
+    @keyframes p2-travel {
+      0% {
+        transform: translate(0, 0);
+        opacity: 0;
+      }
+
+      8% {
+        opacity: 1;
+      }
+
+      100% {
+        transform: translate(var(--tx, 140px), var(--ty, 0));
+        opacity: 1;
+      }
+    }
+
+    .p2.in-view .traveler {
+      animation: p2-travel 1.1s cubic-bezier(.4, 0, .25, 1) forwards 4.95s;
+    }
+
+    .p2 .traveler[data-i="0"] {
+      --tx: 115px;
+      --ty: 62px;
+    }
+
+    .p2 .traveler[data-i="1"] {
+      --tx: 140px;
+      --ty: 32px;
+    }
+
+    .p2 .traveler[data-i="2"] {
+      --tx: 165px;
+      --ty: 2px;
+    }
+
+    /* Final link */
+    .p2 .final-link {
+      fill: none;
+      stroke: var(--ink);
+      stroke-width: 1.5;
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset .5s ease;
+    }
+
+    .p2.in-view .final-link {
+      stroke-dashoffset: 0;
+      transition-delay: 4.75s;
+    }
+
+    /* Week labels */
+    .p2 .week-labels text {
+      text-anchor: middle;
+      font-family: var(--mono);
+    }
+
+    .p2 .week-labels .wn {
+      font-size: 11px;
+      fill: var(--ink);
+      font-weight: 500;
+      letter-spacing: .14em;
+    }
+
+    .p2 .week-labels .wd {
+      font-size: 8.5px;
+      fill: var(--ink-45);
+      letter-spacing: .14em;
+      text-transform: uppercase;
+    }
+
+    .p2 .week-labels {
+      opacity: 0;
+      transition: opacity .8s ease;
+    }
+
+    .p2.in-view .week-labels {
+      opacity: 1;
+      transition-delay: .2s;
+    }
+
+    /* Deliverables ledger row (5 chips at the bottom) */
+    .p2 .deliv-section-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      fill: var(--mauve);
+      font-weight: 500;
+      text-anchor: start;
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .deliv-section-label {
+      opacity: 1;
+      transition-delay: 5.4s;
+    }
+
+    .p2 .deliv-divider {
+      stroke: var(--ink);
+      stroke-width: 1;
+      opacity: 0;
+      transition: opacity .5s ease;
+    }
+
+    .p2.in-view .deliv-divider {
+      opacity: .25;
+      transition-delay: 5.4s;
+    }
+
+    .p2 .dchip {
+      opacity: 0;
+      transition: opacity .5s ease, transform .5s ease;
+      transform-box: fill-box;
+      transform-origin: center;
+      transform: translateY(4px);
+    }
+
+    .p2.in-view .dchip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .p2.in-view .dchip[data-i="1"] {
+      transition-delay: 5.55s;
+    }
+
+    .p2.in-view .dchip[data-i="2"] {
+      transition-delay: 5.7s;
+    }
+
+    .p2.in-view .dchip[data-i="3"] {
+      transition-delay: 5.85s;
+    }
+
+    .p2.in-view .dchip[data-i="4"] {
+      transition-delay: 6s;
+    }
+
+    .p2.in-view .dchip[data-i="5"] {
+      transition-delay: 6.15s;
+    }
+
+    .p2 .dchip .dc-bg {
+      fill: var(--mauve);
+      fill-opacity: .12;
+      stroke: none;
+      rx: 8;
+      ry: 8;
+    }
+
+    .p2 .dchip .dc-tab {
+      display: none;
+    }
+
+    .p2 .dchip-html {
+      font-family: var(--display);
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px 10px;
+      box-sizing: border-box;
+    }
+
+    .p2 .dchip-html .dc-title {
+      font-size: 11.5px;
+      font-weight: 500;
+      line-height: 1.2;
+      color: var(--ink);
+      letter-spacing: -.005em;
+      text-wrap: pretty;
+    }
+
+    /* =========================================================
+     PAGE 03 — DETAILS OF THE APPROACH · Pt.01
+     Four editorial columns + a plan-on-page-style journey strip.
+     ========================================================= */
+    .p3a {
+      grid-template-rows: auto 1fr auto !important;
+      gap: clamp(18px, 2.4vh, 26px) !important;
+      background: var(--paper-2);
+    }
+
+    .p3a[data-sub="0"] {
+      grid-template-rows: auto 1fr auto auto !important;
+    }
+
+    .p3a .p3a-title {
+      font-weight: 600;
+      font-style: normal;
+      margin: 0;
+    }
+
+    /* ---------- 4-column grid ---------- */
+    .p3a .p3a-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      min-height: 0;
+    }
+
+    .p3a .p3a-grid.cols-3 {
+      grid-template-columns: 1.55fr 1fr 1fr;
+    }
+
+    /* ---------- Flow connector — line + right arrow that reads as "continued on next page" ---------- */
+    .p3a .p3a-flow {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 2px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .55s ease, transform .55s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p3a.in-view .p3a-flow {
+      opacity: 1;
+      transform: none;
+      transition-delay: 1.3s;
+    }
+
+    .p3a .p3a-flow-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, rgba(7, 7, 14, .12), rgba(7, 7, 14, .35));
+    }
+
+    .p3a .p3a-flow-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      white-space: nowrap;
+    }
+
+    .p3a .p3a-flow-arrow svg {
+      display: block;
+      color: var(--ink);
+      opacity: .65;
+    }
+
+    .p3a .p3a-flow-arrow .week-tag {
+      color: #2D9656;
+      font-weight: 500;
+    }
+
+    .p3a .p3a-col {
+      position: relative;
+      background: var(--paper);
+      border: 1px solid var(--ink);
+      padding: 18px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      overflow: hidden;
+      box-shadow:
+        0 1px 0 rgba(7, 7, 14, .06),
+        0 28px 56px -22px rgba(7, 7, 14, .5),
+        0 10px 20px -10px rgba(7, 7, 14, .28);
+    }
+
+    /* Heavy colored top tab — primary visual identifier per column */
+    .p3a .p3a-col::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: var(--ink);
+    }
+
+    /* Stream-colored corner tick, slightly inset */
+    .p3a .p3a-col::after {
+      content: "";
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid var(--ink-45);
+      border-bottom: 1.5px solid var(--ink-45);
+      pointer-events: none;
+    }
+
+    .p3a .p3a-col.s1::before {
+      background: #4F9D7A;
+    }
+
+    .p3a .p3a-col.s2::before {
+      background: var(--mauve);
+    }
+
+    .p3a .p3a-col.s3::before {
+      background: var(--violet);
+    }
+
+    .p3a .p3a-col.s4::before {
+      background: var(--green);
+    }
+
+    .p3a .p3a-col.s1::after {
+      border-color: #4F9D7A;
+    }
+
+    .p3a .p3a-col.s2::after {
+      border-color: var(--mauve);
+    }
+
+    .p3a .p3a-col.s3::after {
+      border-color: var(--violet);
+    }
+
+    .p3a .p3a-col.s4::after {
+      border-color: #2D9656;
+    }
+
+    .p3a .p3a-num {
+      font-family: var(--mono);
+      font-weight: 500;
+      font-size: 32px;
+      line-height: .9;
+      letter-spacing: -.03em;
+      color: var(--ink-45);
+    }
+
+    .p3a .p3a-col.s1 .p3a-num {
+      color: #4F9D7A;
+    }
+
+    .p3a .p3a-col.s2 .p3a-num {
+      color: var(--mauve);
+    }
+
+    .p3a .p3a-col.s3 .p3a-num {
+      color: var(--violet);
+    }
+
+    .p3a .p3a-col.s4 .p3a-num {
+      color: #2D9656;
+    }
+
+    .p3a .p3a-col-title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(17px, 1.4vw, 20px);
+      line-height: 1.15;
+      letter-spacing: -.012em;
+      color: var(--ink);
+      text-wrap: balance;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--line-strong);
+    }
+
+    .p3a .p3a-col.s1 .p3a-col-title {
+      border-bottom-color: rgba(79, 157, 122, .55);
+    }
+
+    .p3a .p3a-col.s2 .p3a-col-title {
+      border-bottom-color: rgba(183, 107, 107, .55);
+    }
+
+    .p3a .p3a-col.s3 .p3a-col-title {
+      border-bottom-color: rgba(74, 64, 92, .55);
+    }
+
+    .p3a .p3a-col.s4 .p3a-col-title {
+      border-bottom-color: rgba(45, 150, 86, .55);
+    }
+
+    .p3a .p3a-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .p3a .p3a-list li {
+      position: relative;
+      padding-left: 14px;
+      font-family: var(--display);
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--ink);
+      text-wrap: pretty;
+    }
+
+    .p3a .p3a-list li::before {
+      content: "•";
+      position: absolute;
+      left: 2px;
+      top: 0;
+      font-size: 14px;
+      line-height: 1.3;
+      color: var(--ink-45);
+    }
+
+    .p3a .p3a-col.s1 .p3a-list li::before {
+      color: #4F9D7A;
+    }
+
+    .p3a .p3a-col.s2 .p3a-list li::before {
+      color: var(--mauve);
+    }
+
+    .p3a .p3a-col.s3 .p3a-list li::before {
+      color: var(--violet);
+    }
+
+    .p3a .p3a-col.s4 .p3a-list li::before {
+      color: #2D9656;
+    }
+
+    .p3a .p3a-list li strong {
+      font-weight: 600;
+    }
+
+    .p3a .p3a-col.s3 .p3a-list li strong {
+      color: var(--violet);
+    }
+
+    .p3a .p3a-inputs-rail {
+      position: absolute;
+      top: 6px;
+      bottom: 0;
+      left: 0;
+      width: 6px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .p3a .p3a-inputs-rail .seg {
+      flex: 1;
+      transform: scaleY(0);
+      transform-origin: top;
+      transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .p3a .p3a-inputs-rail .seg.s1 {
+      background: #4F9D7A;
+    }
+
+    .p3a .p3a-inputs-rail .seg.s2 {
+      background: var(--mauve);
+    }
+
+    .p3a .p3a-inputs-rail .seg.s3 {
+      background: var(--violet);
+    }
+
+    .p3a.in-view .p3a-inputs-rail .seg {
+      transform: scaleY(1);
+    }
+
+    .p3a.in-view .p3a-inputs-rail .seg.s1 {
+      transition-delay: 1.0s;
+    }
+
+    .p3a.in-view .p3a-inputs-rail .seg.s2 {
+      transition-delay: 1.15s;
+    }
+
+    .p3a.in-view .p3a-inputs-rail .seg.s3 {
+      transition-delay: 1.3s;
+    }
+
+    /* "Synthesis of 01 · 02 · 03" badge inside col 04, just under the title rule */
+    .p3a .p3a-inputs {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      background: var(--paper-2);
+      border: 1px solid var(--line-strong);
+      align-self: flex-start;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-60);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity .5s ease, transform .5s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    .p3a.in-view .p3a-inputs {
+      opacity: 1;
+      transform: none;
+      transition-delay: 1.4s;
+    }
+
+    .p3a .p3a-inputs .lbl {
+      color: var(--ink-45);
+    }
+
+    .p3a .p3a-inputs .n {
+      font-weight: 500;
+      letter-spacing: -.02em;
+      font-size: 11px;
+    }
+
+    .p3a .p3a-inputs .n.s1 {
+      color: #4F9D7A;
+    }
+
+    .p3a .p3a-inputs .n.s2 {
+      color: var(--mauve);
+    }
+
+    .p3a .p3a-inputs .n.s3 {
+      color: var(--violet);
+    }
+
+    .p3a .p3a-inputs .dot {
+      width: 3px;
+      height: 3px;
+      background: var(--ink-45);
+      border-radius: 50%;
+    }
+
+    /* ---------- Bottom journey strip — understated wayfinder, modeled on plan-on-page ---------- */
+    .p3a .p3a-journey {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .p3a .p3a-jrn-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1.2fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* Anchor row — single "you are here" pill that brackets the W4–6 chips */
+    .p3a .p3a-jrn-row.anchor {
+      align-items: end;
+    }
+
+    .p3a .p3a-jrn-anchor {
+      grid-column: 2 / span 4;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed rgba(45, 150, 86, .45);
+      font-family: var(--mono);
+      font-size: 8.5px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: #2D9656;
+      align-self: end;
+    }
+
+    .p3a .p3a-jrn-anchor .pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: p3a-pin-pulse 1.6s ease-in-out infinite;
+    }
+
+    .p3a .p3a-jrn-step {
+      position: relative;
+      background: transparent;
+      border: 1px solid var(--line);
+      padding: 8px 12px 7px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .p3a .p3a-jrn-tab {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--ink);
+      opacity: .25;
+    }
+
+    .p3a .p3a-jrn-l {
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 11.5px;
+      line-height: 1.2;
+      color: var(--ink-45);
+      letter-spacing: -.005em;
+    }
+
+    /* === Selected step === understated marker: thicker green tab, ink border + text */
+    .p3a .p3a-jrn-step.here {
+      border-color: var(--ink);
+    }
+
+    .p3a .p3a-jrn-step.here .p3a-jrn-tab {
+      height: 3px;
+      background: var(--green);
+      opacity: 1;
+    }
+
+    .p3a .p3a-jrn-step.here .p3a-jrn-l {
+      color: var(--ink);
+      font-weight: 500;
+    }
+
+    /* === Completed step === past stage, faded but legible */
+    .p3a .p3a-jrn-step.done {
+      border-style: dashed;
+      border-color: var(--line);
+    }
+
+    .p3a .p3a-jrn-step.done .p3a-jrn-tab {
+      opacity: .1;
+    }
+
+    .p3a .p3a-jrn-step.done .p3a-jrn-l {
+      color: var(--ink-45);
+    }
+
+    .p3a .p3a-jrn-step.done .p3a-jrn-pos {
+      color: var(--ink-45);
+    }
+
+    .p3a .p3a-jrn-step.done .p3a-jrn-pos .pulse {
+      background: var(--ink-45);
+      animation: none;
+      box-shadow: none;
+    }
+
+    .p3a .p3a-jrn-pos {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 8px;
+      letter-spacing: .24em;
+      text-transform: uppercase;
+      color: #2D9656;
+      order: -1;
+    }
+
+    .p3a .p3a-jrn-pos .pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: p3a-pin-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes p3a-pin-pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(82, 224, 141, .55);
+      }
+
+      50% {
+        opacity: .65;
+        box-shadow: 0 0 0 5px rgba(82, 224, 141, 0);
+      }
+    }
+
+    .p3a .p3a-jrn-rule {
+      height: 1px;
+      background: var(--ink);
+      opacity: .15;
+    }
+
+    .p3a .p3a-jrn-row.weeks {
+      align-items: baseline;
+    }
+
+    .p3a .p3a-jrn-week {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 0 12px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+    }
+
+    .p3a .p3a-jrn-week .w {
+      color: var(--ink-45);
+      font-weight: 500;
+    }
+
+    /* ---------- Entrance animations ---------- */
+    .p3a .p3a-col {
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity .55s ease, transform .55s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p3a.in-view .p3a-col {
+      opacity: 1;
+      transform: none;
+    }
+
+    .p3a.in-view .p3a-col.s1 {
+      transition-delay: .15s;
+    }
+
+    .p3a.in-view .p3a-col.s2 {
+      transition-delay: .3s;
+    }
+
+    .p3a.in-view .p3a-col.s3 {
+      transition-delay: .45s;
+    }
+
+    .p3a.in-view .p3a-col.s4 {
+      transition-delay: .6s;
+    }
+
+    .p3a .p3a-journey {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .55s ease, transform .55s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .p3a.in-view .p3a-journey {
+      opacity: 1;
+      transform: none;
+      transition-delay: .15s;
+    }
+
+    /* ---------- Legacy phasing styles (retained for the old drawer markup) ---------- */
+    .p3.dark .board {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--line-dark);
+    }
+
+    .weeks-header {
+      display: grid;
+      grid-template-columns: 200px repeat(6, 1fr);
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .weeks-header>div {
+      padding: 10px 12px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgba(236, 230, 214, .5);
+      border-left: 1px solid var(--line-dark);
+    }
+
+    .weeks-header>div:first-child {
+      border-left: none;
+      color: var(--paper)
+    }
+
+    .weeks-header>div .w {
+      color: var(--mint);
+      font-weight: 500;
+      margin-right: 6px
+    }
+
+    .stages {
+      flex: 1;
+      display: flex;
+      flex-direction: column
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 200px repeat(6, 1fr);
+      flex: 1;
+      min-height: 0;
+      border-bottom: 1px solid var(--line-dark);
+      cursor: pointer;
+      position: relative;
+      transition: background .2s;
+    }
+
+    .stage:last-child {
+      border-bottom: none
+    }
+
+    .stage:hover {
+      background: rgba(189, 234, 203, .05)
+    }
+
+    .stage .lbl {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .stage .lbl .id {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--mint);
+      width: 24px;
+    }
+
+    .stage .lbl .nm {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: 14.5px;
+      line-height: 1.2;
+    }
+
+    .stage .track {
+      grid-column: 2 / -1;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      position: relative;
+      pointer-events: none;
+    }
+
+    .stage .track>div {
+      border-left: 1px solid var(--line-dark)
+    }
+
+    .stage .bar {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 12px;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-weight: 500;
+      background: var(--mint);
+      color: var(--ink);
+    }
+
+    .stage .bar.mauve {
+      background: var(--mauve);
+      color: var(--paper)
+    }
+
+    .stage .bar.violet {
+      background: var(--violet);
+      color: var(--paper)
+    }
+
+    .stage .bar.ghost {
+      background: transparent;
+      border: 1px dashed var(--mauve);
+      color: var(--mauve)
+    }
+
+    .stage .bar.ink {
+      background: var(--paper);
+      color: var(--ink)
+    }
+
+    .stage .chev {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      color: rgba(236, 230, 214, .45);
+      pointer-events: none;
+    }
+
+    .p3 .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(236, 230, 214, .6);
+    }
+
+    .p3 .legend .sw {
+      display: inline-block;
+      width: 14px;
+      height: 8px;
+      margin-right: 6px;
+      vertical-align: middle
+    }
+
+    /* =========================================================
+     PAGE 04 — TEAM + COMMERCIAL
+     ========================================================= */
+    .p4 .body {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 32px;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .p4 .col {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0
+    }
+
+    .p4 .col .cap {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-45)
+    }
+
+    .team {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .team .card {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      padding: 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 120px;
+    }
+
+    .team .card .role {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--mauve);
+    }
+
+    .team .card h4 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: 17px;
+      line-height: 1.15
+    }
+
+    .team .card p {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--ink-60)
+    }
+
+    .cases {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line)
+    }
+
+    .cases .case {
+      display: grid;
+      grid-template-columns: 72px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .cases .case:last-child {
+      border-bottom: none
+    }
+
+    .cases .case .cn {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--mauve);
+      font-weight: 500
+    }
+
+    .cases .case h4 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 1.25
+    }
+
+    .cases .case .meta {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-45)
+    }
+
+    .commercial {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border-radius: 4px;
+    }
+
+    .commercial .cap {
+      color: rgba(236, 230, 214, .55)
+    }
+
+    .commercial .n {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(44px, 5.6vw, 72px);
+      line-height: .9;
+      letter-spacing: -.025em;
+    }
+
+    .commercial .n em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mint)
+    }
+
+    .commercial .rows {
+      display: flex;
+      flex-direction: column;
+      margin-top: 4px
+    }
+
+    .commercial .rows>div {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      padding: 8px 0;
+      border-top: 1px solid rgba(236, 230, 214, .15);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .commercial .rows>div:last-child {
+      border-bottom: 1px solid rgba(236, 230, 214, .15)
+    }
+
+    .commercial .rows b {
+      color: var(--paper);
+      font-weight: 500
+    }
+
+    .commercial .rows span {
+      color: rgba(236, 230, 214, .6)
+    }
+
+    .proceed {
+      background: var(--mint);
+      color: var(--ink);
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      border-radius: 4px;
+    }
+
+    .proceed .headline {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: 15.5px;
+      line-height: 1.35;
+    }
+
+    .proceed .contact {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase
+    }
+
+    /* =========================================================
+     STAGE DRAWER (bounded to book)
+     ========================================================= */
+    .drawer-scrim {
+      position: absolute;
+      inset: 0;
+      background: rgba(7, 7, 14, .55);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s;
+      z-index: 20;
+    }
+
+    .drawer-scrim.open {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(560px, 60%);
+      background: var(--paper);
+      color: var(--ink);
+      transform: translateX(100%);
+      transition: transform .4s cubic-bezier(.2, .8, .2, 1);
+      z-index: 25;
+      padding: 28px 32px 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: -30px 0 60px -20px rgba(0, 0, 0, .4);
+    }
+
+    .drawer.open {
+      transform: translateX(0)
+    }
+
+    .drawer .close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--mono);
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer .close:hover {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink)
+    }
+
+    .drawer .dhead {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap
+    }
+
+    .drawer .dnum {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .18em;
+      color: var(--mauve);
+      font-weight: 500
+    }
+
+    .drawer .weektag {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      background: var(--ink);
+      color: var(--paper);
+      border-radius: 2px;
+    }
+
+    .drawer h2 {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(30px, 3.4vw, 44px);
+      line-height: .98;
+      letter-spacing: -.02em;
+    }
+
+    .drawer h2 em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--mauve)
+    }
+
+    .drawer .summary {
+      font-family: var(--display);
+      font-style: italic;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.4;
+      max-width: 40ch;
+      color: var(--ink-60);
+    }
+
+    .drawer .dcols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 6px
+    }
+
+    .drawer h5 {
+      font-family: var(--mono);
+      font-size: 9.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+      margin-bottom: 10px;
+      font-weight: 500;
+    }
+
+    .drawer ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .drawer li {
+      font-size: 13px;
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+      color: var(--ink)
+    }
+
+    .drawer li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 9px;
+      width: 6px;
+      height: 6px;
+      background: var(--mauve)
+    }
+
+    /* =========================================================
+     RESPONSIVE — keep discipline, hide overflow gracefully
+     ========================================================= */
+    @media (max-width: 980px) {
+      .frame {
+        padding: 12px
+      }
+
+      .book-top,
+      .book-bottom {
+        padding-left: 16px;
+        padding-right: 16px
+      }
+
+      .page {
+        padding: 24px
+      }
+
+      .p1a .p1a-body {
+        grid-template-columns: 1fr;
+        gap: 24px
+      }
+
+      .p1a .p1a-lead {
+        position: static
+      }
+
+      .p1b .p1b-title {
+        white-space: normal
+      }
+
+      .p1b-stamps {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px
+      }
+
+      .stamp-cell:nth-child(2n) {
+        padding-top: 0
+      }
+
+      .p2 .grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .p4 .body {
+        grid-template-columns: 1fr
+      }
+
+      .team {
+        grid-template-columns: 1fr
+      }
+
+      .weeks-header,
+      .stage {
+        grid-template-columns: 120px repeat(6, 1fr)
+      }
+
+      .drawer {
+        width: 90%
+      }
+
+      .chap .title {
+        display: none
+      }
+    }
+
+    /* =========================================================
+     PASSWORD GATE — booklet-styled access screen
+     ========================================================= */
+    .passgate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(20px, 3.2vh, 40px) clamp(24px, 3vw, 56px);
+      background: var(--ink);
+    }
+
+    body.unlocked .passgate {
+      display: none;
+    }
+
+    .passgate .pg-book {
+      position: relative;
+      width: min(560px, 100%);
+      background:
+        linear-gradient(rgba(7, 7, 14, .055) 1px, transparent 1px) 0 0 / 56px 56px,
+        linear-gradient(90deg, rgba(7, 7, 14, .055) 1px, transparent 1px) 0 0 / 56px 56px,
+        var(--paper);
+      color: var(--ink);
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px rgba(236, 230, 214, .06),
+        0 30px 60px -20px rgba(0, 0, 0, .55),
+        0 12px 30px -10px rgba(0, 0, 0, .35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .passgate .pg-top {
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+    }
+
+    .passgate .pg-eyebrow .bracket {
+      color: var(--green);
+    }
+
+    .passgate .pg-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      animation: pgblink 1.4s ease-in-out infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes pgblink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .35
+      }
+    }
+
+    .passgate .pg-body {
+      padding: clamp(36px, 6vh, 56px) clamp(28px, 4vw, 48px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.8vh, 28px);
+    }
+
+    .passgate .pg-title {
+      font-family: var(--display);
+      font-weight: 500;
+      font-size: clamp(26px, 3.4vw, 36px);
+      line-height: 1.05;
+      letter-spacing: -.012em;
+      color: var(--ink);
+    }
+
+    .passgate .pg-title em {
+      font-style: italic;
+      color: var(--ink);
+      background: linear-gradient(transparent 62%, var(--green) 62%, var(--green) 92%, transparent 92%);
+      padding: 0 2px;
+    }
+
+    .passgate .pg-lede {
+      font-family: var(--display);
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-60);
+      max-width: 48ch;
+    }
+
+    .passgate .pg-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .passgate .pg-label {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+    }
+
+    .passgate .pg-input-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .passgate .pg-input {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 15px;
+      letter-spacing: .04em;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid var(--ink);
+      padding: 10px 2px;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .passgate .pg-input::placeholder {
+      color: var(--ink-45);
+    }
+
+    .passgate .pg-input:focus {
+      border-bottom-color: var(--green);
+    }
+
+    .passgate.is-error .pg-input {
+      border-bottom-color: var(--mauve);
+      animation: pgshake .35s cubic-bezier(.36, .07, .19, .97);
+    }
+
+    @keyframes pgshake {
+
+      10%,
+      90% {
+        transform: translateX(-2px);
+      }
+
+      20%,
+      80% {
+        transform: translateX(3px);
+      }
+
+      30%,
+      50%,
+      70% {
+        transform: translateX(-5px);
+      }
+
+      40%,
+      60% {
+        transform: translateX(5px);
+      }
+    }
+
+    .passgate .pg-btn {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: var(--green);
+      border: none;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .2s ease;
+      box-shadow: 3px 3px 0 var(--ink);
+    }
+
+    .passgate .pg-btn:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0 var(--ink);
+    }
+
+    .passgate .pg-btn:active {
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .passgate .pg-error {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--mauve);
+      min-height: 14px;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .passgate.is-error .pg-error {
+      opacity: 1;
+    }
+
+    .passgate .pg-bottom {
+      padding: 10px 28px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--ink-45);
+    }
+
+    .passgate .pg-accent {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .passgate .pg-accent i {
+      width: 6px;
+      height: 6px;
+      background: var(--ink);
+      display: inline-block;
+    }
+
+    .passgate .pg-accent i.g {
+      background: var(--green);
+    }
+
+    /* =========================================================
+     MOBILE GATE — blocks small viewports, mirrors passgate styling
+     ========================================================= */
+    .mobilegate {
+      display: none !important;
+    }
+
+    @media (max-width: 820px),
+           (max-height: 520px) and (orientation: landscape) {
+      body > .frame {
+        display: none !important;
+      }
+
+      body > #passgate {
+        display: none !important;
+      }
+
+      .mobilegate {
+        display: flex !important;
+        position: fixed;
+        inset: 0;
+        z-index: 10001;
+        align-items: center;
+        justify-content: center;
+        padding: clamp(20px, 3.2vh, 40px) clamp(20px, 4vw, 40px);
+        background: var(--ink);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ PASSWORD GATE ============ -->
+  <div class="passgate" id="passgate" role="dialog" aria-modal="true" aria-labelledby="pgTitle">
+    <div class="pg-book">
+      <div class="pg-top">
+        <span class="pg-eyebrow"><span class="pg-dot" aria-hidden="true"></span>The Counter · Proposal</span>
+        <span>Restricted</span>
+      </div>
+      <div class="pg-body">
+        <h1 class="pg-title" id="pgTitle">This proposal is <em>private</em>.</h1>
+        <p class="pg-lede">Enter the access code shared with you to continue.</p>
+        <form class="pg-form" id="pgForm" autocomplete="off" novalidate>
+          <label class="pg-label" for="pgInput">Access code</label>
+          <div class="pg-input-row">
+            <input class="pg-input" id="pgInput" type="password" autocomplete="off" spellcheck="false"
+              autocapitalize="off" autocorrect="off" />
+            <button class="pg-btn" type="submit">Unlock &rarr;</button>
+          </div>
+          <div class="pg-error" id="pgError" aria-live="polite">Incorrect code &mdash; try again.</div>
+        </form>
+      </div>
+      <div class="pg-bottom">
+        <span class="pg-accent" aria-hidden="true"><i></i><i class="g"></i><i></i><i></i><i class="g"></i></span>
+        <span>April 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MOBILE GATE ============ -->
+  <div class="passgate mobilegate" id="mobilegate" role="dialog" aria-modal="true" aria-labelledby="mgTitle">
+    <div class="pg-book">
+      <div class="pg-top">
+        <span class="pg-eyebrow"><span class="pg-dot" aria-hidden="true"></span>The Counter · Proposal</span>
+        <span>Desktop only</span>
+      </div>
+      <div class="pg-body">
+        <h1 class="pg-title" id="mgTitle">Built for the <em>bigger screen</em>.</h1>
+        <p class="pg-lede">This proposal is designed for a laptop or desktop. Please reopen the link on a larger display to continue.</p>
+      </div>
+      <div class="pg-bottom">
+        <span class="pg-accent" aria-hidden="true"><i></i><i class="g"></i><i></i><i></i><i class="g"></i></span>
+        <span>April 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame">
+    <div class="book" id="book">
+
+      <!-- ============ TOP: progress + chapter tabs ============ -->
+      <div class="book-top">
+        <div class="runner-track" id="runnerTrack">
+          <div class="runner" id="runner" aria-hidden="true">
+            <svg viewBox="0 0 26 30">
+              <g class="rbob">
+                <!-- head -->
+                <circle cx="13" cy="5.5" r="4.5" fill="#52E08D" />
+                <!-- eye dot -->
+                <circle cx="15" cy="5" r=".9" fill="#07070E" />
+                <!-- body -->
+                <rect x="10" y="10" width="6" height="10" rx="1.5" fill="#52E08D" />
+                <!-- arms -->
+                <rect class="arm-l" x="6.5" y="11" width="2" height="7" rx="1" fill="#52E08D" />
+                <rect class="arm-r" x="17.5" y="11" width="2" height="7" rx="1" fill="#52E08D" />
+                <!-- legs -->
+                <rect class="leg-l" x="10.5" y="20" width="2" height="8" rx="1" fill="#52E08D" />
+                <rect class="leg-r" x="13.5" y="20" width="2" height="8" rx="1" fill="#52E08D" />
+              </g>
+            </svg>
+          </div>
+        </div>
+        <div class="progress-rail" id="rail">
+          <div class="seg"></div>
+          <div class="seg"></div>
+          <div class="seg"></div>
+          <div class="seg"></div>
+        </div>
+        <div class="chap-row" id="chaps">
+          <button class="chap" data-section="0"><span class="n">00</span><span class="title">Cover</span></button>
+          <button class="chap" data-section="1"><span class="n">01</span><span class="title">What we
+              heard</span></button>
+          <button class="chap" data-section="2"><span class="n">02</span><span class="title">Our proposed
+              approach</span></button>
+          <button class="chap" data-section="3"><span class="n">03</span><span class="title">Details of the
+              approach</span></button>
+        </div>
+        <div class="sub-rail" id="subRail">
+          <div class="sub-cell" data-section="0"></div>
+          <div class="sub-cell" data-section="1"></div>
+          <div class="sub-cell" data-section="2"></div>
+          <div class="sub-cell" data-section="3"></div>
+        </div>
+      </div>
+
+      <!-- ============ PAGES ============ -->
+      <div class="pages" id="pages">
+
+        <!-- ============ 00 / COVER ============ -->
+        <section class="page p0" data-cover="1" data-section="0" data-sub="0">
+          <div class="cover">
+            <div class="coverbar">
+              <span class="left">
+                <span class="mono-mark" aria-hidden="true"><i></i><i class="r"></i><i class="blink"></i><i></i></span>
+                The Counter · Proposal
+              </span>
+              <span>April 2026</span>
+            </div>
+
+            <div class="coverbody">
+              <h1>AI-Forward Product Research &amp; Strategy Proposal.</h1>
+              <div class="accent" aria-hidden="true">
+                <i></i><i class="m"></i><i></i><i></i>
+                <i class="m"></i><i class="m"></i><i class="k"></i><i></i>
+                <i></i><i class="k"></i><i class="m"></i><i></i>
+                <i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+
+            <div class="coverfoot">
+              <div class="block">
+                <span class="lbl">Prepared for</span>
+                <b>Xceptor Limited</b>
+                <span>Sareena Brookshire · Chief Product Officer</span>
+              </div>
+              <div class="block">
+                <span class="lbl">By</span>
+                <b>The Counter</b>
+                <span>Fred Sham &amp; Drew Castellaw</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ 00b / TABLE OF CONTENTS ============ -->
+        <section class="page p0b" data-section="0" data-sub="1">
+          <div class="toc-lead">
+            <h2 class="title">Inside This Proposal.</h2>
+          </div>
+
+          <ol class="toc-list">
+            <li class="toc-item" data-jump-section="1">
+              <span class="toc-num">01</span>
+              <span class="toc-body">
+                <span class="toc-title">What We Heard</span>
+                <span class="toc-desc">What your RFP and FY26 H2 priorities tell us, and the five deliverables this work
+                  will produce.</span>
+              </span>
+              <span class="toc-page">P. 03&ndash;04</span>
+              <span class="toc-arrow" aria-hidden="true">&rarr;</span>
+            </li>
+            <li class="toc-item" data-jump-section="2">
+              <span class="toc-num">02</span>
+              <span class="toc-body">
+                <span class="toc-title">Our Proposed Approach</span>
+                <span class="toc-desc">Four principles that shape how we work, and the plan-on-a-page that frames the
+                  engagement.</span>
+              </span>
+              <span class="toc-page">P. 05&ndash;06</span>
+              <span class="toc-arrow" aria-hidden="true">&rarr;</span>
+            </li>
+            <li class="toc-item" data-jump-section="3">
+              <span class="toc-num">03</span>
+              <span class="toc-body">
+                <span class="toc-title">Details Of The Approach</span>
+                <span class="toc-desc">A week-by-week walkthrough of the seven workstreams from discovery to roadmap and
+                  readout.</span>
+              </span>
+              <span class="toc-page">P. 07&ndash;08</span>
+              <span class="toc-arrow" aria-hidden="true">&rarr;</span>
+            </li>
+          </ol>
+        </section>
+
+        <!-- ============ 01a / TAKEAWAYS FROM THE RFP ============ -->
+        <section class="page p1a" data-section="1" data-sub="0">
+          <!-- ambient decoration -->
+          <div class="amb a1" aria-hidden="true"></div>
+          <div class="amb a2" aria-hidden="true"></div>
+          <div class="amb a3" aria-hidden="true"></div>
+          <div class="amb a4" aria-hidden="true"></div>
+          <div class="amb a5" aria-hidden="true"></div>
+
+          <div class="p1a-body">
+            <div class="p1a-lead">
+              <h1 class="p1a-title">Your <em>RFP and FY26&nbsp;H2 priorities</em> point to a company with a clear
+                destination, real foundations to build on, and a specific set of gaps this work is meant to help close.
+              </h1>
+              <svg class="p1a-scribble" viewBox="0 0 260 18" aria-hidden="true" preserveAspectRatio="none">
+                <polyline
+                  points="2,14 22,14 22,6 58,6 58,14 94,14 94,4 130,4 130,14 166,14 166,8 200,8 200,14 230,14 230,6 258,6" />
+              </svg>
+              <div class="p1a-mark" aria-hidden="true">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+              </div>
+            </div>
+
+            <ol class="p1a-list">
+              <li><span class="n">01</span>
+                <p><strong>You know where you're going</strong>, with a clear target of £100M in ARR, more than 5%
+                  market share, and over 100 clients.</p>
+              </li>
+              <li><span class="n">02</span>
+                <p><strong>You've got a clear window to accelerate</strong>, moving from a flat £44M in FY25 to £50M and
+                  £20M EBITDA in FY26.</p>
+              </li>
+              <li><span class="n">03</span>
+                <p><strong>You've placed your bet on five solutions</strong> to carry the growth, spanning
+                  Reconciliations, Post-Trade Operations, Tax, Client Lifecycle Management, and Loan Operations.</p>
+              </li>
+              <li><span class="n">04</span>
+                <p><strong>Your platform is a genuine strength</strong>, and the next step is making sure the user
+                  experience, capacity, and upgrade path match the depth you've built underneath.</p>
+              </li>
+              <li><span class="n">05</span>
+                <p><strong>Your clients have moved the bar</strong>, expecting out-of-the-box solutions and a UX that
+                  matches the depth of the platform underneath, and the distance between that expectation and today's
+                  experience is where renewal risk lives.</p>
+              </li>
+              <li><span class="n">06</span>
+                <p><strong>AI is the next advantage you have to earn</strong>, but early work hasn't scaled and
+                  expectations are outpacing delivery. Pinpointing where to focus AI effort across the roadmap is, in
+                  part, what this work should help answer.</p>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ============ 01b / DELIVERABLES — stamp cluster ============ -->
+        <section class="page p1b" data-section="1" data-sub="1">
+          <div class="amb b1" aria-hidden="true"></div>
+          <div class="amb b2" aria-hidden="true"></div>
+
+          <div class="p1b-head">
+            <h1 class="p1b-title">Here's what we'll partner with you to <em>deliver</em> by the end of this project.
+            </h1>
+          </div>
+
+          <div class="p1b-stamps">
+            <div class="stamp-cell">
+              <div class="stamp">
+                <span class="n">Nº 01</span>
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <circle cx="12" cy="12" r="5" />
+                    <circle cx="12" cy="12" r="1.4" fill="currentColor" />
+                    <path d="M12 3v2M12 19v2M3 12h2M19 12h2" />
+                  </svg>
+                </div>
+              </div>
+              <div class="caption">
+                <h4>A prioritized view of the biggest opportunities across the product suite</h4>
+                <p>Top three called out clearly, with the reasoning behind each one laid out in plain terms.</p>
+              </div>
+            </div>
+
+            <div class="stamp-cell">
+              <div class="stamp">
+                <span class="n">Nº 02</span>
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M7 10a5 5 0 0 1 10 0v4a3 3 0 0 1-3 3h-1v-6" />
+                    <path d="M7 10v5a3 3 0 0 0 3 3" />
+                    <path d="M3 8a9 9 0 0 1 3-4" />
+                    <path d="M21 8a9 9 0 0 0-3-4" />
+                  </svg>
+                </div>
+              </div>
+              <div class="caption">
+                <h4>A real understanding of what your clients need</h4>
+                <p>What they tell you directly, and what you can only see by watching them work.</p>
+              </div>
+            </div>
+
+            <div class="stamp-cell">
+              <div class="stamp">
+                <span class="n">Nº 03</span>
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M4 20V10" />
+                    <path d="M10 20V4" />
+                    <path d="M16 20v-8" />
+                    <path d="M22 20V8" />
+                    <path d="M3 20h19" />
+                  </svg>
+                </div>
+              </div>
+              <div class="caption">
+                <h4>A clear picture of how you stack up against competitors</h4>
+                <p>Where you're ahead, where you're behind, and where there's room nobody else is claiming.</p>
+              </div>
+            </div>
+
+            <div class="stamp-cell">
+              <div class="stamp">
+                <span class="n">Nº 04</span>
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M15.5 8.5 13 13l-4.5 2.5L11 11z" fill="currentColor" stroke="none" />
+                  </svg>
+                </div>
+              </div>
+              <div class="caption">
+                <h4>Specific recommendations for the roadmap</h4>
+                <p>Each tied to the revenue it can unlock and how it connects to your £50M and £100M targets.</p>
+              </div>
+            </div>
+
+            <div class="stamp-cell">
+              <div class="stamp">
+                <span class="n">Nº 05</span>
+                <div class="icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M9 18h6" />
+                    <path d="M10 21h4" />
+                    <path d="M12 3a6 6 0 0 0-4 10.5c.8.8 1.2 1.6 1.2 2.5h5.6c0-.9.4-1.7 1.2-2.5A6 6 0 0 0 12 3z" />
+                  </svg>
+                </div>
+              </div>
+              <div class="caption">
+                <h4>A readout that moves leadership from discussion to decision</h4>
+                <p>In a single session, so the work leaves the room as committed action rather than open questions.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============ 02a / PRINCIPLES ============ -->
+        <section class="page p2a" data-section="2" data-sub="0">
+          <!-- ambient decoration -->
+          <div class="amb a1" aria-hidden="true"></div>
+          <div class="amb a2" aria-hidden="true"></div>
+
+          <div class="p2a-body">
+            <div class="p2a-lede">
+              <h1 class="p2a-title">Our proposed approach pairs AI-assisted research with strategic rigour to get to a
+                sharper strategy in less time, <em>not just the same strategy faster.</em></h1>
+              <svg class="p2a-scribble" viewBox="0 0 220 16" aria-hidden="true" preserveAspectRatio="none">
+                <polyline
+                  points="2,12 22,12 22,4 56,4 56,12 92,12 92,2 128,2 128,12 162,12 162,6 196,6 196,12 218,12" />
+              </svg>
+            </div>
+
+            <ol class="p2a-list">
+              <li class="p2a-card c-mauve" data-i="1">
+                <span class="p2a-num-tile" aria-hidden="true">01</span>
+                <div class="p2a-row-title">
+                  <span class="p2a-eye">Principle</span>
+                  <h3 class="p2a-card-title">Start with (potential) answers</h3>
+                </div>
+                <p class="p2a-card-body">Traditional discovery withholds a point of view until the evidence is in. We
+                  start with one. In Week&nbsp;1 we put forward our best answers based on the data, prior work, and
+                  informed judgement we have on day one, then spend the engagement testing which hold up and which
+                  don't. <strong>Committing early is what makes the later work sharp.</strong></p>
+              </li>
+              <li class="p2a-card c-violet" data-i="2">
+                <span class="p2a-num-tile" aria-hidden="true">02</span>
+                <div class="p2a-row-title">
+                  <span class="p2a-eye">Principle</span>
+                  <h3 class="p2a-card-title">Insight has a half-life</h3>
+                </div>
+                <p class="p2a-card-body">A finding from a Tuesday client interview is most useful on Wednesday, not in a
+                  final readout. We treat synthesis as something that happens in hours, so the questions we ask as we go
+                  are sharper than the ones we started with. <strong>Stockpiling insight for a big reveal is a relic of
+                    when synthesis needed to take more time.</strong></p>
+              </li>
+              <li class="p2a-card c-mint" data-i="3">
+                <span class="p2a-num-tile" aria-hidden="true">03</span>
+                <div class="p2a-row-title">
+                  <span class="p2a-eye">Principle</span>
+                  <h3 class="p2a-card-title">Read everything, focus where it counts</h3>
+                </div>
+                <p class="p2a-card-body">We work with AI to read every support ticket, deal note, and churn call in the
+                  data you share. <strong>That full-surface view is what makes the client conversations and product
+                    walkthroughs land on what matters,</strong> rather than where we happened to look.</p>
+              </li>
+              <li class="p2a-card c-taupe" data-i="4">
+                <span class="p2a-num-tile" aria-hidden="true">04</span>
+                <div class="p2a-row-title">
+                  <span class="p2a-eye">Principle</span>
+                  <h3 class="p2a-card-title">Two operators, not two consultants</h3>
+                </div>
+                <p class="p2a-card-body">We're a pair that works with AI fluency rather than a small team doing things
+                  by hand. That changes what two people can credibly take on, and <strong>it's why our output beats what
+                    a ten-person engagement would deliver.</strong></p>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ============ 02 / PLAN ON A PAGE ============ -->
+        <section class="page p2" data-section="2" data-sub="1">
+          <h2 class="title p2-title">Our proposed <em>&ldquo;plan on a page&rdquo;</em></h2>
+
+          <div class="pop-stage">
+            <svg class="pop-svg" viewBox="0 0 1500 515" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+
+              <!-- Group label: "Research workstreams" -->
+              <g class="rg-label">
+                <text x="160" y="26" class="rg-text">Research workstreams</text>
+              </g>
+
+              <!-- Activity box 01: Discovery & Data Immersion (mint accent) -->
+              <g class="activity-box s1">
+                <rect class="ab-bg" x="10" y="42" width="300" height="115" />
+                <rect class="ab-accent" x="10" y="42" width="3" height="115" />
+                <foreignObject x="18" y="50" width="285" height="99">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="ab-html">
+                    <div class="ab-title">Discovery &amp; Data Immersion</div>
+                    <div class="ab-desc">Stakeholder interviews with Xceptor product, GTM, and CS, paired with
+                      AI-assisted analysis of CRM, support, and usage data we direct, interrogate, and pressure-test.
+                    </div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Activity box 02: Client Research Sprint (mauve accent) -->
+              <g class="activity-box s2">
+                <rect class="ab-bg" x="10" y="162" width="300" height="115" />
+                <rect class="ab-accent" x="10" y="162" width="3" height="115" />
+                <foreignObject x="18" y="170" width="285" height="99">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="ab-html">
+                    <div class="ab-title">Client Research Sprint</div>
+                    <div class="ab-desc">Ethnographic interviews and observations with priority client segments, using
+                      AI to spot patterns across transcripts and sharpen each conversation as we go.</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Activity box 03: Competitive & Market Landscape (violet accent) -->
+              <g class="activity-box s3">
+                <rect class="ab-bg" x="10" y="282" width="300" height="115" />
+                <rect class="ab-accent" x="10" y="282" width="3" height="115" />
+                <foreignObject x="18" y="290" width="285" height="99">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="ab-html">
+                    <div class="ab-title">Competitive &amp; Market Landscape</div>
+                    <div class="ab-desc">A scan of competitors, incumbents, and AI-native entrants, with AI extending
+                      coverage while we make the judgment calls on what it means for Xceptor.</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Stream rivers from activity boxes (x=310) converging into the Initial Hypotheses box (x=460) -->
+              <path class="stream s1" pathLength="100" d="M 310 100 C 380 100, 410 200, 460 200" />
+              <path class="stream s2" pathLength="100" d="M 310 220 L 460 220" />
+              <path class="stream s3" pathLength="100" d="M 310 340 C 380 340, 410 240, 460 240" />
+
+              <!-- Initial Hypotheses (synthesis bridge between research workstreams and the Working Session) -->
+              <g class="node synth deliverable">
+                <rect x="460" y="175" width="170" height="90" />
+                <rect class="synth-accent" x="460" y="175" width="170" height="3" />
+                <text x="545" y="215" class="nl">Initial Hypotheses</text>
+                <text x="545" y="237" class="nm">inputs to working session</text>
+                <!-- Iteration icon: two semicircular arrows looping in opposite directions, signalling
+                     ongoing back-and-forth between the streams and the hypothesis -->
+                <g class="synth-iter" transform="translate(615, 188)">
+                  <g class="synth-iter-spin">
+                    <path class="iter-arc" d="M -4 -1 A 4 4 0 0 1 4 -1" />
+                    <path class="iter-head" d="M 4 -1 L 2.4 -2.6 M 4 -1 L 2.4 0.6" />
+                    <path class="iter-arc" d="M 4 1 A 4 4 0 0 1 -4 1" />
+                    <path class="iter-head" d="M -4 1 L -2.4 2.6 M -4 1 L -2.4 -0.6" />
+                  </g>
+                </g>
+              </g>
+
+              <!-- Output stream from the hypothesis into the Working Session (animates AFTER hypothesis appears) -->
+              <path class="stream out" pathLength="100" d="M 630 220 L 730 220" />
+
+              <!-- Storytelling & Working Session (h=90 to match other downstream boxes) -->
+              <g class="node session client-exp">
+                <rect class="ce-glow session" x="724" y="169" width="232" height="102" />
+                <rect x="730" y="175" width="220" height="90" />
+                <text x="840" y="202" class="nl">Storytelling &amp;</text>
+                <text x="840" y="219" class="nl">Working Session</text>
+                <text x="840" y="241" class="nm">with Xceptor leadership</text>
+                <!-- Co-creation icon (two interlocking rings + shared centre) -->
+                <g class="ce-cocreate" transform="translate(930, 187)">
+                  <circle class="cc-ring a" cx="-3" cy="0" r="6" />
+                  <circle class="cc-ring b" cx="3" cy="0" r="6" />
+                  <circle class="cc-core" cx="0" cy="0" r="2" />
+                </g>
+              </g>
+
+              <!-- Fan: 10 outputs of the working session (start from WS right edge x=950, y=220) -->
+              <g class="fan">
+                <path class="fan-link" pathLength="1" data-i="0" d="M 950 220 C 990 220, 990 70,  1020 70" />
+                <path class="fan-link" pathLength="1" data-i="1" d="M 950 220 C 990 220, 990 100, 1020 100" />
+                <path class="fan-link" pathLength="1" data-i="2" d="M 950 220 C 990 220, 990 130, 1020 130" />
+                <path class="fan-link" pathLength="1" data-i="3" d="M 950 220 C 990 220, 990 160, 1020 160" />
+                <path class="fan-link top" pathLength="1" data-i="4" d="M 950 220 C 990 220, 990 190, 1020 190" />
+                <path class="fan-link top" pathLength="1" data-i="5" d="M 950 220 L 1020 220" />
+                <path class="fan-link top" pathLength="1" data-i="6" d="M 950 220 C 990 220, 990 250, 1020 250" />
+                <path class="fan-link" pathLength="1" data-i="7" d="M 950 220 C 990 220, 990 280, 1020 280" />
+                <path class="fan-link" pathLength="1" data-i="8" d="M 950 220 C 990 220, 990 310, 1020 310" />
+                <path class="fan-link" pathLength="1" data-i="9" d="M 950 220 C 990 220, 990 340, 1020 340" />
+              </g>
+
+              <!-- Product opportunity areas (10 dots, top 3 prioritized) -->
+              <g class="opp-map">
+                <text x="1020" y="48" class="opp-cap">Strategic Opportunity Map</text>
+                <circle class="opp-dot" data-i="0" cx="1020" cy="70" r="4" />
+                <circle class="opp-dot" data-i="1" cx="1020" cy="100" r="4" />
+                <circle class="opp-dot" data-i="2" cx="1020" cy="130" r="4" />
+                <circle class="opp-dot" data-i="3" cx="1020" cy="160" r="4" />
+                <circle class="opp-dot top" data-i="4" cx="1020" cy="190" r="7" />
+                <circle class="opp-dot top" data-i="5" cx="1020" cy="220" r="7" />
+                <circle class="opp-dot top" data-i="6" cx="1020" cy="250" r="7" />
+                <circle class="opp-dot" data-i="7" cx="1020" cy="280" r="4" />
+                <circle class="opp-dot" data-i="8" cx="1020" cy="310" r="4" />
+                <circle class="opp-dot" data-i="9" cx="1020" cy="340" r="4" />
+              </g>
+
+              <!-- "Prioritized" bracket + label, anchored to top 3 dots -->
+              <g class="opp-prioritized">
+                <path class="opp-bracket" d="M 1029 183 L 1033 183 L 1033 257 L 1029 257" />
+                <text class="opp-tag" transform="translate(1045, 254) rotate(-90)"
+                  text-anchor="start">Prioritized</text>
+              </g>
+
+              <!-- Product Roadmap Implications (h=90) -->
+              <g class="node roadmap deliverable">
+                <rect x="1080" y="175" width="160" height="90" />
+                <text x="1160" y="208" class="nl">Product Roadmap</text>
+                <text x="1160" y="226" class="nl">Implications</text>
+              </g>
+
+              <!-- Travelers: 3 prioritized dots animate forward into a row inside the Product Roadmap Implications box -->
+              <circle class="traveler" data-i="0" cx="1020" cy="190" r="6" />
+              <circle class="traveler" data-i="1" cx="1020" cy="220" r="6" />
+              <circle class="traveler" data-i="2" cx="1020" cy="250" r="6" />
+
+              <!-- Final connector to Stakeholder Readout -->
+              <path class="final-link" pathLength="1" d="M 1240 220 L 1330 220" />
+
+              <!-- Stakeholder Readout (h=90 to match other downstream boxes) -->
+              <g class="node readout client-exp">
+                <rect class="ce-glow readout" x="1324" y="169" width="162" height="102" />
+                <rect x="1330" y="175" width="150" height="90" />
+                <text x="1405" y="202" class="nl">Stakeholder</text>
+                <text x="1405" y="219" class="nl">Readout</text>
+                <text x="1405" y="241" class="nm">with Xceptor leadership</text>
+                <!-- Co-creation icon (two interlocking rings + shared centre) -->
+                <g class="ce-cocreate" transform="translate(1460, 187)">
+                  <circle class="cc-ring a" cx="-3" cy="0" r="6" />
+                  <circle class="cc-ring b" cx="3" cy="0" r="6" />
+                  <circle class="cc-core" cx="0" cy="0" r="2" />
+                </g>
+              </g>
+
+              <!-- ====== Deliverables ledger row ====== -->
+              <text x="10" y="420" class="deliv-section-label">Deliverables</text>
+              <line class="deliv-divider" x1="10" y1="423" x2="1500" y2="423" />
+
+              <!-- Chip 01+02 — Client Insight Synthesis & Competitive Market Landscape Analysis (W2–W3 anchor) -->
+              <g class="dchip" data-i="1">
+                <rect class="dc-bg" x="300" y="431" width="325" height="55" />
+                <rect class="dc-tab" x="300" y="431" width="325" height="3" />
+                <foreignObject x="300" y="434" width="325" height="52">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="dchip-html" style="flex-direction:column; gap:3px;">
+                    <div class="dc-title">Client Insight Synthesis</div>
+                    <div class="dc-title">Competitive &amp; Market Landscape Analysis</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Chip 03 — Strategic Opportunity Map (W4 anchor, under opp dots column) -->
+              <g class="dchip" data-i="3">
+                <rect class="dc-bg" x="775" y="431" width="130" height="55" />
+                <rect class="dc-tab" x="775" y="431" width="130" height="3" />
+                <foreignObject x="775" y="434" width="130" height="52">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="dchip-html">
+                    <div class="dc-title">Strategic Opportunity Map</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Chip 04 — Product Roadmap Implications (W5 anchor) -->
+              <g class="dchip" data-i="4">
+                <rect class="dc-bg" x="1090" y="431" width="135" height="55" />
+                <rect class="dc-tab" x="1090" y="431" width="135" height="3" />
+                <foreignObject x="1090" y="434" width="135" height="52">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="dchip-html">
+                    <div class="dc-title">Product Roadmap Implications</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Chip 05 — Stakeholder Readout Deck (W6 anchor) -->
+              <g class="dchip" data-i="5">
+                <rect class="dc-bg" x="1325" y="431" width="160" height="55" />
+                <rect class="dc-tab" x="1325" y="431" width="160" height="3" />
+                <foreignObject x="1325" y="434" width="160" height="52">
+                  <div xmlns="http://www.w3.org/1999/xhtml" class="dchip-html">
+                    <div class="dc-title">Stakeholder Readout Deck</div>
+                  </div>
+                </foreignObject>
+              </g>
+
+              <!-- Thin separator line over the week labels -->
+              <line class="week-separator" x1="10" y1="491" x2="1500" y2="491" />
+
+              <!-- Week labels at bottom (overlay, non-uniform — anchored per activity) -->
+              <g class="week-labels">
+                <text x="160" y="503" class="wn">W1</text><text x="160" y="513" class="wd">Apr 27</text>
+                <text x="380" y="503" class="wn">W2</text><text x="380" y="513" class="wd">May 04</text>
+                <text x="545" y="503" class="wn">W3</text><text x="545" y="513" class="wd">May 11</text>
+                <text x="840" y="503" class="wn">W4</text><text x="840" y="513" class="wd">May 18</text>
+                <text x="1157" y="503" class="wn">W5</text><text x="1157" y="513" class="wd">May 25</text>
+                <text x="1405" y="503" class="wn">W6</text><text x="1405" y="513" class="wd">Jun 01</text>
+              </g>
+            </svg>
+          </div>
+        </section>
+
+        <!-- ============ 03 / DETAILS OF THE APPROACH — PAGE 1 ============ -->
+        <section class="page p3a" data-section="3" data-sub="0">
+
+          <h2 class="title p3a-title">Weeks 1 to 3</h2>
+
+          <!-- 4 editorial columns -->
+          <div class="p3a-grid">
+            <article class="p3a-col s1">
+              <div class="p3a-num">01</div>
+              <h3 class="p3a-col-title">Discovery &amp; Data Immersion</h3>
+              <ul class="p3a-list">
+                <li>One-on-one stakeholder interviews with up to 6 leaders across product, GTM, and CS</li>
+                <li>Internal stakeholder interviews to surface where the org sees risk, opportunity, and friction</li>
+                <li>AI-accelerated analysis of the CRM export, support and CS logs, ticket themes, renewal and
+                  expansion notes, CSM assessments, NPS, usage data, and roadmap docs to identify which products or
+                  areas warrant the deepest client research focus</li>
+              </ul>
+            </article>
+
+            <article class="p3a-col s2">
+              <div class="p3a-num">02</div>
+              <h3 class="p3a-col-title">Client Research Sprint</h3>
+              <ul class="p3a-list">
+                <li>5–8 client interviews and 2–3 observation sessions or product walkthroughs</li>
+                <li>Sample weighted toward the segments identified in Week 1, prioritized by revenue, margin, and
+                  growth potential</li>
+                <li>Transcripts processed with AI as the sprint runs, so each interview sharpens the next rather
+                  than waiting for end-of-sprint analysis</li>
+                <li>Insights organized into themes that clarify current perceptions, product value, unmet needs, and
+                  growth opportunities</li>
+              </ul>
+            </article>
+
+            <article class="p3a-col s3">
+              <div class="p3a-num">03</div>
+              <h3 class="p3a-col-title">Competitive &amp; Market Landscape</h3>
+              <ul class="p3a-list">
+                <li>AI-accelerated scan building on Xceptor&rsquo;s existing competitive intel, broadening the field
+                  across direct competitors, adjacent incumbents, and AI-native entrants</li>
+                <li>Publicly available data analysed in depth and cross-compared against Xceptor&rsquo;s product to
+                  surface where the real gaps sit</li>
+                <li>Competitive analysis framed as defend / differentiate / double-down across the Xceptor suite</li>
+              </ul>
+            </article>
+
+            <article class="p3a-col s4">
+              <div class="p3a-num">04</div>
+              <h3 class="p3a-col-title">Initial Hypothesis of Opportunity Map</h3>
+              <ul class="p3a-list">
+                <li>Working hypotheses developed continuously as signal comes in across all three streams, each
+                  triangulated against discovery data, client research, and competitive landscape rather than any
+                  single stream in isolation</li>
+                <li>Hypotheses proven, disproven, or reshaped in real time as new evidence lands</li>
+                <li>Surviving set carried into the Storytelling &amp; Working Session as inputs to the draft
+                  Strategic Opportunity Map</li>
+              </ul>
+            </article>
+          </div>
+
+          <!-- Flow connector: hairline + right arrow reading as "continued on next page" -->
+          <div class="p3a-flow" aria-hidden="true">
+            <div class="p3a-flow-line"></div>
+            <div class="p3a-flow-arrow">
+              <span>Continued — <span class="week-tag">Weeks 4&ndash;6</span></span>
+              <svg viewBox="0 0 28 10" width="28" height="10" fill="none" stroke="currentColor" stroke-width="1.25"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M0 5 H25" />
+                <path d="M20 1 L25 5 L20 9" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bottom journey strip — modeled on the plan-on-page deliverables row -->
+          <div class="p3a-journey" aria-label="Engagement journey">
+            <div class="p3a-jrn-row chips">
+              <div class="p3a-jrn-step here">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-pos"><span class="pulse"></span>You are here</div>
+                <div class="p3a-jrn-l">Research &amp; Hypothesis</div>
+              </div>
+              <div class="p3a-jrn-step">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Storytelling &amp; Working Session</div>
+              </div>
+              <div class="p3a-jrn-step">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Strategic Opportunity Map</div>
+              </div>
+              <div class="p3a-jrn-step">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Product Roadmap Implications</div>
+              </div>
+              <div class="p3a-jrn-step">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Stakeholder Readout</div>
+              </div>
+            </div>
+            <div class="p3a-jrn-rule"></div>
+            <div class="p3a-jrn-row weeks">
+              <div class="p3a-jrn-week"><span class="w">W1–3</span></div>
+              <div class="p3a-jrn-week"><span class="w">W4</span></div>
+              <div class="p3a-jrn-week"><span class="w">W4–5</span></div>
+              <div class="p3a-jrn-week"><span class="w">W5</span></div>
+              <div class="p3a-jrn-week"><span class="w">W6</span></div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ============ 03 / DETAILS OF THE APPROACH — PAGE 2 ============ -->
+        <section class="page p3a" data-section="3" data-sub="1">
+
+          <h2 class="title p3a-title">Weeks 4 to 6</h2>
+
+          <div class="p3a-grid cols-3">
+            <article class="p3a-col s1">
+              <div class="p3a-num">05</div>
+              <h3 class="p3a-col-title">Storytelling &amp; Strategic Opportunity Map Working Session</h3>
+              <ul class="p3a-list">
+                <li>Mid-point working session with Xceptor leadership to pressure-test direction and iterate the
+                  Strategic Opportunity Map before roadmap work begins</li>
+                <li>Client Insight Synthesis presented as the major themes coming out of the research: current
+                  perceptions of Xceptor, where the product is creating value, unmet needs, and where future growth
+                  could come from</li>
+                <li>Live AI red teaming that challenges our framing of each opportunity and surfaces counter-evidence
+                  from the research for the room to build on, beat back, or kill</li>
+                <li>Synthetic AI personas of Xceptor&rsquo;s customer segment(s) used in the room to stress-test how
+                  each segment would receive, adopt, or push back on a relevant opportunity</li>
+                <li>Up to 10 opportunities iterated in the room, with the top 3 prioritized based on client signal,
+                  competitive position, and the broader market shifts surfaced through our primary and secondary
+                  research</li>
+                <li>The three prioritized opportunities are what we carry forward into the Product Roadmap
+                  Implications work that follows</li>
+              </ul>
+            </article>
+
+            <article class="p3a-col s2">
+              <div class="p3a-num">06</div>
+              <h3 class="p3a-col-title">Product Roadmap Implications</h3>
+              <ul class="p3a-list">
+                <li>Directional roadmap recommendation for each of the 3 priority opportunities</li>
+                <li>Time permitting, AI-generated visual prototypes (non-functional UI sketches or experience flows)
+                  used to bring harder-to-describe roadmap implications to life and accelerate the conversation</li>
+                <li>A qualitative ARR narrative connecting each recommendation to where and how it could create
+                  commercial value, anchoring the roadmap in business outcome rather than product logic alone</li>
+                <li>Roadmap implications framed as decisions to make, not options to weigh</li>
+              </ul>
+            </article>
+
+            <article class="p3a-col s3">
+              <div class="p3a-num">07</div>
+              <h3 class="p3a-col-title">Stakeholder Readout</h3>
+              <ul class="p3a-list">
+                <li>60-minute facilitated working session with Xceptor product leadership</li>
+                <li>Active deliberation in the room across the 3 priority opportunity areas and their associated
+                  product roadmap implications</li>
+                <li>Built to land a decision on where Xceptor focuses across now, near, and next</li>
+              </ul>
+            </article>
+          </div>
+
+          <!-- Bottom journey strip — wayfinder shifted into the W4–6 region -->
+          <div class="p3a-journey" aria-label="Engagement journey">
+            <div class="p3a-jrn-row anchor">
+              <div></div>
+              <div class="p3a-jrn-anchor">
+                <span class="pulse"></span>
+                <span class="lbl">You are here · Weeks 4&ndash;6</span>
+              </div>
+            </div>
+            <div class="p3a-jrn-row chips">
+              <div class="p3a-jrn-step done">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Research &amp; Hypothesis</div>
+              </div>
+              <div class="p3a-jrn-step here">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Storytelling &amp; Working Session</div>
+              </div>
+              <div class="p3a-jrn-step here">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Strategic Opportunity Map</div>
+              </div>
+              <div class="p3a-jrn-step here">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Product Roadmap Implications</div>
+              </div>
+              <div class="p3a-jrn-step here">
+                <div class="p3a-jrn-tab"></div>
+                <div class="p3a-jrn-l">Stakeholder Readout</div>
+              </div>
+            </div>
+            <div class="p3a-jrn-rule"></div>
+            <div class="p3a-jrn-row weeks">
+              <div class="p3a-jrn-week"><span class="w">W1–3</span></div>
+              <div class="p3a-jrn-week"><span class="w">W4</span></div>
+              <div class="p3a-jrn-week"><span class="w">W4–5</span></div>
+              <div class="p3a-jrn-week"><span class="w">W5</span></div>
+              <div class="p3a-jrn-week"><span class="w">W6</span></div>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+
+      <!-- ============ BOTTOM ============ -->
+      <div class="book-bottom">
+        <div class="brand">Xceptor <span>×</span> The Counter</div>
+        <div class="center">April 2026</div>
+        <div class="nav">
+          <span class="subs" id="bottomSubs"></span>
+          <span class="counter"><b id="curN">01</b><span class="sub-n" id="curSub"></span> / <span
+              id="totN">04</span></span>
+          <button id="prev" aria-label="Previous">←</button>
+          <button id="next" aria-label="Next">→</button>
+        </div>
+      </div>
+
+      <!-- ============ STAGE DRAWER (bounded to book) ============ -->
+      <div class="drawer-scrim" id="scrim"></div>
+      <aside class="drawer" id="drawer" aria-hidden="true">
+        <button class="close" id="drawerClose" aria-label="Close">✕</button>
+        <div class="dhead">
+          <span class="dnum" id="dNum">Stage / 01</span>
+          <span class="weektag" id="dWeek">Week 01</span>
+        </div>
+        <h2 id="dTitle">Stage title</h2>
+        <div class="summary" id="dSummary">Stage summary.</div>
+        <div class="dcols">
+          <div>
+            <h5>Key activities</h5>
+            <ul id="dActs"></ul>
+          </div>
+          <div>
+            <h5>Outputs this stage</h5>
+            <ul id="dOuts"></ul>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <script>
+    /* ============ PASSWORD GATE ============ */
+    (function () {
+      const HASH = 'cc327b3f4f5e5e8c872f04206a80da40eca50a5b93f09065cb6624d9ca8e2891';
+      const KEY = 'tc_proposal_unlocked_v1';
+      const gate = document.getElementById('passgate');
+      const form = document.getElementById('pgForm');
+      const input = document.getElementById('pgInput');
+
+      if (sessionStorage.getItem(KEY) === '1') {
+        document.body.classList.add('unlocked');
+        return;
+      }
+
+      requestAnimationFrame(() => input && input.focus());
+
+      async function sha256(str) {
+        const buf = new TextEncoder().encode(str);
+        const hash = await crypto.subtle.digest('SHA-256', buf);
+        return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      input.addEventListener('input', () => gate.classList.remove('is-error'));
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const val = input.value;
+        if (!val) return;
+        const got = await sha256(val);
+        if (got === HASH) {
+          sessionStorage.setItem(KEY, '1');
+          document.body.classList.add('unlocked');
+        } else {
+          gate.classList.add('is-error');
+          input.select();
+        }
+      });
+    })();
+
+    const pagesEl = document.getElementById('pages');
+    const pages = [...pagesEl.querySelectorAll('.page')];
+    const segs = [...document.querySelectorAll('#rail .seg')];
+    const chaps = [...document.querySelectorAll('#chaps .chap')];
+    const subCells = [...document.querySelectorAll('#subRail .sub-cell')];
+    const bottomSubs = document.getElementById('bottomSubs');
+    const curN = document.getElementById('curN');
+    const curSub = document.getElementById('curSub');
+    const totN = document.getElementById('totN');
+    const prev = document.getElementById('prev');
+    const next = document.getElementById('next');
+
+    // Build section → [page indices] map from data-section on each page
+    const pageSection = pages.map(p => +p.dataset.section);
+    const pageSub = pages.map(p => +p.dataset.sub);
+    const sectionPages = {};
+    pages.forEach((p, i) => {
+      const s = pageSection[i];
+      (sectionPages[s] ||= []).push(i);
+    });
+    // Bottom counter shows page numbers across the full deck
+    totN.textContent = String(pages.length).padStart(2, '0');
+
+    const runner = document.getElementById('runner');
+    const runnerTrack = document.getElementById('runnerTrack');
+    let runnerTimer;
+    function positionRunner() {
+      const activeSeg = document.querySelector('#rail .seg.active');
+      if (!activeSeg || !runner || !runnerTrack) return;
+      const trackRect = runnerTrack.getBoundingClientRect();
+      const segRect = activeSeg.getBoundingClientRect();
+      const cx = segRect.left - trackRect.left + segRect.width / 2 - runner.offsetWidth / 2;
+      runner.style.transform = `translateX(${cx}px)`;
+      runner.classList.add('running');
+      clearTimeout(runnerTimer);
+      runnerTimer = setTimeout(() => runner.classList.remove('running'), 620);
+    }
+
+    const PAGE_KEY = 'xc_proposal_page';
+    let initialPage = 0;
+    try {
+      const saved = parseInt(sessionStorage.getItem(PAGE_KEY), 10);
+      if (!isNaN(saved)) initialPage = saved;
+    } catch (e) { }
+    let current = Math.max(0, Math.min(pages.length - 1, initialPage));
+    // Snap to saved page without animation on first load
+    requestAnimationFrame(() => {
+      pagesEl.scrollTo({ left: current * pagesEl.clientWidth, behavior: 'auto' });
+    });
+    let isAnimating = false;
+    let animTimer;
+
+    // Use scrollend event (widely supported) to know exactly when smooth scroll finishes
+    pagesEl.addEventListener('scrollend', () => {
+      clearTimeout(animTimer);
+      isAnimating = false;
+    });
+
+    function goTo(i) {
+      const target = Math.max(0, Math.min(pages.length - 1, i));
+      if (target === current) return;   // already there
+      if (isAnimating) return;          // block until current animation settles
+      current = target;
+      isAnimating = true;
+      try { sessionStorage.setItem(PAGE_KEY, String(current)); } catch (e) { }
+      pagesEl.scrollTo({ left: current * pagesEl.clientWidth, behavior: 'smooth' });
+      update();
+      // Fallback timeout in case scrollend doesn't fire (e.g. already at position)
+      clearTimeout(animTimer);
+      animTimer = setTimeout(() => { isAnimating = false; }, 600);
+    }
+    function goToSection(sec, sub = 0) {
+      const group = sectionPages[sec] || [];
+      if (group.length) goTo(group[Math.min(sub, group.length - 1)]);
+    }
+
+    function renderSubIndicators() {
+      const curSec = pageSection[current];
+      const curSubIdx = pageSub[current];
+
+      // Top sub-rail: populate dots under each section's cell (only when >1 subpage)
+      subCells.forEach(cell => {
+        const sec = +cell.dataset.section;
+        const group = sectionPages[sec] || [];
+        cell.innerHTML = '';
+        if (group.length <= 1) return;
+        group.forEach((pageIdx, j) => {
+          const b = document.createElement('button');
+          b.className = 'dot';
+          if (sec === curSec) {
+            if (j === curSubIdx) b.classList.add('active');
+            else if (j < curSubIdx) b.classList.add('done');
+          }
+          b.addEventListener('click', () => goTo(pageIdx));
+          cell.appendChild(b);
+        });
+      });
+
+      // Bottom subs: only show when current section has multiple subpages
+      bottomSubs.innerHTML = '';
+      const group = sectionPages[curSec] || [];
+      if (group.length > 1) {
+        group.forEach((pageIdx, j) => {
+          const b = document.createElement('button');
+          b.className = 'dot' + (j === curSubIdx ? ' active' : (j < curSubIdx ? ' done' : ''));
+          b.setAttribute('aria-label', `Go to subpage ${j + 1}`);
+          b.addEventListener('click', () => goTo(pageIdx));
+          bottomSubs.appendChild(b);
+        });
+      }
+    }
+
+    function update() {
+      const curSec = pageSection[current];
+      const curSubIdx = pageSub[current];
+
+      // Bottom counter: page number across the full deck
+      curN.textContent = String(current + 1).padStart(2, '0');
+      curSub.textContent = '';
+
+      // Progress rail: 5 segs matching 5 chaps (cover + 4 chapters)
+      // Active seg = current section; done = earlier sections.
+      segs.forEach((s, i) => {
+        s.classList.toggle('active', i === curSec);
+        s.classList.toggle('done', i < curSec);
+        // partial fill when active section has multiple subpages and we're on the first
+        const group = sectionPages[i] || [];
+        const partial = (i === curSec) && group.length > 1 && curSubIdx < group.length - 1;
+        s.classList.toggle('partial', partial);
+      });
+
+      chaps.forEach((c, i) => {
+        const sec = +c.dataset.section;
+        c.classList.toggle('active', sec === curSec);
+        c.classList.toggle('done', sec < curSec);
+      });
+
+      renderSubIndicators();
+      positionRunner();
+
+      prev.disabled = current === 0;
+      next.disabled = current === pages.length - 1;
+
+      // Replay staggered entry animation on subpages 01a / 01b / 02 only when the page first becomes active
+      pages.forEach((p, i) => {
+        if (!(p.classList.contains('p0b') || p.classList.contains('p1a') || p.classList.contains('p1b') || p.classList.contains('p2a') || p.classList.contains('p2') || p.classList.contains('p3a'))) return;
+        if (i === current) {
+          if (!p.classList.contains('in-view')) {
+            void p.offsetWidth;
+            p.classList.add('in-view');
+          }
+        } else {
+          p.classList.remove('in-view');
+        }
+      });
+    }
+    update();
+
+    // Chapter clicks jump to first subpage of that section
+    chaps.forEach(c => c.addEventListener('click', () => goToSection(+c.dataset.section, 0)));
+
+    // Table-of-contents items jump to the first page of their target section
+    document.querySelectorAll('.toc-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const sec = +item.dataset.jumpSection;
+        if (!isNaN(sec)) goToSection(sec, 0);
+      });
+    });
+    prev.addEventListener('click', () => goTo(current - 1));
+    next.addEventListener('click', () => goTo(current + 1));
+
+    // Sync on scroll (in case of drag/trackpad)
+    let t;
+    pagesEl.addEventListener('scroll', () => {
+      clearTimeout(t);
+      t = setTimeout(() => {
+        if (isAnimating) return;  // don't fight with goTo during a programmatic scroll
+        current = Math.round(pagesEl.scrollLeft / pagesEl.clientWidth);
+        try { sessionStorage.setItem(PAGE_KEY, String(current)); } catch (e) { }
+        update();
+      }, 80);
+    });
+
+    // Redirect vertical wheel/trackpad → horizontal page navigation.
+    // Normalize deltaMode so mouse wheels on Firefox/PC (line mode) work the same as Mac trackpads (pixel mode).
+    function normalizedWheelDelta(e) {
+      let dx = e.deltaX, dy = e.deltaY;
+      if (e.deltaMode === 1) { dx *= 16; dy *= 16; }            // line mode → ~16px/line
+      else if (e.deltaMode === 2) {                              // page mode
+        dx *= pagesEl.clientWidth;
+        dy *= pagesEl.clientHeight;
+      }
+      return { dx, dy };
+    }
+
+    // Two distinct gestures land on this listener:
+    //   • Discrete mouse wheel ticks (PC, line/page deltaMode, or large pixel deltas) —
+    //     each tick should advance one page; only debounce against accidental double-fire.
+    //   • Continuous trackpad scrolls (small pixel deltas, fired ~every 16ms) —
+    //     accumulate to a threshold, then lock through the momentum tail.
+    let wheelAccum = 0;
+    let momentumLock = false;
+    let momentumTimer;
+    let lastNavTime = 0;
+    window.addEventListener('wheel', (e) => {
+      if (document.getElementById('drawer').classList.contains('open')) return;
+      const { dx, dy } = normalizedWheelDelta(e);
+      if (Math.abs(dy) <= Math.abs(dx)) return; // let native horizontal swipes pass
+      e.preventDefault();
+
+      const now = Date.now();
+      const isDiscrete = e.deltaMode !== 0 || Math.abs(e.deltaY) >= 50;
+
+      if (isDiscrete) {
+        // Mouse-wheel tick: one event = one page. Debounce covers smooth-scroll duration.
+        if (now - lastNavTime < 400) return;
+        lastNavTime = now;
+        // Reset trackpad state so a later trackpad gesture starts clean.
+        wheelAccum = 0;
+        momentumLock = false;
+        clearTimeout(momentumTimer);
+        goTo(current + (dy > 0 ? 1 : -1));
+        return;
+      }
+
+      // Trackpad path
+      if (momentumLock) {
+        clearTimeout(momentumTimer);
+        momentumTimer = setTimeout(() => { momentumLock = false; wheelAccum = 0; }, 120);
+        return;
+      }
+      wheelAccum += dy;
+      clearTimeout(momentumTimer);
+      momentumTimer = setTimeout(() => { wheelAccum = 0; }, 200);
+      const threshold = 50;
+      if (Math.abs(wheelAccum) >= threshold) {
+        const dir = wheelAccum > 0 ? 1 : -1;
+        wheelAccum = 0;
+        momentumLock = true;
+        lastNavTime = now;
+        goTo(current + dir);
+        momentumTimer = setTimeout(() => { momentumLock = false; wheelAccum = 0; }, 700);
+      }
+    }, { passive: false });
+
+    // Keyboard — bind to window with capture so it fires regardless of which element holds focus.
+    window.addEventListener('keydown', (e) => {
+      if (document.getElementById('drawer').classList.contains('open')) {
+        if (e.key === 'Escape') closeDrawer();
+        return;
+      }
+      // Don't hijack typing inside form fields (e.g. password input)
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault(); goTo(current + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault(); goTo(current - 1);
+      } else if (e.key === 'Home') {
+        e.preventDefault(); goTo(0);
+      } else if (e.key === 'End') {
+        e.preventDefault(); goTo(pages.length - 1);
+      }
+    }, true);
+
+    // Resize — re-snap
+    window.addEventListener('resize', () => {
+      pagesEl.scrollTo({ left: current * pagesEl.clientWidth });
+      positionRunner();
+    });
+
+    // =========== STAGE DRAWER ===========
+    const stageData = {
+      "1": {
+        title: "Discovery &amp; <em>Data Immersion.</em>",
+        week: "Week 01",
+        summary: "We immerse in Xceptor's own signal first — so the primary research that follows is targeted, not generic.",
+        acts: [
+          "Kick-off workshop with product, sales, and customer success",
+          "CRM + support / success data analysis",
+          "Internal stakeholder interviews (up to 6)",
+          "Signal map: which products warrant the deepest investigation"
+        ],
+        outs: [
+          "Research framework + interview guide — signed off",
+          "Product prioritisation memo for primary research focus"
+        ]
+      },
+      "2": {
+        title: "Client <em>Research Sprint.</em>",
+        week: "Weeks 02–03",
+        summary: "12–15 interviews plus structured observation — we see how clients actually use the suite, not just how they describe it.",
+        acts: [
+          "12–15 semi-structured client interviews",
+          "Structured observation / facilitated walkthroughs",
+          "Parallel secondary + competitive research kicks off",
+          "Mid-sprint check-in at end of Week 02"
+        ],
+        outs: [
+          "Interview corpus + behavioural observation notes",
+          "Early theme register"
+        ]
+      },
+      "3": {
+        title: "Synthesis &amp; <em>Insight.</em>",
+        week: "Week 04",
+        summary: "From evidence to insight — theme-first, distinguishing stated needs from latent ones.",
+        acts: [
+          "Thematic synthesis across primary + secondary inputs",
+          "Draft Client Insight Synthesis",
+          "First cut of Strategic Opportunity Map",
+          "Mid-point review with Xceptor"
+        ],
+        outs: [
+          "Client Insight Synthesis — working draft",
+          "Strategic Opportunity Map — working draft"
+        ]
+      },
+      "4": {
+        title: "Competitive <em>Integration.</em>",
+        week: "Weeks 03–05 · parallel",
+        summary: "Competitive reality check. Where to defend, where to differentiate, where to double down.",
+        acts: [
+          "Competitive + market landscape analysis finalised",
+          "Opportunity map stress-tested against competitive position",
+          "ARR narrative drafted for each priority"
+        ],
+        outs: [
+          "Competitive + Market Landscape Analysis",
+          "Roadmap Implications — draft with ARR linkage"
+        ]
+      },
+      "5": {
+        title: "Strategy &amp; <em>Readout.</em>",
+        week: "Week 06",
+        summary: "A 60-minute readout built to drive decisions — not to summarise findings.",
+        acts: [
+          "Finalise all deliverables",
+          "Rehearse readout with internal sponsor",
+          "Deliver 60-minute stakeholder readout",
+          "Hand-over pack for product + GTM teams"
+        ],
+        outs: [
+          "Stakeholder Readout Deck",
+          "Final Insight Synthesis + Opportunity Map + Roadmap Implications"
+        ]
+      }
+    };
+
+    const drawer = document.getElementById('drawer');
+    const scrim = document.getElementById('scrim');
+    function openDrawer(id) {
+      const d = stageData[id]; if (!d) return;
+      document.getElementById('dNum').textContent = `Stage / ${String(id).padStart(2, '0')}`;
+      document.getElementById('dWeek').textContent = d.week;
+      document.getElementById('dTitle').innerHTML = d.title;
+      document.getElementById('dSummary').textContent = d.summary;
+      document.getElementById('dActs').innerHTML = d.acts.map(a => `<li>${a}</li>`).join('');
+      document.getElementById('dOuts').innerHTML = d.outs.map(a => `<li>${a}</li>`).join('');
+      drawer.classList.add('open');
+      scrim.classList.add('open');
+      drawer.setAttribute('aria-hidden', 'false');
+    }
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      scrim.classList.remove('open');
+      drawer.setAttribute('aria-hidden', 'true');
+    }
+    document.querySelectorAll('.stage').forEach(s => s.addEventListener('click', () => openDrawer(s.dataset.stage)));
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    scrim.addEventListener('click', closeDrawer);
+  </script>
+</body>
+
+</html>
